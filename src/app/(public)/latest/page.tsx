@@ -7,7 +7,7 @@ export default function LatestEditionPage() {
   const edition = PLACEHOLDER_LATEST_EDITION;
 
   return (
-    <div className="space-y-10 py-6 sm:py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="space-y-10 py-6 sm:py-8 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
       {/* Breadcrumb & Navigation */}
       <div className="flex items-center gap-2 text-xs text-[#5A6A85]">
         <Link href="/" className="hover:text-[#C62828] transition-colors">

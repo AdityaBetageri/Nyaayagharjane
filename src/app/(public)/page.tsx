@@ -34,7 +34,7 @@ export default function HomePage() {
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/10 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28">
+        <div className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-16 sm:py-24 lg:py-28">
           <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
             {/* Top Brand Pill */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[#FF8A80] text-xs sm:text-sm font-semibold backdrop-blur-xs">
@@ -92,7 +92,7 @@ export default function HomePage() {
       {/* =========================================================
           2. INTRODUCTION SECTION
           ========================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sm:p-10 lg:p-14 shadow-xs relative overflow-hidden">
           {/* Subtle side accent bar */}
           <div className="absolute top-0 left-0 w-2 h-full bg-[#C62828]" />
@@ -124,7 +124,7 @@ export default function HomePage() {
       {/* =========================================================
           3. OUR PURPOSE SECTION ("ನಮ್ಮ ಉದ್ದೇಶ ಮತ್ತು ಬದ್ಧತೆ")
           ========================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <section className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-[#172B4D] text-xs font-bold border border-blue-200">
             <span>ಧ್ಯೇಯ & ಮೌಲ್ಯಗಳು</span>
@@ -220,7 +220,7 @@ export default function HomePage() {
       {/* =========================================================
           4. DIGITAL NEWSPAPER EXPERIENCE
           ========================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <section className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 space-y-8">
         <div className="border-b border-[#E2E8F0] pb-6">
           <div className="flex items-center gap-2.5">
             <div className="w-2.5 h-7 bg-[#C62828] rounded-full shrink-0"></div>
@@ -279,7 +279,7 @@ export default function HomePage() {
       {/* =========================================================
           5. ARCHIVE INTRODUCTION ("ಹಿಂದಿನ ಸಂಚಿಕೆಗಳ ನೆನಪು")
           ========================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#E2E8F0] pb-4">
           <div>
             <div className="flex items-center gap-2.5">
@@ -313,7 +313,7 @@ export default function HomePage() {
       {/* =========================================================
           6. FINAL CALL TO ACTION
           ========================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="bg-[#172B4D] text-white rounded-2xl p-8 sm:p-12 lg:p-16 text-center space-y-6 shadow-lg relative overflow-hidden">
           {/* Subtle Accent Glow */}
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-red-600/15 blur-3xl pointer-events-none" />

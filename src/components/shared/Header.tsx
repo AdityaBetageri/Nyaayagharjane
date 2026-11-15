@@ -27,7 +27,7 @@ export default function Header() {
     <header className="w-full bg-[#FFFFFF] border-b border-[#E2E8F0] sticky top-0 z-40 shadow-xs">
       {/* Top Dateline & Utility Bar */}
       <div className="w-full bg-[#172B4D] text-white text-xs py-1.5 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="w-full max-w-[1920px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="w-3.5 h-3.5 text-[#C62828]" />
             <span className="font-medium">ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
@@ -48,121 +48,144 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Main Newspaper Masthead (Title in Dead Center for ALL Views, Nav Button on Left for ALL Views) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5">
-        <div className="relative flex items-center justify-center min-h-[52px]">
-          {/* Navigation Button - VISIBLE FOR ALL VIEWS */}
-          <div className="absolute left-0 flex items-center">
-            <button
-              type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[#172B4D] hover:bg-neutral-100 transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
-              aria-expanded={menuOpen}
-              aria-label="Toggle navigation menu"
-            >
-              {menuOpen ? (
-                <X className="w-6 h-6 text-[#C62828]" />
-              ) : (
-                <Menu className="w-6 h-6 text-[#172B4D]" />
-              )}
-              <span className="hidden sm:inline-block text-xs font-bold uppercase tracking-wider text-[#172B4D]">
-                ಮೆನು
-              </span>
-            </button>
-          </div>
-
-          {/* Centered Newspaper Brand Title - CENTERED FOR ALL VIEWS */}
+      {/* =========================================================
+          DESKTOP UNIFIED NAVBAR (lg: and above) - Single Clean Bar
+          ========================================================= */}
+      <div className="hidden lg:block w-full bg-[#FFFFFF]">
+        <div className="w-full max-w-[1920px] mx-auto px-6 xl:px-12 2xl:px-16 h-20 flex items-center justify-between">
+          {/* 1. Left: Brand Title */}
           <Link
             href="/"
-            className="group flex flex-col items-center justify-center text-center mx-auto"
+            className="group flex flex-col justify-center shrink-0 pr-6"
           >
-            <div className="flex items-baseline justify-center gap-2">
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#172B4D] font-serif">
-                ನ್ಯಾಯಘರ್ಜನೆ
-              </span>
-              <span className="hidden sm:inline-block text-xs sm:text-sm font-bold tracking-widest text-[#C62828] uppercase">
-                NYAAYAGHARJANE
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm font-medium text-[#C62828] mt-0.5 sm:mt-1 flex items-center justify-center gap-1.5">
+            <span className="text-2xl xl:text-3xl font-black tracking-tight text-[#172B4D] font-serif leading-none">
+              ನ್ಯಾಯಘರ್ಜನೆ
+            </span>
+            <p className="text-[11px] font-medium text-[#C62828] mt-2 flex items-center gap-1.5">
               <span>ಸತ್ಯದ ಧ್ವನಿ</span>
               <span className="text-neutral-400">•</span>
               <span>ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
             </p>
           </Link>
 
-          {/* Quick Action Button on Right (Desktop & Tablet) */}
-          <div className="absolute right-0 hidden sm:flex items-center gap-2">
+          {/* 2. Center: Navigation Items */}
+          <nav className="flex items-center gap-1 xl:gap-2">
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3.5 xl:px-5 py-2 text-sm font-semibold rounded-md transition-colors ${
+                    isActive
+                      ? "bg-red-50 text-[#C62828] font-bold shadow-2xs"
+                      : "text-[#172B4D] hover:text-[#C62828] hover:bg-neutral-100/70"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* 3. Right: CTA Button */}
+          <div className="shrink-0 pl-6">
             <Link
               href="/latest"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-semibold rounded-md shadow-xs transition-all hover:shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold rounded-lg shadow-xs hover:shadow-md transition-all"
             >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ</span>
+              <BookOpen className="w-4 h-4" />
+              <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Navigation Drawer - Opens for ALL views when Navigation Button is clicked */}
-      {menuOpen && (
-        <div className="border-t border-[#E2E8F0] border-b border-[#E2E8F0] bg-[#F8F9FA] shadow-md animate-in slide-in-from-top-2 duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            {/* Desktop / Tablet horizontal links */}
-            <div className="hidden sm:flex flex-wrap items-center justify-center gap-2 lg:gap-4">
-              {NAV_ITEMS.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      isActive
-                        ? "bg-white text-[#C62828] shadow-xs font-bold"
-                        : "text-[#172B4D] hover:text-[#C62828] hover:bg-white/80"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
+      {/* =========================================================
+          MOBILE / TABLET NAVBAR & DRAWER (< lg)
+          Uses native disclosure for 100% reliable click & touch
+          ========================================================= */}
+      <details
+        open={menuOpen}
+        onToggle={(e) => setMenuOpen(e.currentTarget.open)}
+        className="lg:hidden w-full group/details relative"
+      >
+        <summary className="list-none [&::-webkit-details-marker]:hidden w-full bg-[#FFFFFF] px-4 sm:px-6 py-3 select-none pointer-events-none">
+          <div className="relative flex items-center justify-between min-h-[48px]">
+            {/* Hamburger / Close Button on Left */}
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Toggle navigation menu"
+              className="relative z-30 p-2 rounded-lg text-[#172B4D] hover:bg-neutral-100 transition-colors cursor-pointer pointer-events-auto focus:outline-hidden focus:ring-2 focus:ring-[#C62828] flex items-center justify-center"
+            >
+              <Menu className="w-6 h-6 text-[#172B4D] group-open/details:hidden block pointer-events-none" />
+              <X className="w-6 h-6 text-[#C62828] group-open/details:block hidden pointer-events-none" />
             </div>
 
-            {/* Mobile vertical links */}
-            <div className="sm:hidden space-y-1">
-              {NAV_ITEMS.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-md text-base font-medium ${
-                      isActive
-                        ? "bg-red-50 text-[#C62828] font-bold"
-                        : "text-[#172B4D] hover:bg-neutral-100"
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    <ChevronRight className="w-4 h-4 text-neutral-400" />
-                  </Link>
-                );
-              })}
-              <div className="pt-2">
-                <Link
-                  href="/latest"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#C62828] text-white rounded-md font-semibold text-sm shadow-xs"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
-                </Link>
-              </div>
+            {/* Brand Title (Centered in mobile view) */}
+            <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center text-center z-10 pointer-events-auto">
+              <Link
+                href="/"
+                onClick={(e) => e.stopPropagation()}
+                className="text-2xl sm:text-3xl font-black tracking-tight text-[#172B4D] font-serif leading-none"
+              >
+                ನ್ಯಾಯಘರ್ಜನೆ
+              </Link>
+              <p className="text-[10px] sm:text-xs font-medium text-[#C62828] mt-1.5 flex items-center gap-1">
+                <span>ಸತ್ಯದ ಧ್ವನಿ</span>
+                <span>•</span>
+                <span>ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
+              </p>
+            </div>
+
+            {/* Right Action Button on Mobile/Tablet */}
+            <div className="relative z-20 pointer-events-auto">
+              <Link
+                href="/latest"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-semibold rounded-md shadow-xs transition-all"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ</span>
+              </Link>
             </div>
           </div>
+        </summary>
+
+        {/* Mobile / Tablet Navigation Drawer */}
+        <div className="w-full border-t border-[#E2E8F0] bg-white shadow-lg px-4 py-3 space-y-1">
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                  isActive
+                    ? "bg-red-50 text-[#C62828]"
+                    : "text-[#172B4D] hover:bg-neutral-100 active:bg-neutral-200"
+                }`}
+              >
+                <span>{item.label}</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </Link>
+            );
+          })}
+
+          <div className="pt-3 pb-1">
+            <Link
+              href="/latest"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-center gap-2 w-full py-3 bg-[#C62828] hover:bg-[#B71C1C] text-white rounded-lg font-bold text-sm shadow-xs transition-colors"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
+            </Link>
+          </div>
         </div>
-      )}
+      </details>
     </header>
   );
 }

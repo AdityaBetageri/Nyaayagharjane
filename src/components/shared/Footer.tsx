@@ -5,19 +5,16 @@ export default function Footer() {
   return (
     <footer className="w-full bg-[#172B4D] text-white border-t-4 border-[#C62828] mt-auto">
       {/* Upper Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-10 lg:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Column */}
           <div className="space-y-4">
             <div className="flex flex-col">
-              <span className="text-3xl font-black tracking-tight text-white font-serif">
+              <span className="text-3xl font-black tracking-tight text-white font-serif leading-none">
                 ನ್ಯಾಯಘರ್ಜನೆ
               </span>
-              <span className="text-xs font-semibold tracking-widest text-[#FF8A80] uppercase">
-                NYAAYAGHARJANE
-              </span>
             </div>
-            <p className="text-sm font-medium text-[#FF8A80]">
+            <p className="text-sm font-medium text-[#FF8A80] mt-2">
               ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
             </p>
             <p className="text-xs text-neutral-300 leading-relaxed">
@@ -113,10 +110,10 @@ export default function Footer() {
       </div>
 
       {/* Lower Footer */}
-      <div className="border-t border-neutral-800 bg-[#0F1C33] text-neutral-400 text-xs py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <div className="border-t border-neutral-800 bg-[#0F1C33] text-neutral-400 text-xs py-4 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+        <div className="w-full max-w-[1920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
           <p>
-            © 2026 ನ್ಯಾಯಘರ್ಜನೆ (NYAAYAGHARJANE). ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.
+            © 2026 ನ್ಯಾಯಘರ್ಜನೆ. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.
           </p>
           <p className="text-[11px] text-neutral-400">
             ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ — ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ

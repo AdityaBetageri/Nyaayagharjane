@@ -37,12 +37,9 @@ export default function LatestEditionHero({
 
             {/* Newspaper Front Page Masthead Simulation */}
             <div className="text-center pt-2 border-b-2 border-stone-400 pb-2.5">
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#172B4D] tracking-tight font-serif">
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#172B4D] tracking-tight font-serif pb-1">
                 ನ್ಯಾಯಘರ್ಜನೆ
               </h3>
-              <p className="text-[10px] sm:text-[11px] font-bold tracking-widest text-[#C62828] uppercase">
-                NYAAYAGHARJANE
-              </p>
               <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-stone-600 mt-2 pt-1 border-t border-stone-300">
                 <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
                 <span className="font-semibold text-stone-900">{edition.formattedDate}</span>

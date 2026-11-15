@@ -26,13 +26,10 @@ export default function EditionCard({ edition, isPlaceholder = true }: EditionCa
 
         {/* Newspaper Cover Mock Header */}
         <div className="text-center pt-1">
-          <div className="border-b border-neutral-300 pb-1.5">
+          <div className="border-b border-neutral-300 pb-2">
             <h4 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight font-serif">
               ನ್ಯಾಯಘರ್ಜನೆ
             </h4>
-            <p className="text-[9px] sm:text-[10px] font-bold tracking-widest text-[#C62828] uppercase">
-              NYAAYAGHARJANE
-            </p>
           </div>
           <div className="flex items-center justify-between text-[10px] text-neutral-500 py-1 border-b border-neutral-300">
             <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
