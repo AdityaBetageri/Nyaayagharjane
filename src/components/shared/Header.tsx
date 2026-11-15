@@ -40,9 +40,9 @@ export default function Header() {
             </span>
             <Link
               href="/admin/login"
-              className="text-neutral-300 hover:text-white transition-colors text-[11px] underline underline-offset-2"
+              className="inline-flex items-center gap-1.5 text-neutral-200 hover:text-white transition-colors text-[11px] bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded border border-white/10"
             >
-              ನಿರ್ವಾಹಕರ ವಿಭಾಗ
+              <span>ನಿರ್ವಾಹಕರ ವಿಭಾಗ (Admin)</span>
             </Link>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function Header() {
             );
           })}
 
-          <div className="pt-3 pb-1">
+          <div className="pt-3 pb-1 space-y-2">
             <Link
               href="/latest"
               onClick={() => setMenuOpen(false)}
@@ -182,6 +182,14 @@ export default function Header() {
             >
               <BookOpen className="w-4 h-4" />
               <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
+            </Link>
+
+            <Link
+              href="/admin/login"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center justify-center gap-1.5 w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg text-xs font-semibold transition-colors border border-neutral-200"
+            >
+              <span>ನಿರ್ವಾಹಕರ ವಿಭಾಗ (Admin Portal)</span>
             </Link>
           </div>
         </div>

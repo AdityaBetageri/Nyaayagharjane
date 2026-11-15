@@ -53,6 +53,11 @@ export default function Footer() {
                   ಸಂಪರ್ಕಿಸಿ
                 </Link>
               </li>
+              <li className="pt-2 border-t border-neutral-700/60">
+                <Link href="/admin/login" className="text-neutral-400 hover:text-white transition-colors text-xs flex items-center gap-1">
+                  <span>ನಿರ್ವಾಹಕರ ಪ್ರವೇಶ (Admin Login)</span>
+                </Link>
+              </li>
             </ul>
           </div>
 

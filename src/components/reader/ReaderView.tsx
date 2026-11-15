@@ -17,16 +17,27 @@ import {
   Info,
 } from "lucide-react";
 import { Edition } from "@/types";
+import { getStoredEditions } from "@/lib/editionsStore";
 
 interface ReaderViewProps {
   edition: Edition;
 }
 
-export default function ReaderView({ edition }: ReaderViewProps) {
+export default function ReaderView({ edition: initialEdition }: ReaderViewProps) {
+  const [edition, setEdition] = useState<Edition>(initialEdition);
   const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const readerContainerRef = useRef<HTMLDivElement>(null);
+
+  // Sync with stored editions if available on client
+  useEffect(() => {
+    const stored = getStoredEditions();
+    const found = stored.find((e) => e.id === initialEdition.id);
+    if (found) {
+      setEdition(found);
+    }
+  }, [initialEdition.id]);
 
   const totalPages = edition.totalPages || 16;
 

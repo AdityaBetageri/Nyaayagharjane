@@ -1,23 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Search, AlertCircle } from "lucide-react";
 import { Edition } from "@/types";
 import EditionCard from "@/components/shared/EditionCard";
 import EmptyState from "@/components/shared/EmptyState";
+import { getStoredEditions } from "@/lib/editionsStore";
 
 interface ArchivesViewProps {
   initialEditions: Edition[];
 }
 
 export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
+  const [editions, setEditions] = useState<Edition[]>(initialEditions);
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    setEditions(getStoredEditions());
+  }, []);
+
   const availableYears = [2026, 2025, 2024];
 
-  // Filter editions by year and optional month search
-  const filteredEditions = initialEditions.filter((edition) => {
+  // Filter editions by year, published status and search
+  const filteredEditions = editions.filter((edition) => {
+    if (edition.isPublished === false) return false;
     const matchesYear = edition.editionYear === selectedYear;
     const matchesSearch =
       searchQuery.trim() === "" ||
