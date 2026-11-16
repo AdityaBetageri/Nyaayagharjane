@@ -1,3 +1,5 @@
+export * from "./r2";
+
 export interface Edition {
   id: string;
   title: string;
@@ -14,6 +16,9 @@ export interface Edition {
   isPublished: boolean;
   publishedAt?: string;
   description?: string;
+  language?: string;
+  edition?: string;
+  fileName?: string;
 }
 
 export interface NavigationItem {

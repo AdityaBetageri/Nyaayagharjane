@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import ReaderView from "@/components/reader/ReaderView";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
+import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
 import { Edition } from "@/types";
 
 interface ReaderPageProps {
@@ -12,15 +13,31 @@ interface ReaderPageProps {
 async function ReaderContainer({ params }: ReaderPageProps) {
   const { id } = await params;
 
-  // Find corresponding edition or fallback gracefully to placeholder latest edition
-  const allEditions = [PLACEHOLDER_LATEST_EDITION, ...PLACEHOLDER_PREVIOUS_EDITIONS];
-  const foundEdition = allEditions.find((e) => e.id === id);
+  let activeEdition: Edition | null = null;
 
-  const activeEdition: Edition = foundEdition || {
-    ...PLACEHOLDER_LATEST_EDITION,
-    id,
-    title: `ನ್ಯಾಯಘರ್ಜನೆ - ಆವೃತ್ತಿ ${id}`,
-  };
+  // 1. Try to fetch from Cloudflare R2 catalogue
+  try {
+    const r2Result = await fetchR2Catalogue({ bypassCache: false, publishedOnly: false });
+    if (r2Result.success && r2Result.data.length > 0) {
+      const foundR2 = r2Result.data.find((item) => item.id === id);
+      if (foundR2) {
+        activeEdition = r2ItemToEdition(foundR2);
+      }
+    }
+  } catch {
+    // Graceful fallback to static/local
+  }
+
+  // 2. Fallback to placeholder/static editions
+  if (!activeEdition) {
+    const allEditions = [PLACEHOLDER_LATEST_EDITION, ...PLACEHOLDER_PREVIOUS_EDITIONS];
+    const found = allEditions.find((e) => e.id === id);
+    activeEdition = found || {
+      ...PLACEHOLDER_LATEST_EDITION,
+      id,
+      title: `ನ್ಯಾಯಘರ್ಜನೆ - ಆವೃತ್ತಿ ${id}`,
+    };
+  }
 
   return <ReaderView edition={activeEdition} />;
 }

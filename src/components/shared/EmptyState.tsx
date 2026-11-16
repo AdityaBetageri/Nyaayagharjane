@@ -6,6 +6,7 @@ interface EmptyStateProps {
   description?: string;
   actionText?: string;
   actionHref?: string;
+  onAction?: () => void;
 }
 
 export default function EmptyState({
@@ -13,6 +14,7 @@ export default function EmptyState({
   description = "ಪ್ರಸ್ತುತ ಆವೃತ್ತಿಯ ಪತ್ರಿಕೆ ಸಿದ್ಧವಾಗುತ್ತಿದ್ದು, ಶೀಘ್ರದಲ್ಲೇ ಇಲ್ಲಿ ಪ್ರಕಟಿಸಲಾಗುವುದು.",
   actionText,
   actionHref,
+  onAction,
 }: EmptyStateProps) {
   return (
     <div className="w-full max-w-md mx-auto my-12 p-8 bg-white border border-[#E2E8F0] rounded-xl text-center shadow-xs">
@@ -32,6 +34,17 @@ export default function EmptyState({
           <RotateCcw className="w-4 h-4" />
           <span>{actionText}</span>
         </Link>
+      )}
+
+      {!actionHref && onAction && actionText && (
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#172B4D] hover:bg-[#0F1C33] text-white text-sm font-semibold rounded-md transition-colors cursor-pointer"
+        >
+          <RotateCcw className="w-4 h-4" />
+          <span>{actionText}</span>
+        </button>
       )}
     </div>
   );

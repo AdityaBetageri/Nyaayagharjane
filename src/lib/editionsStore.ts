@@ -140,6 +140,14 @@ export function setAdminSession(user: AdminUser): void {
   }
 }
 
+export function updateAdminSession(updates: Partial<AdminUser>): AdminUser | null {
+  const current = getAdminSession();
+  if (!current) return null;
+  const updated: AdminUser = { ...current, ...updates };
+  setAdminSession(updated);
+  return updated;
+}
+
 export function clearAdminSession(): void {
   if (typeof window === "undefined") return;
   try {

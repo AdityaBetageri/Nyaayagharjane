@@ -15,6 +15,8 @@ import {
 import LatestEditionHero from "@/components/public/LatestEditionHero";
 import EditionCard from "@/components/shared/EditionCard";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
+import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { Edition } from "@/types";
 
 export const metadata = {
   title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
@@ -22,7 +24,21 @@ export const metadata = {
     "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಸಮಾಜದ ಬೆಳವಣಿಗೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  let latestEdition: Edition = PLACEHOLDER_LATEST_EDITION;
+  let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
+
+  try {
+    const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
+    if (res.success && res.data.length > 0) {
+      latestEdition = r2ItemToEdition(res.data[0]);
+      if (res.data.length > 1) {
+        previousEditions = res.data.slice(1, 5).map(r2ItemToEdition);
+      }
+    }
+  } catch {
+    // Graceful fallback to placeholders
+  }
   return (
     <div className="space-y-16 sm:space-y-24 pb-16">
       {/* =========================================================
@@ -273,7 +289,7 @@ export default function HomePage() {
         </div>
 
         {/* Reusing existing LatestEditionHero dynamically */}
-        <LatestEditionHero edition={PLACEHOLDER_LATEST_EDITION} />
+        <LatestEditionHero edition={latestEdition} />
       </section>
 
       {/* =========================================================
@@ -304,8 +320,12 @@ export default function HomePage() {
 
         {/* Previous Editions Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PLACEHOLDER_PREVIOUS_EDITIONS.map((edition) => (
-            <EditionCard key={edition.id} edition={edition} isPlaceholder={true} />
+          {previousEditions.map((edition) => (
+            <EditionCard
+              key={edition.id}
+              edition={edition}
+              isPlaceholder={!edition.pdfUrl || !edition.pdfUrl.startsWith("http")}
+            />
           ))}
         </div>
       </section>

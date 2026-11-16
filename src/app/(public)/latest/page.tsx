@@ -2,9 +2,31 @@ import Link from "next/link";
 import LatestEditionHero from "@/components/public/LatestEditionHero";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 import EditionCard from "@/components/shared/EditionCard";
+import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { Edition } from "@/types";
 
-export default function LatestEditionPage() {
-  const edition = PLACEHOLDER_LATEST_EDITION;
+export const metadata = {
+  title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+  description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆ.",
+};
+
+export default async function LatestEditionPage() {
+  let edition: Edition = PLACEHOLDER_LATEST_EDITION;
+  let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
+  let isR2Connected = false;
+
+  try {
+    const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
+    if (res.success && res.data.length > 0) {
+      edition = r2ItemToEdition(res.data[0]);
+      if (res.data.length > 1) {
+        previousEditions = res.data.slice(1, 5).map(r2ItemToEdition);
+      }
+      isR2Connected = true;
+    }
+  } catch {
+    // Graceful fallback to static
+  }
 
   return (
     <div className="space-y-10 py-6 sm:py-8 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
@@ -27,7 +49,8 @@ export default function LatestEditionPage() {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆಯ ಪ್ರಸ್ತುತ ಸಂಚಿಕೆಯ ಮಾಹಿತಿ ಮತ್ತು ಡಿಜಿಟಲ್ ವಾಚಕ (ಮಾದರಿ ಮುನ್ನೋಟ / Preview)
+            ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆಯ ಪ್ರಸ್ತುತ ಸಂಚಿಕೆಯ ಮಾಹಿತಿ ಮತ್ತು ಡಿಜಿಟಲ್ ವಾಚಕ
+            {isR2Connected ? " (Cloudflare R2 ಅಧಿಕೃತ ವಿತರಣೆ)" : " (ಮಾದರಿ ಮುನ್ನೋಟ / Preview)"}
           </p>
         </div>
 
@@ -41,8 +64,14 @@ export default function LatestEditionPage() {
           <h2 className="text-base sm:text-lg font-bold text-[#172B4D]">
             ಈ ಸಂಚಿಕೆಯ ಪ್ರಮುಖ ಮುಖ್ಯಾಂಶಗಳು
           </h2>
-          <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200">
-            ಮಾದರಿ ಮುನ್ನೋಟ
+          <span
+            className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+              isR2Connected
+                ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                : "bg-amber-100 text-amber-800 border-amber-200"
+            }`}
+          >
+            {isR2Connected ? "ಪ್ರಕಟಿತ" : "ಮಾದರಿ ಮುನ್ನೋಟ"}
           </span>
         </div>
 
@@ -60,48 +89,57 @@ export default function LatestEditionPage() {
           </div>
 
           <div className="p-4 bg-[#F8F9FA] rounded-lg border border-[#E2E8F0] space-y-2">
-            <span className="text-xs font-bold text-[#C62828] uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#172B4D] uppercase tracking-wider">
               ಪುಟ ೫ - ೧೦
             </span>
             <h3 className="text-sm font-bold text-[#172B4D]">
-              ವಿಶೇಷ ತನಿಖಾ ವರದಿ & ಸಂಪಾದಕೀಯ
+              ಸಮಾಜ, ಕಾನೂನು ಮತ್ತು ಜನಹಿತ ವರದಿಗಳು
             </h3>
             <p className="text-xs text-[#5A6A85] leading-relaxed">
-              ಜನಸಾಮಾನ್ಯರ ಸಮಸ್ಯೆಗಳ ಮೇಲೆ ಬೆಳಕು ಚೆಲ್ಲುವ ತನಿಖಾ ಲೇಖನಗಳು ಹಾಗೂ ಪ್ರಖರ ವಿಚಾರಧಾರೆಗಳ ಸಂಪಾದಕೀಯ ಪುಟ.
+              ಸಾಮಾನ್ಯ ಜನರ ಹಕ್ಕುಗಳು, ಕಾನೂನು ಜಾಗೃತಿ, ಭ್ರಷ್ಟಾಚಾರ ವಿರೋಧಿ ಹೋರಾಟಗಳು ಮತ್ತು ನಾಗರಿಕ ಸಮಸ್ಯೆಗಳ ಕುರಿತ ವಿಶೇಷ ವರದಿ.
             </p>
           </div>
 
           <div className="p-4 bg-[#F8F9FA] rounded-lg border border-[#E2E8F0] space-y-2">
-            <span className="text-xs font-bold text-[#C62828] uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#5A6A85] uppercase tracking-wider">
               ಪುಟ ೧೧ - ೧೬
             </span>
             <h3 className="text-sm font-bold text-[#172B4D]">
-              ಕೃಷಿ, ಕಲೆ, ಸಾಹಿತ್ಯ & ಜಿಲ್ಲಾ ಸಮಾಚಾರ
+              ಕೃಷಿ, ಪರಿಸರ & ಸಾಹಿತ್ಯ ಅಂಕಣ
             </h3>
             <p className="text-xs text-[#5A6A85] leading-relaxed">
-              ಕರ್ನಾಟಕದ ವಿವಿಧ ಜಿಲ್ಲೆಗಳ ಸ್ಥಳೀಯ ಸಮಾಚಾರ, ಕೃಷಿ ಚಿಂತನೆಗಳು ಮತ್ತು ಯುವ ಬರಹಗಾರರ ಸಾಹಿತ್ಯಿಕ ಅಂಕಣಗಳು.
+              ರೈತರ ಸವಾಲುಗಳು, ಕೃಷಿ ಕ್ಷೇತ್ರದ ನವೀನ ಆವಿಷ್ಕಾರಗಳು, ಪರಿಸರ ಕಾಳಜಿ ಮತ್ತು ಪ್ರಚಲಿತ ಸಾಹಿತ್ಯ ಚಿಂತನೆಗಳ ಸಾರಸಂಗ್ರಹ.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Other Recent Editions */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4">
-          <h2 className="text-xl font-bold text-[#172B4D]">
-            ಇತರ ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಗಳು (ಮಾದರಿಗಳು)
-          </h2>
+      {/* Previous Editions Showcase */}
+      <section className="space-y-6 pt-4">
+        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-[#172B4D]">
+              ಹಿಂದಿನ ಇತರ ಸಂಚಿಕೆಗಳು
+            </h2>
+            <p className="text-xs text-[#5A6A85] mt-1">
+              ನ್ಯಾಯಘರ್ಜನೆಯ ಈ ಹಿಂದಿನ ಆವೃತ್ತಿಗಳನ್ನು ಸಹ ನೀವು ಇಲ್ಲಿ ವೀಕ್ಷಿಸಬಹುದು.
+            </p>
+          </div>
           <Link
             href="/archives"
-            className="text-xs sm:text-sm font-semibold text-[#C62828] hover:underline"
+            className="text-xs sm:text-sm font-bold text-[#C62828] hover:underline"
           >
-            ಸಂಪೂರ್ಣ ಆರ್ಕೈವ್
+            ಎಲ್ಲವನ್ನೂ ನೋಡಿ &rarr;
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PLACEHOLDER_PREVIOUS_EDITIONS.slice(0, 3).map((item) => (
-            <EditionCard key={item.id} edition={item} isPlaceholder={true} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {previousEditions.map((prevEdition) => (
+            <EditionCard
+              key={prevEdition.id}
+              edition={prevEdition}
+              isPlaceholder={!prevEdition.pdfUrl || !prevEdition.pdfUrl.startsWith("http")}
+            />
           ))}
         </div>
       </section>
