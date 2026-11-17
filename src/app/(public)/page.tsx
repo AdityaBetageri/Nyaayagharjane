@@ -18,10 +18,32 @@ import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
 import { Edition } from "@/types";
 
-export const metadata = {
-  title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ (Kannada Monthly E-Paper)",
   description:
-    "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಸಮಾಜದ ಬೆಳವಣಿಗೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
+    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಉಚಿತವಾಗಿ ಓದಿ ಮತ್ತು PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
+  keywords: [
+    "ನ್ಯಾಯಘರ್ಜನೆ",
+    "Nyaayagharjane",
+    "Nyaaya Gharjane",
+    "ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+    "Kannada monthly newspaper",
+    "Kannada epaper online",
+    "ದಕ್ಷಿಣ ಕನ್ನಡ ಪತ್ರಿಕೆ",
+    "ಕರ್ನಾಟಕ ಸುದ್ದಿ",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+    description:
+      "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಸಮಾಜದ ಬೆಳವಣಿಗೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
+    url: "/",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default async function HomePage() {

@@ -50,7 +50,7 @@ interface FormErrors {
 }
 
 export default function AdminUploadPage() {
-  const [r2Url, setR2Url] = useState("");
+  const [r2Url] = useState(() => getR2PublicUrl());
   const [r2Items, setR2Items] = useState<R2NewspaperItem[]>([]);
   const [r2Configured, setR2Configured] = useState<boolean | null>(null);
 
@@ -81,22 +81,14 @@ export default function AdminUploadPage() {
   const [lastUploadedId, setLastUploadedId] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
-  const [publishedDate, setPublishedDate] = useState("2026-11-16");
-  const [lastUpdatedDate, setLastUpdatedDate] = useState("2026-11-16T12:00:00Z");
+  const [publishedDate] = useState("2026-11-16");
+  const [lastUpdatedDate] = useState("2026-11-16T12:00:00Z");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isPausedRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // Async R2 & date fetch
-    Promise.resolve().then(() => {
-      setR2Url(getR2PublicUrl());
-      const today = new Date();
-      setPublishedDate(today.toISOString().split("T")[0]);
-      setLastUpdatedDate(today.toISOString());
-    });
-
     // Fetch catalogue
     fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
       if (res.success && res.data.length > 0) {

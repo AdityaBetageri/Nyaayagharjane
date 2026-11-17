@@ -2,9 +2,28 @@ import Link from "next/link";
 import ArchivesView from "@/components/public/ArchivesView";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 
-export const metadata = {
-  title: "ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು (ಆರ್ಕೈವ್) | ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
-  description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಹಿಂದಿನ ಎಲ್ಲಾ ವರ್ಷವಾರು ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹ ಮತ್ತು ಆರ್ಕೈವ್.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು (Archives) | ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಸಂಗ್ರಹ",
+  description:
+    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಹಿಂದಿನ ಎಲ್ಲಾ ವರ್ಷವಾರು ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹ ಮತ್ತು ಆರ್ಕೈವ್. ಎಲ್ಲಾ ತಿಂಗಳ ಪತ್ರಿಕೆಗಳನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ ಮತ್ತು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
+  keywords: [
+    "ನ್ಯಾಯಘರ್ಜನೆ ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು",
+    "Nyaayagharjane archives",
+    "Nyaayagharjane old editions",
+    "Kannada newspaper archive",
+    "ಕನ್ನಡ ಪತ್ರಿಕೆ ಆರ್ಕೈವ್",
+  ],
+  alternates: {
+    canonical: "/archives",
+  },
+  openGraph: {
+    title: "ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು (ಆರ್ಕೈವ್) | ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+    description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಹಿಂದಿನ ಎಲ್ಲಾ ವರ್ಷವಾರು ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹ.",
+    url: "/archives",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function ArchivesPage() {

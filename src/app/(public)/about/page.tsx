@@ -1,9 +1,28 @@
 import Link from "next/link";
 import { Shield, BookOpen, HeartHandshake, Award } from "lucide-react";
 
-export const metadata = {
-  title: "ನಮ್ಮ ಬಗ್ಗೆ | ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
-  description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಪರಿಚಯ, ಧ್ಯೇಯೋದ್ದೇಶ ಮತ್ತು ಸಂಪಾದಕೀಯ ಮೌಲ್ಯಗಳು.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ನಮ್ಮ ಬಗ್ಗೆ (About Us) | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+  description:
+    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಪರಿಚಯ, ಧ್ಯೇಯೋದ್ದೇಶ, ಸಂಪಾದಕೀಯ ಮೌಲ್ಯಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ಪತ್ರಿಕೋದ್ಯಮ ಬದ್ಧತೆ. ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ.",
+  keywords: [
+    "ನ್ಯಾಯಘರ್ಜನೆ ನಮ್ಮ ಬಗ್ಗೆ",
+    "About Nyaayagharjane",
+    "Nyaayagharjane history",
+    "Kannada journalism Karnataka",
+    "ನ್ಯಾಯಘರ್ಜನೆ ಸಂಪಾದಕೀಯ",
+  ],
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "ನಮ್ಮ ಬಗ್ಗೆ | ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+    description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಪರಿಚಯ, ಧ್ಯೇಯೋದ್ದೇಶ ಮತ್ತು ಸಂಪಾದಕೀಯ ಮೌಲ್ಯಗಳು.",
+    url: "/about",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function AboutPage() {

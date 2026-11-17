@@ -1,21 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+export const instant = false;
+
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   FileText,
   Upload,
   BookOpen,
-  Calendar,
   CheckCircle2,
   AlertCircle,
   FolderTree,
   Globe,
   ArrowRight,
-  Plus,
   RefreshCw,
-  ExternalLink,
-  ShieldCheck,
 } from "lucide-react";
 import { getStoredEditions } from "@/lib/editionsStore";
 import {
@@ -26,13 +24,12 @@ import {
 import { Edition } from "@/types";
 
 export default function AdminDashboardOverviewPage() {
-  const [editions, setEditions] = useState<Edition[]>([]);
+  const [editions, setEditions] = useState<Edition[]>(() => getStoredEditions());
   const [isR2Loaded, setIsR2Loaded] = useState(false);
-  const [r2Url, setR2Url] = useState("");
+  const [r2Url, setR2Url] = useState(() => getR2PublicUrl());
 
-  const loadData = () => {
-    const publicUrl = getR2PublicUrl();
-    setR2Url(publicUrl);
+  const refreshCatalogue = useCallback(() => {
+    setR2Url(getR2PublicUrl());
     setEditions(getStoredEditions());
 
     fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
@@ -41,10 +38,15 @@ export default function AdminDashboardOverviewPage() {
         setEditions(res.data.map(r2ItemToEdition));
       }
     });
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
+    fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
+      if (res.success && res.data.length > 0) {
+        setIsR2Loaded(true);
+        setEditions(res.data.map(r2ItemToEdition));
+      }
+    });
   }, []);
 
   const totalEditions = editions.length;
@@ -91,7 +93,7 @@ export default function AdminDashboardOverviewPage() {
 
           <button
             type="button"
-            onClick={loadData}
+            onClick={refreshCatalogue}
             title="ದತ್ತಾಂಶ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
             className="p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-xl border border-neutral-200 transition-colors cursor-pointer"
           >

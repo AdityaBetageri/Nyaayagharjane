@@ -5,9 +5,29 @@ import EditionCard from "@/components/shared/EditionCard";
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
 import { Edition } from "@/types";
 
-export const metadata = {
-  title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
-  description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆ.",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ (Latest Edition) | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+  description:
+    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಯನ್ನು ನೇರವಾಗಿ ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ ಮತ್ತು ಪೂರ್ಣ PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿಕೊಳ್ಳಿ. ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ.",
+  keywords: [
+    "ನ್ಯಾಯಘರ್ಜನೆ ಇತ್ತೀಚಿನ ಸಂಚಿಕೆ",
+    "Nyaayagharjane latest edition",
+    "Nyaayagharjane epaper download",
+    "Kannada monthly paper latest",
+    "ಇಂದಿನ ಪತ್ರಿಕೆ",
+    "ನ್ಯಾಯಘರ್ಜನೆ ಪಿಡಿಎಫ್",
+  ],
+  alternates: {
+    canonical: "/latest",
+  },
+  openGraph: {
+    title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+    description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆ.",
+    url: "/latest",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default async function LatestEditionPage() {

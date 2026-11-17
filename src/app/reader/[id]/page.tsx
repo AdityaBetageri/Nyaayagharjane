@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import ReaderView from "@/components/reader/ReaderView";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
 import { Edition } from "@/types";
+import { getSiteUrl, SITE_CONFIG, generateEditionSchema } from "@/lib/siteConfig";
 
 interface ReaderPageProps {
   params: Promise<{
@@ -10,36 +12,90 @@ interface ReaderPageProps {
   }>;
 }
 
-async function ReaderContainer({ params }: ReaderPageProps) {
-  const { id } = await params;
-
-  let activeEdition: Edition | null = null;
-
-  // 1. Try to fetch from Cloudflare R2 catalogue
+async function getEdition(id: string): Promise<Edition> {
   try {
     const r2Result = await fetchR2Catalogue({ bypassCache: false, publishedOnly: false });
     if (r2Result.success && r2Result.data.length > 0) {
       const foundR2 = r2Result.data.find((item) => item.id === id);
       if (foundR2) {
-        activeEdition = r2ItemToEdition(foundR2);
+        return r2ItemToEdition(foundR2);
       }
     }
   } catch {
-    // Graceful fallback to static/local
+    // fallback
   }
 
-  // 2. Fallback to placeholder/static editions
-  if (!activeEdition) {
-    const allEditions = [PLACEHOLDER_LATEST_EDITION, ...PLACEHOLDER_PREVIOUS_EDITIONS];
-    const found = allEditions.find((e) => e.id === id);
-    activeEdition = found || {
-      ...PLACEHOLDER_LATEST_EDITION,
-      id,
-      title: `ನ್ಯಾಯಘರ್ಜನೆ - ಆವೃತ್ತಿ ${id}`,
-    };
-  }
+  const allEditions = [PLACEHOLDER_LATEST_EDITION, ...PLACEHOLDER_PREVIOUS_EDITIONS];
+  const found = allEditions.find((e) => e.id === id);
+  return found || {
+    ...PLACEHOLDER_LATEST_EDITION,
+    id,
+    title: `ನ್ಯಾಯಘರ್ಜನೆ - ಆವೃತ್ತಿ ${id}`,
+  };
+}
 
-  return <ReaderView edition={activeEdition} />;
+export async function generateMetadata({ params }: ReaderPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const edition = await getEdition(id);
+  const siteUrl = getSiteUrl();
+
+  const title = `${edition.title} | ${SITE_CONFIG.name} (${SITE_CONFIG.nameEn})`;
+  const description = `${edition.title} - ${edition.description || SITE_CONFIG.description}. ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.`;
+
+  return {
+    title,
+    description,
+    keywords: [
+      edition.title,
+      "ನ್ಯಾಯಘರ್ಜನೆ",
+      "ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+      "Nyaayagharjane",
+      "Kannada epaper reader",
+      "ಕನ್ನಡ ಪತ್ರಿಕೆ ವಾಚಕ",
+      edition.edition || "ರಾಜ್ಯ ಆವೃತ್ತಿ",
+    ],
+    alternates: {
+      canonical: `/reader/${id}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/reader/${id}`,
+      siteName: SITE_CONFIG.name,
+      locale: "kn_IN",
+      type: "article",
+      images: [
+        {
+          url: `${siteUrl}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: edition.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`${siteUrl}/opengraph-image`],
+    },
+  };
+}
+
+async function ReaderContainer({ params }: ReaderPageProps) {
+  const { id } = await params;
+  const activeEdition = await getEdition(id);
+  const jsonLd = generateEditionSchema(activeEdition);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ReaderView edition={activeEdition} />
+    </>
+  );
 }
 
 export default function ReaderPage(props: ReaderPageProps) {
