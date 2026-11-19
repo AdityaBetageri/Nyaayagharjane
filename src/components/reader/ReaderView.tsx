@@ -290,7 +290,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
                     ಪಿಡಿಎಫ್ ಫೈಲ್ ಲೋಡ್ ಆಗುತ್ತಿಲ್ಲ
                   </h3>
                   <p className="text-xs text-neutral-400 leading-relaxed">
-                    Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ ಅಥವಾ ಫೈಲ್ ವಿಳಾಸವನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ.
+                    Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್(public domain) ಅಥವಾ ಫೈಲ್ ವಿಳಾಸವನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ.
                   </p>
                 </div>
                 <div className="bg-neutral-950 p-2.5 rounded-md text-[11px] font-mono text-neutral-400 break-all border border-neutral-800">
