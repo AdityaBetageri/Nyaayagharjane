@@ -1,493 +1,274 @@
 import Link from "next/link";
 import {
-  Scale,
+  BookOpen,
+  ArrowRight,
+  Shield,
   Users,
   Lightbulb,
   CheckCircle2,
-  BookOpen,
-  ArrowRight,
-  Archive,
-  Download,
-  Sparkles,
-  ChevronRight,
   Newspaper,
-  FileText,
+  Archive,
+  Sparkles,
+  Quote,
 } from "lucide-react";
-import LatestEditionHero from "@/components/public/LatestEditionHero";
-import EditionCard from "@/components/shared/EditionCard";
-import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
-import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
-import { Edition } from "@/types";
+import EditorPhoto from "@/components/public/EditorPhoto";
 
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ (Kannada Monthly E-Paper)",
+  title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
   description:
-    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಉಚಿತವಾಗಿ ಓದಿ ಮತ್ತು PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
+    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.",
   keywords: [
     "ನ್ಯಾಯಘರ್ಜನೆ",
     "Nyaayagharjane",
-    "Nyaaya Gharjane",
     "ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
     "Kannada monthly newspaper",
-    "Kannada epaper online",
-    "ದಕ್ಷಿಣ ಕನ್ನಡ ಪತ್ರಿಕೆ",
+    "Kannada epaper",
+    "ಸತ್ಯದ ಧ್ವನಿ",
+    "ನ್ಯಾಯದ ಘರ್ಜನೆ",
     "ಕರ್ನಾಟಕ ಸುದ್ದಿ",
   ],
   alternates: { canonical: "/" },
   openGraph: {
     title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
     description:
-      "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಸಮಾಜದ ಬೆಳವಣಿಗೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
+      "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
     url: "/",
     images: ["/opengraph-image"],
   },
 };
 
-export default async function HomePage() {
-  let latestEdition: Edition = PLACEHOLDER_LATEST_EDITION;
-  let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
-
-  try {
-    const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
-    if (res.success && res.data.length > 0) {
-      latestEdition = r2ItemToEdition(res.data[0]);
-      if (res.data.length > 1) {
-        previousEditions = res.data.slice(1, 5).map(r2ItemToEdition);
-      }
-    }
-  } catch {
-    // Graceful fallback to placeholders
-  }
-
-  const hasDirectPdf = !!latestEdition.pdfUrl && latestEdition.pdfUrl.startsWith("http");
-
+export default function HomePage() {
   return (
-    <div className="pb-16">
-
+    <div className="space-y-12 sm:space-y-16 pb-16">
       {/* ═══════════════════════════════════════════════════════
-          SECTION 1 — HERO (Two-Column Editorial Layout)
+          1. HERO SECTION — Clean, Mobile-First Welcome Card
           ═══════════════════════════════════════════════════════ */}
       <section className="relative bg-[#172B4D] text-white overflow-hidden border-b-4 border-[#C62828]">
-        {/* Subtle dot-grid background */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
-        {/* Ambient glows */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#C62828]/10 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-blue-500/8 blur-3xl pointer-events-none" />
+        {/* Subtle dot pattern and glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+        <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-[#C62828]/15 blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-
-            {/* ── LEFT: Text Content ── */}
-            <div className="space-y-6 order-2 lg:order-1">
-              {/* Brand pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[#FF8A80] text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
-              </div>
-
-              {/* Headings */}
-              <div className="space-y-2">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight font-serif">
-                  &ldquo;ಸಮಾಜದ ಧ್ವನಿಗೆ&nbsp;
-                  <br className="hidden sm:block" />
-                  ಅಕ್ಷರಗಳ ರೂಪ...&rdquo;
-                </h1>
-                <p className="text-lg sm:text-xl font-bold text-[#FF8A80]">
-                  ನ್ಯಾಯದ ಪರವಾಗಿ, ಸತ್ಯದ ಹಾದಿಯಲ್ಲಿ!
-                </p>
-              </div>
-
-              {/* Description */}
-              <p className="text-sm sm:text-base text-neutral-300 leading-relaxed max-w-lg">
-                ಜನರ ಸಮಸ್ಯೆಗಳು, ಸಮಾಜದ ಬೆಳವಣಿಗೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/latest"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#C62828] hover:bg-[#B71C1C] text-white text-sm font-bold rounded-lg shadow-md hover:shadow-lg transition-all"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ
-                </Link>
-                <Link
-                  href="/archives"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/25 text-sm font-semibold rounded-lg transition-all"
-                >
-                  <Archive className="w-4 h-4 text-neutral-300" />
-                  ಹಿಂದಿನ ಸಂಚಿಕೆಗಳನ್ನು ನೋಡಿ
-                </Link>
-              </div>
-
-              {/* Quick feature pills */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                {[
-                  "ಪ್ರತಿ ತಿಂಗಳು ಹೊಸ ಸಂಚಿಕೆ",
-                  "ಡಿಜಿಟಲ್ ಫ್ಲಿಪ್‌ಬುಕ್",
-                  "PDF ಡೌನ್‌ಲೋಡ್",
-                ].map((f) => (
-                  <span
-                    key={f}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/8 border border-white/15 text-[11px] text-neutral-300"
-                  >
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                    {f}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* ── RIGHT: Newspaper Cover Preview ── */}
-            <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-xs sm:max-w-sm">
-                {/* Shadow layers for depth */}
-                <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-xl bg-black/25 blur-sm" />
-                <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-xl bg-[#C62828]/20" />
-
-                {/* Cover card */}
-                <div className="relative bg-gradient-to-b from-stone-50 to-stone-100 rounded-xl border-2 border-stone-300 shadow-2xl overflow-hidden aspect-[1/1.41] flex flex-col">
-                  {/* Status badge */}
-                  <div className="absolute top-3 right-3 z-10">
-                    {hasDirectPdf ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-700 text-white shadow-sm">
-                        <CheckCircle2 className="w-3 h-3" />
-                        ಪ್ರಕಟಿತ ಆವೃತ್ತಿ
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#C62828] text-white shadow-sm">
-                        <Sparkles className="w-3 h-3" />
-                        ಮಾದರಿ ಮುನ್ನೋಟ
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Masthead */}
-                  <div className="px-4 pt-4 pb-3 border-b-2 border-stone-300 text-center bg-white">
-                    <h3 className="text-2xl font-black text-[#172B4D] font-serif tracking-tight">
-                      ನ್ಯಾಯಘರ್ಜನೆ
-                    </h3>
-                    <p className="text-[9px] font-bold text-[#C62828] uppercase tracking-widest mt-0.5">
-                      NYAAYAGHARJANE
-                    </p>
-                    <div className="flex items-center justify-between text-[9px] text-stone-500 mt-2 pt-1.5 border-t border-stone-200">
-                      <span>ಸಂಪುಟ {latestEdition.volumeNumber ?? 1}</span>
-                      <span className="font-semibold text-stone-700">{latestEdition.formattedDate}</span>
-                      <span>ಸಂಚಿಕೆ {latestEdition.issueNumber ?? 1}</span>
-                    </div>
-                  </div>
-
-                  {/* Cover body */}
-                  <div className="flex-1 flex flex-col justify-center px-4 py-4 space-y-3">
-                    <div className="bg-white/90 rounded-lg border border-stone-200 p-3 space-y-2">
-                      <div className="inline-block px-2 py-0.5 bg-amber-100 text-amber-900 rounded text-[9px] font-bold">
-                        {latestEdition.edition ?? "ರಾಜ್ಯ ಆವೃತ್ತಿ"}
-                      </div>
-                      <p className="text-xs font-bold text-[#172B4D] leading-snug line-clamp-2">
-                        {latestEdition.title}
-                      </p>
-                      <p className="text-[10px] text-[#5A6A85] leading-relaxed line-clamp-2">
-                        {latestEdition.description ?? "ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾದ ಸಮಗ್ರ ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು."}
-                      </p>
-                      {!hasDirectPdf && (
-                        <p className="text-[9px] text-amber-700 italic border-t border-stone-100 pt-1">
-                          * ಇದು ಮುನ್ನೋಟ ಮಾದರಿ (Preview Only)
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Decorative article lines */}
-                    <div className="space-y-1.5 px-1">
-                      {[80, 100, 65, 90].map((w, i) => (
-                        <div key={i} className="h-1.5 rounded-full bg-stone-200" style={{ width: `${w}%` }} />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Cover footer */}
-                  <div className="px-4 py-2 bg-[#172B4D] flex items-center justify-between text-[9px] text-white/80">
-                    <span>{latestEdition.totalPages} ಪುಟಗಳು</span>
-                    <span className="text-[#FF8A80] font-bold">ಡಿಜಿಟಲ್ ಇ-ಪತ್ರಿಕೆ</span>
-                    <span>{latestEdition.formattedFileSize ?? "೧೨.೪ MB"}</span>
-                  </div>
-                </div>
-
-                {/* CTA below cover */}
-                <div className="mt-4 flex gap-2 justify-center">
-                  <Link
-                    href={`/reader/${latestEdition.id}`}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-[#172B4D] text-xs font-semibold rounded-lg shadow-sm hover:shadow-md border border-white/50 transition-all hover:bg-white/90"
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-[#C62828]" />
-                    ಓದಿ
-                  </Link>
-                  {hasDirectPdf ? (
-                    <a
-                      href={latestEdition.pdfUrl}
-                      download
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/15 text-white text-xs font-semibold rounded-lg border border-white/25 hover:bg-white/25 transition-all"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      PDF
-                    </a>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 text-white/50 text-xs font-semibold rounded-lg border border-white/15 cursor-not-allowed">
-                      <Download className="w-3.5 h-3.5" />
-                      PDF
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-center space-y-6">
+          {/* Top Brand Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-[#FF8A80] text-xs sm:text-sm font-semibold backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#FF8A80]" />
+            <span>ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
           </div>
-        </div>
-      </section>
 
-      {/* ═══════════════════════════════════════════════════════
-          SECTION 2 — ABOUT (Two-Column)
-          ═══════════════════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-
-          {/* Left: Text */}
-          <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#C62828] text-xs font-bold border border-red-100">
-              <Newspaper className="w-3.5 h-3.5" />
-              ಪತ್ರಿಕೆಯ ಪರಿಚಯ
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight leading-snug">
-              ನ್ಯಾಯಘರ್ಜನೆ ಎಂದರೇನು?
-            </h2>
-
-            <div className="pl-4 border-l-4 border-[#C62828] py-1">
-              <p className="text-base sm:text-lg text-[#172B4D] font-medium leading-relaxed font-serif">
-                &ldquo;ನ್ಯಾಯಘರ್ಜನೆ ಕೇವಲ ಒಂದು ಪತ್ರಿಕೆಯಲ್ಲ; ಸಮಾಜದ ಆಗುಹೋಗುಗಳನ್ನು ಅರಿಯಲು, ಜನರ ಧ್ವನಿಯನ್ನು ಗುರುತಿಸಲು ಮತ್ತು ಸಾರ್ವಜನಿಕ ವಿಚಾರಗಳ ಬಗ್ಗೆ ಓದುಗರಲ್ಲಿ ಜಾಗೃತಿ ಮೂಡಿಸಲು ರೂಪುಗೊಂಡಿರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.&rdquo;
-              </p>
-            </div>
-
-            <p className="text-sm text-[#5A6A85] leading-relaxed">
-              ಪ್ರತಿ ತಿಂಗಳು ಪ್ರಕಟವಾಗುವ ಈ ಪತ್ರಿಕೆಯು, ಸಮಾಜದ ಪ್ರತಿಯೊಂದು ವರ್ಗದ ಜನರ ಹಿತಾಸಕ್ತಿಯನ್ನು ಗಮನದಲ್ಲಿಟ್ಟುಕೊಂಡು, ಆಡಳಿತ, ಸಮಾಜ, ಕೃಷಿ, ಕಾನೂನು ಮತ್ತು ನಾಗರಿಕ ಹಕ್ಕುಗಳ ಕುರಿತಾದ ನಿಖರ ಮಾಹಿತಿಗಳನ್ನು ನಿಷ್ಪಕ್ಷಪಾತವಾಗಿ ಓದುಗರಿಗೆ ತಲುಪಿಸಲು ಬದ್ಧವಾಗಿದೆ.
+          {/* Newspaper Name & Tagline */}
+          <div className="space-y-2">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-serif">
+              ನ್ಯಾಯಘರ್ಜನೆ
+            </h1>
+            <p className="text-xs sm:text-sm font-bold tracking-widest text-[#FF8A80] uppercase">
+              NYAAYAGHARJANE
             </p>
+            <p className="text-lg sm:text-xl font-bold text-white/95 pt-1">
+              ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
+            </p>
+          </div>
 
+          {/* Short Kannada Introduction */}
+          <p className="text-sm sm:text-base text-neutral-200 leading-relaxed max-w-2xl mx-auto font-light">
+            ಸಮಾಜದ ವಾಸ್ತವ ಸಂಗತಿಗಳು, ಜನರ ಸಮಸ್ಯೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ನಿರ್ಭೀತವಾಗಿ ಓದುಗರ ಮುಂದೆ ತರುವ ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾಗಿ ಸದಾ ಧ್ವನಿಯಾಗುವ ನಮ್ಮ ಸಂಕಲ್ಪ.
+          </p>
+
+          {/* Primary Action Button Linking to /read */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link
-              href="/about"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#C62828] hover:text-[#B71C1C] transition-colors"
+              href="/read"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-base sm:text-lg font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
             >
-              ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ
-              <ChevronRight className="w-4 h-4" />
+              <BookOpen className="w-5 h-5" />
+              <span>ಪತ್ರಿಕೆ ಓದಿ</span>
             </Link>
-          </div>
 
-          {/* Right: Editorial visual */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="w-full max-w-sm bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-              {/* Top bar */}
-              <div className="bg-[#172B4D] px-5 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#C62828]" />
-                  <span className="text-white text-xs font-bold">ಸಂಪಾದಕೀಯ ಮೌಲ್ಯಗಳು</span>
-                </div>
-                <Newspaper className="w-4 h-4 text-white/40" />
-              </div>
-              {/* Value rows */}
-              <div className="divide-y divide-[#E2E8F0]">
-                {[
-                  { icon: Scale, label: "ನ್ಯಾಯದ ಪರ ನಿಲ್ಲುವ ಬದ್ಧತೆ", color: "text-[#C62828] bg-red-50" },
-                  { icon: Users, label: "ಜನರ ಧ್ವನಿಗೆ ವೇದಿಕೆ", color: "text-[#172B4D] bg-blue-50" },
-                  { icon: Lightbulb, label: "ನಿಖರ ಮತ್ತು ನ್ಯಾಯಸಮ್ಮತ ಮಾಹಿತಿ", color: "text-amber-700 bg-amber-50" },
-                  { icon: CheckCircle2, label: "ಜವಾಬ್ದಾರಿಯುತ ಪತ್ರಿಕೋದ್ಯಮ", color: "text-emerald-700 bg-emerald-50" },
-                ].map(({ icon: Icon, label, color }) => (
-                  <div key={label} className="flex items-center gap-3 px-5 py-3.5">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <span className="text-sm font-medium text-[#172B4D]">{label}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Bottom caption */}
-              <div className="px-5 py-3 bg-[#F8F9FA] border-t border-[#E2E8F0]">
-                <p className="text-[11px] text-[#5A6A85] text-center">
-                  ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ &nbsp;•&nbsp; ಡಿಜಿಟಲ್ ಆವೃತ್ತಿ
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          SECTION 3 — PURPOSE CARDS
-          ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#F0F2F5] border-y border-[#E2E8F0] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          {/* Heading */}
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#172B4D] text-xs font-bold border border-[#E2E8F0] shadow-sm">
-              ಧ್ಯೇಯ &amp; ಮೌಲ್ಯಗಳು
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight">
-              ನಮ್ಮ ಉದ್ದೇಶ ಮತ್ತು ಬದ್ಧತೆ
-            </h2>
-            <p className="text-sm text-[#5A6A85]">
-              ಸಮಾಜಮುಖಿ ಪತ್ರಿಕೋದ್ಯಮದ ನಾಲ್ಕು ಮೂಲಸ್ತಂಭಗಳ ಮೇಲೆ ನ್ಯಾಯಘರ್ಜನೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ
-            </p>
-          </div>
-
-          {/* Four Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[
-              {
-                icon: Scale,
-                num: "೧",
-                title: "ನ್ಯಾಯದ ಧ್ವನಿ",
-                desc: "ನ್ಯಾಯ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳಿಗೆ ಮಹತ್ವ.",
-                footer: "ಸಾರ್ವಜನಿಕ ನ್ಯಾಯ",
-                iconBg: "bg-red-50 text-[#C62828]",
-                iconHover: "group-hover:bg-[#C62828] group-hover:text-white",
-                footerColor: "text-[#C62828]",
-              },
-              {
-                icon: Users,
-                num: "೨",
-                title: "ಜನರ ಪರವಾಗಿ",
-                desc: "ಸಮಾಜದ ಸಮಸ್ಯೆಗಳು ಮತ್ತು ಜನರ ಅಭಿಪ್ರಾಯಗಳಿಗೆ ವೇದಿಕೆ.",
-                footer: "ಜನಪರ ನಿಲುವು",
-                iconBg: "bg-blue-50 text-[#172B4D]",
-                iconHover: "group-hover:bg-[#172B4D] group-hover:text-white",
-                footerColor: "text-[#172B4D]",
-              },
-              {
-                icon: Lightbulb,
-                num: "೩",
-                title: "ಮಾಹಿತಿಯ ಬೆಳಕು",
-                desc: "ಓದುಗರಿಗೆ ಉಪಯುಕ್ತವಾದ ಮಾಹಿತಿಯನ್ನು ತಲುಪಿಸುವುದು.",
-                footer: "ಉಪಯುಕ್ತ ಅರಿವು",
-                iconBg: "bg-amber-50 text-amber-700",
-                iconHover: "group-hover:bg-amber-600 group-hover:text-white",
-                footerColor: "text-amber-800",
-              },
-              {
-                icon: CheckCircle2,
-                num: "೪",
-                title: "ಜವಾಬ್ದಾರಿಯುತ ಪತ್ರಿಕೋದ್ಯಮ",
-                desc: "ವಿಷಯಗಳ ನಿರೂಪಣೆಯಲ್ಲಿ ನಿಖರತೆ ಮತ್ತು ಜವಾಬ್ದಾರಿಗೆ ಆದ್ಯತೆ.",
-                footer: "ನಿಷ್ಠೆ ಮತ್ತು ನೈತಿಕತೆ",
-                iconBg: "bg-emerald-50 text-emerald-700",
-                iconHover: "group-hover:bg-emerald-700 group-hover:text-white",
-                footerColor: "text-emerald-800",
-              },
-            ].map(({ icon: Icon, num, title, desc, footer, iconBg, iconHover, footerColor }) => (
-              <div
-                key={title}
-                className="group bg-white rounded-xl border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#C62828]/30 hover:-translate-y-0.5 transition-all duration-200 p-5 sm:p-6 flex flex-col"
-              >
-                <div className="space-y-3 flex-1">
-                  <div className={`w-11 h-11 rounded-lg flex items-center justify-center transition-colors ${iconBg} ${iconHover}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-[#5A6A85] uppercase tracking-wider mb-1">{num}</p>
-                    <h3 className="text-base font-bold text-[#172B4D] leading-snug">{title}</h3>
-                    <p className="text-xs text-[#5A6A85] leading-relaxed mt-1.5">{desc}</p>
-                  </div>
-                </div>
-                <div className={`pt-3 mt-3 border-t border-neutral-100 text-[11px] font-semibold flex items-center gap-1 ${footerColor}`}>
-                  <span>{footer}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          SECTION 4 — LATEST EDITION (Full LatestEditionHero)
-          ═══════════════════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-6">
-        {/* Section heading */}
-        <div className="flex items-center gap-2.5 border-b border-[#E2E8F0] pb-4">
-          <div className="w-1 h-7 bg-[#C62828] rounded-full shrink-0" />
-          <h2 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight">
-            ಇತ್ತೀಚಿನ ಸಂಚಿಕೆ
-          </h2>
-        </div>
-        <LatestEditionHero edition={latestEdition} />
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          SECTION 5 — PREVIOUS EDITIONS PREVIEW
-          ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#F8F9FA] border-t border-[#E2E8F0] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {/* Heading row */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-7 bg-[#172B4D] rounded-full shrink-0" />
-                <h2 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight">
-                  ಹಿಂದಿನ ಸಂಚಿಕೆಗಳ ನೆನಪು
-                </h2>
-              </div>
-              <p className="text-sm text-[#5A6A85] mt-1 ml-3.5">
-                ನ್ಯಾಯಘರ್ಜನೆಯ ಹಿಂದಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ವೀಕ್ಷಿಸಿ.
-              </p>
-            </div>
             <Link
               href="/archives"
-              className="inline-flex items-center gap-2 px-5 py-2 bg-[#172B4D] hover:bg-[#0F1C33] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors shrink-0"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/25 text-sm sm:text-base font-semibold rounded-xl transition-all"
             >
-              ಎಲ್ಲಾ ಸಂಚಿಕೆಗಳನ್ನು ನೋಡಿ
-              <ArrowRight className="w-4 h-4" />
+              <Archive className="w-4 h-4 text-neutral-300" />
+              <span>ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು</span>
             </Link>
           </div>
 
-          {/* Edition cards grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {previousEditions.map((edition) => (
-              <EditionCard
-                key={edition.id}
-                edition={edition}
-                isPlaceholder={!edition.pdfUrl || !edition.pdfUrl.startsWith("http")}
-              />
+          {/* Feature Highlights Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-3">
+            {[
+              "ಉಚಿತ ಮಾಸಿಕ ಆವೃತ್ತಿ",
+              "ಡಿಜಿಟಲ್ ಫ್ಲಿಪ್‌ಬುಕ್ ವಾಚಕ",
+              "ಸುಲಭ PDF ಡೌನ್‌ಲೋಡ್",
+            ].map((feature) => (
+              <span
+                key={feature}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/8 border border-white/15 text-xs text-neutral-300"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{feature}</span>
+              </span>
             ))}
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          SECTION 6 — FINAL CTA
+          2. ಸಂಪಾದಕರ ಪರಿಚಯ (Editor's Introduction Section)
           ═══════════════════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="bg-[#172B4D] text-white rounded-2xl px-8 py-10 sm:px-12 sm:py-12 text-center space-y-5 shadow-lg relative overflow-hidden">
-          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-[#C62828]/15 blur-3xl pointer-events-none" />
-          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-serif">
-              ಸುದ್ದಿಗಳನ್ನು ಓದಿ, ಸಮಾಜವನ್ನು ಅರಿಯಿರಿ.
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-xs relative overflow-hidden">
+          {/* Subtle side accent bar */}
+          <div className="absolute top-0 left-0 w-2 h-full bg-[#C62828]" />
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            {/* Editor Photo Column */}
+            <div className="md:col-span-5 flex justify-center">
+              <div className="w-full max-w-[260px] sm:max-w-[280px]">
+                <EditorPhoto
+                  src="/editor.jpg"
+                  alt="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯಘರ್ಜನೆ"
+                  editorName="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್"
+                />
+              </div>
+            </div>
+
+            {/* Editor Info & Message Column */}
+            <div className="md:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#C62828] text-xs font-bold border border-red-100">
+                <Newspaper className="w-3.5 h-3.5" />
+                <span>ಸಂಪಾದಕರ ಪರಿಚಯ</span>
+              </div>
+
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight">
+                  ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್
+                </h2>
+                <p className="text-xs sm:text-sm font-semibold text-[#C62828] mt-0.5">
+                  ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ
+                </p>
+              </div>
+
+              {/* Quotation Box */}
+              <div className="relative bg-[#F8F9FA] border-l-4 border-[#C62828] p-4 rounded-r-lg space-y-2">
+                <Quote className="w-6 h-6 text-[#C62828]/30 absolute top-2 right-2" />
+                <p className="text-sm sm:text-base text-[#172B4D] font-medium leading-relaxed font-serif">
+                  &ldquo;ಪತ್ರಿಕೋದ್ಯಮವೆಂದರೆ ಕೇವಲ ಸುದ್ದಿಗಳನ್ನು ಪ್ರಕಟಿಸುವುದಲ್ಲ; ಅದು ಸಮಾಜದ ಕಟ್ಟಕಡೆಯ ವ್ಯಕ್ತಿಯ ಧ್ವನಿಯಾಗಿ, ಅನ್ಯಾಯದ ವಿರುದ್ಧ ಹೋರಾಡುವ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತ ರಕ್ಷಿಸುವ ಪವಿತ್ರ ಜವಾಬ್ದಾರಿ.&rdquo;
+                </p>
+              </div>
+
+              <p className="text-xs sm:text-sm text-[#5A6A85] leading-relaxed">
+                ನ್ಯಾಯಘರ್ಜನೆ ಪತ್ರಿಕೆಯು ಯಾವುದೇ ರಾಜಕೀಯ ಅಥವಾ ವಾಣಿಜ್ಯ ಹಿತಾಸಕ್ತಿಗಳಿಗೆ ಮಣಿಯದೆ, ಸಾರ್ವಜನಿಕರ ಪರವಾಗಿ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾಗಿ ನಿಲ್ಲುವ ಬದ್ಧತೆಯೊಂದಿಗೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ. ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು, ಜನಪರ ಹೋರಾಟಗಳು ಮತ್ತು ಉಪಯುಕ್ತ ಮಾಹಿತಿಯನ್ನು ಪ್ರತಿ ತಿಂಗಳು ನಮ್ಮ ಓದುಗರಿಗೆ ತಲುಪಿಸಲು ನಾವು ಸದಾ ಬದ್ಧರಾಗಿದ್ದೇವೆ.
+              </p>
+
+              {/* Editorial Values Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 text-xs">
+                <div className="flex items-center gap-2 bg-[#F8F9FA] p-2 rounded-lg border border-[#E2E8F0] text-[#172B4D]">
+                  <Shield className="w-4 h-4 text-[#C62828] shrink-0" />
+                  <span className="font-semibold">ನಿರ್ಭೀತ ಪತ್ರಿಕೋದ್ಯಮ</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#F8F9FA] p-2 rounded-lg border border-[#E2E8F0] text-[#172B4D]">
+                  <Users className="w-4 h-4 text-[#172B4D] shrink-0" />
+                  <span className="font-semibold">ಜನಪರ ನಿಲುವು</span>
+                </div>
+                <div className="flex items-center gap-2 bg-[#F8F9FA] p-2 rounded-lg border border-[#E2E8F0] text-[#172B4D]">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="font-semibold">ಸತ್ಯನಿಷ್ಠ ವರದಿ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          3. ನಮ್ಮ ಬಗ್ಗೆ (About Us & Purpose Section)
+          ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="border-b border-[#E2E8F0] pb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-6 bg-[#C62828] rounded-full" />
+            <h2 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight">
+              ನಮ್ಮ ಬಗ್ಗೆ ಮತ್ತು ಪತ್ರಿಕೆಯ ಉದ್ದೇಶ
             </h2>
-            <p className="text-sm text-neutral-300 leading-relaxed">
-              ನ್ಯಾಯಘರ್ಜನೆಯೊಂದಿಗೆ ಕನ್ನಡ ಓದಿನ ಹೊಸ ಡಿಜಿಟಲ್ ಅನುಭವಕ್ಕೆ ಸ್ವಾಗತ.
+          </div>
+          <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
+            ಸಮಾಜಮುಖಿ ಪತ್ರಿಕೋದ್ಯಮದ ನಾಲ್ಕು ಮೂಲಸ್ತಂಭಗಳ ಮೇಲೆ ನ್ಯಾಯಘರ್ಜನೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ
+          </p>
+        </div>
+
+        {/* 4 Clean Purpose Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-2xs space-y-2.5">
+            <div className="w-10 h-10 rounded-lg bg-red-50 text-[#C62828] flex items-center justify-center">
+              <Shield className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#172B4D]">೧. ನ್ಯಾಯದ ಧ್ವನಿ</h3>
+            <p className="text-xs text-[#5A6A85] leading-relaxed">
+              ನ್ಯಾಯ, ಸಮಾನತೆ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳಿಗೆ ಪತ್ರಿಕೆಯಲ್ಲಿ ಸದಾ ಮೊದಲ ಆದ್ಯತೆ.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-2xs space-y-2.5">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#172B4D] flex items-center justify-center">
+              <Users className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#172B4D]">೨. ಜನರ ಪರವಾಗಿ</h3>
+            <p className="text-xs text-[#5A6A85] leading-relaxed">
+              ಜನಸಾಮಾನ್ಯರ ಕಷ್ಟ-ಸುಖ, ರೈತರು, ಕಾರ್ಮಿಕರು ಹಾಗೂ ದುರ್ಬಲ ವರ್ಗದವರ ಹಕ್ಕುಗಳಿಗೆ ಪ್ರಬಲ ವೇದಿಕೆ.
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-2xs space-y-2.5">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+              <Lightbulb className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#172B4D]">೩. ಸತ್ಯ ಮತ್ತು ನಿಖರತೆ</h3>
+            <p className="text-xs text-[#5A6A85] leading-relaxed">
+              ವದಂತಿಗಳಿಗೆ ಆಸ್ಪದ ನೀಡದೆ ಸಾಕ್ಷ್ಯಾಧಾರಿತ, ನಿಷ್ಪಕ್ಷಪಾತ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ಮಾಹಿತಿ ಪ್ರಸಾರ.
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-2xs space-y-2.5">
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#172B4D]">೪. ಉಚಿತ ಡಿಜಿಟಲ್ ಓದು</h3>
+            <p className="text-xs text-[#5A6A85] leading-relaxed">
+              ಪ್ರತಿ ತಿಂಗಳ ಪೂರ್ಣ ಆವೃತ್ತಿಯನ್ನು ಎಲ್ಲ ಓದುಗರಿಗೂ ಉಚಿತವಾಗಿ ತಲುಪಿಸುವ ಆಧುನಿಕ ಇ-ಪತ್ರಿಕೆ.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          4. BOTTOM CALL TO ACTION — Direct Link to /read
+          ═══════════════════════════════════════════════════════ */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#172B4D] text-white rounded-2xl p-8 sm:p-12 text-center space-y-5 shadow-lg relative overflow-hidden">
+          <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-[#C62828]/15 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-xl mx-auto space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-serif text-white">
+              ನ್ಯಾಯಘರ್ಜನೆಯ ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಈಗಲೇ ಓದಿ
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-light">
+              ಮಾಸಿಕ ಆವೃತ್ತಿಯನ್ನು ನಿಮ್ಮ ಮೊಬೈಲ್ ಅಥವಾ ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಡಿಜಿಟಲ್ ರೂಪದಲ್ಲಿ ಆನಂದಿಸಿ ಅಥವಾ ಉಚಿತವಾಗಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.
+            </p>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href="/latest"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3 bg-[#C62828] hover:bg-[#B71C1C] text-white text-sm font-bold rounded-lg shadow-md hover:shadow-lg transition-all"
+                href="/read"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-base font-bold rounded-xl shadow-md hover:shadow-lg transition-all"
               >
-                <BookOpen className="w-4 h-4" />
-                ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ
+                <BookOpen className="w-5 h-5" />
+                <span>ಪತ್ರಿಕೆ ಓದಿ</span>
               </Link>
               <Link
                 href="/archives"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/25 text-sm font-semibold rounded-lg transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-sm font-semibold rounded-xl transition-all"
               >
-                <Archive className="w-4 h-4 text-neutral-300" />
-                ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹ
+                <span>ಎಲ್ಲಾ ಸಂಚಿಕೆಗಳು</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>

@@ -34,6 +34,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/read" className="hover:text-[#FF8A80] transition-colors font-medium">
+                  ಪತ್ರಿಕೆ ಓದಿ
+                </Link>
+              </li>
+              <li>
                 <Link href="/latest" className="hover:text-[#FF8A80] transition-colors">
                   ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ
                 </Link>

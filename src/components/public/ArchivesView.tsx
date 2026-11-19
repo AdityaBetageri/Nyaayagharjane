@@ -9,7 +9,6 @@ import {
   Filter,
   CheckCircle2,
   X,
-  Layers,
 } from "lucide-react";
 import { Edition } from "@/types";
 import EditionCard from "@/components/shared/EditionCard";
@@ -69,8 +68,40 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
   };
 
   useEffect(() => {
-    loadCatalogue(false);
-  }, []);
+    let ignore = false;
+    (async () => {
+      try {
+        const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
+        if (ignore) return;
+        if (res.success && res.data.length > 0) {
+          const mappedEditions = res.data.map(r2ItemToEdition);
+          setEditions(mappedEditions);
+          setDataSource(res.source);
+        } else {
+          const stored = getStoredEditions().filter((e) => e.isPublished !== false);
+          setEditions(stored.length > 0 ? stored : initialEditions);
+          setDataSource("fallback");
+          if (res.error && getR2PublicUrl()) {
+            setErrorNotice(res.error);
+          }
+        }
+      } catch (err: unknown) {
+        if (ignore) return;
+        const msg = err instanceof Error ? err.message : "ದೋಷ ಸಂಭವಿಸಿದೆ";
+        setErrorNotice(`ಕ್ಯಾಟಲಾಗ್ ಲೋಡ್ ವಿಫಲವಾಗಿದೆ: ${msg}`);
+        setEditions(initialEditions);
+        setDataSource("fallback");
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      ignore = true;
+    };
+  }, [initialEditions]);
 
   // Compute available filter options dynamically
   const availableYears = useMemo(() => {

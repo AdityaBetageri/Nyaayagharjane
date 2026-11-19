@@ -127,8 +127,8 @@ export default function AboutPage() {
               &quot;ಪತ್ರಿಕೋದ್ಯಮ ಕೇವಲ ಸುದ್ದಿಗಳನ್ನು ಪ್ರಸಾರ ಮಾಡುವ ಸಾಧನವಲ್ಲ; ಅದು ಜನತಂತ್ರದ ನಾಲ್ಕನೇ ಸ್ತಂಭವಾಗಿ ಸಮಾಜದ ಹಿತ ರಕ್ಷಿಸುವ ಪವಿತ್ರ ಜವಾಬ್ದಾರಿ. ನ್ಯಾಯಘರ್ಜನೆ ಪತ್ರಿಕೆಯು ಪ್ರತಿ ತಿಂಗಳು ಜನರ ಮುಂದಿಡುವ ಪ್ರತಿಯೊಂದು ಪುಟವೂ ಸಮಾಜಮುಖಿ ಚಿಂತನೆಗೆ ಪ್ರೇರಣೆಯಾಗಿದೆ.&quot;
             </p>
             <div className="pt-2">
-              <p className="text-sm font-bold text-[#172B4D]">ಪ್ರಧಾನ ಸಂಪಾದಕರು & ಮಂಡಳಿ</p>
-              <p className="text-xs text-[#C62828] font-medium">ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</p>
+              <p className="text-sm font-bold text-[#172B4D]">ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್</p>
+              <p className="text-xs text-[#C62828] font-medium">ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</p>
             </div>
           </div>
 

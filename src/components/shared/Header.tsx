@@ -7,7 +7,7 @@ import { Menu, X, BookOpen, ChevronRight } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "ಮುಖಪುಟ", href: "/" },
-  { label: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ", href: "/latest" },
+  { label: "ಪತ್ರಿಕೆ ಓದಿ", href: "/read" },
   { label: "ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು", href: "/archives" },
   { label: "ನಮ್ಮ ಬಗ್ಗೆ", href: "/about" },
   { label: "ಸಂಪರ್ಕಿಸಿ", href: "/contact" },
@@ -81,11 +81,11 @@ export default function Header() {
           {/* CTA + Mobile Menu — right-aligned */}
           <div className="flex items-center gap-2 shrink-0">
             <Link
-              href="/latest"
+              href="/read"
               className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-semibold rounded-md shadow-sm transition-all hover:shadow-md"
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ</span>
+              <span className="hidden sm:inline">ಪತ್ರಿಕೆ ಓದಿ</span>
               <span className="sm:hidden">ಓದಿ</span>
             </Link>
 
@@ -127,12 +127,12 @@ export default function Header() {
             })}
             <div className="pt-2 pb-1">
               <Link
-                href="/latest"
+                href="/read"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white rounded-md font-semibold text-sm transition-colors"
               >
                 <BookOpen className="w-4 h-4" />
-                <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
+                <span>ಪತ್ರಿಕೆ ಓದಿ</span>
               </Link>
             </div>
           </div>
