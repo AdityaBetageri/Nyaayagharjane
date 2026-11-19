@@ -127,8 +127,21 @@ export default function AboutPage() {
 
       {/* Editorial Mission Statement Box */}
       <section className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sm:p-10 shadow-xs">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-          <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          <div className="md:col-span-3 flex justify-center">
+            <div className="w-full max-w-[200px]">
+              <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-stone-200 shadow-sm">
+                <Image
+                  src="/editor.jpg"
+                  alt="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ"
+                  width={839}
+                  height={1024}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="md:col-span-5 space-y-4">
             <h2 className="text-2xl font-black text-[#172B4D]">
               ಸಂಪಾದಕರ ಸಂದೇಶ & ಧ್ಯೇಯೋದ್ದೇಶ
             </h2>
@@ -142,7 +155,7 @@ export default function AboutPage() {
           </div>
 
           {/* Quick Stats / Info Card */}
-          <div className="bg-[#F8F9FA] border border-[#E2E8F0] rounded-xl p-5 space-y-3">
+          <div className="md:col-span-4 bg-[#F8F9FA] border border-[#E2E8F0] rounded-xl p-5 space-y-3">
             <h3 className="text-xs font-bold text-[#172B4D] uppercase tracking-wider">
               ಪತ್ರಿಕೆಯ ಸ್ವರೂಪ ವಿವರಗಳು
             </h3>
