@@ -107,10 +107,10 @@ export default function AdminVerifierPage() {
 
       const pushData = await pushRes.json();
       if (pushData.success) {
-        setSyncMessage("ಕ್ಯಾಟಲಾಗ್ ಯಶಸ್ವಿಯಾಗಿ R2 ಬಕೆಟ್‌ಗೆ ಸಿಂಕ್ ಆಗಿದೆ! ಮರುಪರೀಕ್ಷಿಸಲಾಗುತ್ತಿದೆ...");
+        setSyncMessage("ಕ್ಯಾಟಲಾಗ್ ಯಶಸ್ವಿಯಾಗಿ ಡೇಟಾಬೇಸ್‌ಗೆ ಸಿಂಕ್ ಆಗಿದೆ! ಮರುಪರೀಕ್ಷಿಸಲಾಗುತ್ತಿದೆ...");
         await handleRunR2Test();
       } else {
-        setSyncMessage(`ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ: ${pushData.message || "R2 ದೋಷ"}`);
+        setSyncMessage(`ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ: ${pushData.message || "ಡೇಟಾಬೇಸ್ ದೋಷ"}`);
       }
     } catch (err) {
       setSyncMessage(
@@ -129,11 +129,11 @@ export default function AdminVerifierPage() {
           <div className="flex items-center gap-2 text-[#C62828]">
             <Globe className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
             <h1 className="text-base sm:text-xl font-black text-[#172B4D]">
-              Cloudflare R2 ಸಂಪರ್ಕ ಮತ್ತು ಪರಿಶೀಲನೆ (Connectivity Tester)
+              ಡೇಟಾಬೇಸ್ ಮತ್ತು ಸಂಗ್ರಹಣಾ ಪರಿಶೀಲನೆ (Connectivity Tester)
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ನಿಮ್ಮ Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್, S3 ಬಕೆಟ್ ಮತ್ತು <code>data/newspapers.json</code> ಲಭ್ಯತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.
+            ನಿಮ್ಮ ಆನ್‌ಲೈನ್ ಸಂಗ್ರಹಣಾ ಡೊಮೈನ್, ಬಕೆಟ್ ಮತ್ತು <code>data/newspapers.json</code> ಲಭ್ಯತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.
           </p>
         </div>
 
@@ -149,14 +149,14 @@ export default function AdminVerifierPage() {
       <div className="space-y-5">
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-[#172B4D]">
-            Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ ಅಥವಾ PDF ವಿಳಾಸ (Domain / PDF URL)
+            ಸಾರ್ವಜನಿಕ ಸಂಗ್ರಹಣಾ ಡೊಮೈನ್ ಅಥವಾ PDF ವಿಳಾಸ (Domain / PDF URL)
           </label>
           <div className="flex flex-col sm:flex-row gap-2.5">
             <input
               type="text"
               value={r2Url}
               onChange={(e) => setR2Url(e.target.value)}
-              placeholder="https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev"
+              placeholder="https://storage.yourdomain.com ಅಥವಾ PDF URL"
               className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] font-mono focus:border-[#172B4D] transition-colors"
             />
             <button
@@ -190,7 +190,7 @@ export default function AdminVerifierPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-[#172B4D]">
                   <Database className="w-4 h-4 text-purple-600" />
-                  <span>R2 S3 API ಬಕೆಟ್ ಸ್ಥಿತಿ (Storage Bucket: {testResult.s3Status?.bucketName || "naresh"})</span>
+                  <span>ಡೇಟಾಬೇಸ್ ಸಂಗ್ರಹಣಾ ಬಕೆಟ್ ಸ್ಥಿತಿ (Storage Bucket: {testResult.s3Status?.bucketName || "naresh"})</span>
                 </div>
                 {testResult.s3Status?.ok ? (
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
@@ -214,7 +214,7 @@ export default function AdminVerifierPage() {
                     </span>
                   ) : (
                     <span className="text-amber-700 font-bold">
-                      ಇನ್ನೂ R2 ಬಕೆಟ್‌ನಲ್ಲಿ ಕಂಡುಬಂದಿಲ್ಲ
+                      ಇನ್ನೂ ಡೇಟಾಬೇಸ್ ಬಕೆಟ್‌ನಲ್ಲಿ ಕಂಡುಬಂದಿಲ್ಲ
                     </span>
                   )}
                 </p>
@@ -237,7 +237,7 @@ export default function AdminVerifierPage() {
                     ) : (
                       <UploadCloud className="w-3.5 h-3.5" />
                     )}
-                    <span>ಸ್ಥಳೀಯ ಕ್ಯಾಟಲಾಗ್ ಅನ್ನು R2 ಗೆ ಈಗಲೇ ಸಿಂಕ್ ಮಾಡಿ (Sync Catalogue)</span>
+                    <span>ಸ್ಥಳೀಯ ಕ್ಯಾಟಲಾಗ್ ಅನ್ನು ಡೇಟಾಬೇಸ್‌ಗೆ ಈಗಲೇ ಸಿಂಕ್ ಮಾಡಿ (Sync Catalogue)</span>
                   </button>
                 </div>
               )}
@@ -314,9 +314,9 @@ export default function AdminVerifierPage() {
                 <div className="text-xs text-red-900 pt-2 border-t border-red-200">
                   <strong>ಪರಿಹಾರ ಕ್ರಮಗಳು:</strong>
                   <ul className="list-disc pl-5 mt-1 space-y-1 text-red-800">
-                    <li>Cloudflare Dashboard -&gt; R2 -&gt; {testResult.s3Status?.bucketName || "naresh"} -&gt; Settings -&gt; <strong>Public Access</strong> ಗೆ ಹೋಗಿ.</li>
-                    <li>ಅಲ್ಲಿ <strong>R2.dev subdomain</strong> ಸಕ್ರಿಯಗೊಳಿಸಿ (Allow Access) ಅಥವಾ Custom Domain ಸಂಪರ್ಕಿಸಿ.</li>
-                    <li><code>.env.local</code> ನಲ್ಲಿ ಸರಿಯಾದ ಡೊಮೈನ್ ವಿಳಾಸ (ಉದಾ: <code>https://pub-xxxx.r2.dev</code>) ನೀಡಲಾಗಿದೆಯೇ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.</li>
+                    <li>ಕ್ಲೌಡ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ನಲ್ಲಿ ಬಕೆಟ್ ಸೆಟ್ಟಿಂಗ್ಸ್‌ಗೆ ಹೋಗಿ (Settings -&gt; Public Access).</li>
+                    <li>ಅಲ್ಲಿ ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ ಸಕ್ರಿಯಗೊಳಿಸಿ ಅಥವಾ Custom Domain ಸಂಪರ್ಕಿಸಿ.</li>
+                    <li><code>.env.local</code> ನಲ್ಲಿ ಸರಿಯಾದ ಡೊಮೈನ್ ವಿಳಾಸ ನೀಡಲಾಗಿದೆಯೇ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.</li>
                   </ul>
                 </div>
               )}

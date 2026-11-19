@@ -143,7 +143,7 @@ export default function AdminSettingsPage() {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ಆಡಳಿತ ಮಂಡಳಿಯ ಖಾತೆ ವಿವರಗಳು, ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತು Cloudflare R2 ಸಂಗ್ರಹಣಾ ಕಾನ್ಫಿಗರೇಶನ್.
+            ಆಡಳಿತ ಮಂಡಳಿಯ ಖಾತೆ ವಿವರಗಳು, ಪಾಸ್‌ವರ್ಡ್ ಮತ್ತು ಡೇಟಾಬೇಸ್ ಸಂಗ್ರಹಣಾ ಕಾನ್ಫಿಗರೇಶನ್.
           </p>
         </div>
 
@@ -322,14 +322,14 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Right Column: Cloudflare R2 Connection Status & System Info */}
+        {/* Right Column: Database Connection Status & System Info */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Cloudflare R2 Integration Card */}
+          {/* Database Integration Card */}
           <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-4">
             <div className="border-b border-[#E2E8F0] pb-3 flex items-center justify-between">
               <div className="flex items-center gap-2 text-purple-700">
                 <Server className="w-5 h-5" />
-                <h3 className="text-base font-bold text-[#172B4D]">Cloudflare R2 ಸ್ಥಿತಿ</h3>
+                <h3 className="text-base font-bold text-[#172B4D]">ಡೇಟಾಬೇಸ್ / ಸಂಗ್ರಹಣಾ ಸ್ಥಿತಿ</h3>
               </div>
               <span
                 className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
@@ -351,7 +351,7 @@ export default function AdminSettingsPage() {
               </div>
 
               <div>
-                <span className="font-bold text-[#172B4D] block">R2 ಬಕೆಟ್ ಹೆಸರು:</span>
+                <span className="font-bold text-[#172B4D] block">ಸಂಗ್ರಹಣಾ ಬಕೆಟ್ ಹೆಸರು:</span>
                 <span className="font-mono text-[11px] text-neutral-700 bg-neutral-50 p-2 rounded block mt-0.5 border border-neutral-200">
                   enewspaper-storage
                 </span>

@@ -129,7 +129,7 @@ export default function LatestEditionHero({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#5A6A85]">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Cloudflare R2 ವೇಗದ CDN ವಿತರಣೆ</span>
+                <span>ವೇಗದ ಕ್ಲೌಡ್ ವಿತರಣೆ (Fast Cloud Delivery)</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />

@@ -70,7 +70,7 @@ export default function AdminDashboardOverviewPage() {
             {isR2Loaded ? (
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>R2 Live</span>
+                <span>ಡೇಟಾಬೇಸ್ ಲೈವ್</span>
               </span>
             ) : (
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neutral-100 text-neutral-600 border border-neutral-300">
@@ -79,7 +79,7 @@ export default function AdminDashboardOverviewPage() {
             )}
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಆಡಳಿತ ಕೇಂದ್ರ. ಒಟ್ಟು ಪತ್ರಿಕೆಗಳು, ಪ್ರಕಟಣೆಗಳು ಮತ್ತು R2 ಸ್ಥಿತಿ.
+            ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಆಡಳಿತ ಕೇಂದ್ರ. ಒಟ್ಟು ಪತ್ರಿಕೆಗಳು, ಪ್ರಕಟಣೆಗಳು ಮತ್ತು ಡೇಟಾಬೇಸ್ ಸ್ಥಿತಿ.
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function AdminDashboardOverviewPage() {
 
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-2">
           <div className="flex items-center justify-between text-neutral-500">
-            <span className="text-xs font-bold uppercase tracking-wider">R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್</span>
+            <span className="text-xs font-bold uppercase tracking-wider">ಡೇಟಾಬೇಸ್ / ಸಂಗ್ರಹಣಾ ಡೊಮೈನ್</span>
             <Globe className="w-4 h-4 text-purple-600" />
           </div>
           <div className="truncate text-xs font-mono font-bold text-[#172B4D]">
@@ -209,9 +209,9 @@ export default function AdminDashboardOverviewPage() {
             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:bg-[#172B4D] group-hover:text-white transition-colors">
               <FolderTree className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-[#172B4D]">R2 ಪ್ರಕಟಣಾ ಮಾರ್ಗದರ್ಶಿ</h3>
+            <h3 className="text-sm font-bold text-[#172B4D]">ಪ್ರಕಟಣಾ ಮಾರ್ಗದರ್ಶಿ</h3>
             <p className="text-xs text-[#5A6A85]">
-              Cloudflare R2 ಗೆ ಫೈಲ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ಸೇರಿಸುವ ೫ ಸರಳ ಹಂತಗಳು.
+              ಡೇಟಾಬೇಸ್‌ಗೆ ಫೈಲ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ಸೇರಿಸುವ ೫ ಸರಳ ಹಂತಗಳು.
             </p>
           </div>
           <div className="flex items-center gap-1 text-xs font-bold text-[#172B4D]">
@@ -228,7 +228,7 @@ export default function AdminDashboardOverviewPage() {
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center group-hover:bg-purple-700 group-hover:text-white transition-colors">
               <Globe className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-bold text-[#172B4D]">R2 ಕನೆಕ್ಟಿವಿಟಿ ಟೆಸ್ಟರ್</h3>
+            <h3 className="text-sm font-bold text-[#172B4D]">ಡೇಟಾಬೇಸ್ ಕನೆಕ್ಟಿವಿಟಿ ಟೆಸ್ಟರ್</h3>
             <p className="text-xs text-[#5A6A85]">
               ಕಸ್ಟಮ್ ಡೊಮೈನ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ಲೈವ್ ಆಗಿದೆಯೇ ಎಂದು ತಕ್ಷಣ ಪರೀಕ್ಷಿಸಿ.
             </p>

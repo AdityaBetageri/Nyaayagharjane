@@ -55,7 +55,7 @@ export default function AdminUploadPage() {
   const [uploadLanguage, setUploadLanguage] = useState("Kannada");
   const [uploadFileName, setUploadFileName] = useState("");
   const [uploadStatus, setUploadStatus] = useState<"published" | "draft">("published");
-  const [uploadTotalPages, setUploadTotalPages] = useState(16);
+  const [uploadTotalPages, setUploadTotalPages] = useState<string>("16");
   const [uploadFileSize, setUploadFileSize] = useState("");
   const [uploadDescription, setUploadDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -100,6 +100,7 @@ export default function AdminUploadPage() {
     setUploadFileName("");
     setUploadFileSize("");
     setUploadDescription("");
+    setUploadTotalPages("");
     setTouched({});
     setErrors({});
     setUploadProgress(null);
@@ -154,8 +155,10 @@ export default function AdminUploadPage() {
     }
 
     // 8. Total Pages
-    if (!uploadTotalPages || isNaN(uploadTotalPages) || uploadTotalPages < 1) {
-      newErrors.totalPages = "ಒಟ್ಟು ಪುಟಗಳು ಕನಿಷ್ಠ ೧ ಆಗಿರಬೇಕು.";
+    const trimmedPages = uploadTotalPages.trim();
+    const parsedPages = Number(trimmedPages);
+    if (!trimmedPages || isNaN(parsedPages) || parsedPages < 1) {
+      newErrors.totalPages = "ಒಟ್ಟು ಪುಟಗಳು ಕಡ್ಡಾಯವಾಗಿದೆ (ಕನಿಷ್ಠ ೧ ಪುಟ).";
     }
 
     setErrors(newErrors);
@@ -186,9 +189,15 @@ export default function AdminUploadPage() {
       case "fileName":
         setUploadFileName(String(value));
         break;
-      case "totalPages":
-        setUploadTotalPages(Number(value));
+      case "totalPages": {
+        const rawDigits = String(value).replace(/\D/g, "");
+        const cleanVal = rawDigits.replace(/^0+/, "");
+        setUploadTotalPages(cleanVal);
+        if (cleanVal) {
+          setErrors((prev) => ({ ...prev, totalPages: undefined }));
+        }
         break;
+      }
     }
   };
 
@@ -249,7 +258,7 @@ export default function AdminUploadPage() {
     pdfUrl: currentPdfUrl,
     publishedAt: publishedDate,
     status: uploadStatus,
-    totalPages: uploadTotalPages,
+    totalPages: Number(uploadTotalPages) || 16,
     formattedFileSize: uploadFileSize.trim() || "೧೨.೪ MB",
     description: uploadDescription.trim() || "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ.",
   };
@@ -306,7 +315,7 @@ export default function AdminUploadPage() {
         addStoredEdition(newEd);
         setLastUploadedId(newEd.id);
         setSuccessNotice(
-          `"${newEd.title}" ಪತ್ರಿಕೆ Cloudflare R2 ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
+          `"${newEd.title}" ಪತ್ರಿಕೆ ಡೇಟಾಬೇಸ್‌ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
         );
         setSessionKeyVersion((v) => v + 1);
 
@@ -368,7 +377,7 @@ export default function AdminUploadPage() {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-black text-[#172B4D]">
-              ಹೊಸ ಪತ್ರಿಕೆ ಸ್ವಯಂಚಾಲಿತ ಅಪ್‌ಲೋಡ್ (R2 Auto Upload)
+              ಹೊಸ ಪತ್ರಿಕೆ ಅಪ್‌ಲೋಡ್ (Upload Paper)
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-[#C62828] border border-red-200">
               ಚಂಕ್ ಅಪ್‌ಲೋಡ್ ಸಕ್ರಿಯ
@@ -376,12 +385,12 @@ export default function AdminUploadPage() {
             {r2Configured === true && (
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>R2 ಸಂಪರ್ಕಗೊಂಡಿದೆ</span>
+                <span>ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ</span>
               </span>
             )}
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ &ldquo;ಅಪ್‌ಲೋಡ್&rdquo; ಕ್ಲಿಕ್ ಮಾಡಿ. ಫೈಲ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ನೇರವಾಗಿ Cloudflare R2 ಗೆ ಸೇರ್ಪಡೆಗೊಳ್ಳುತ್ತವೆ.
+            PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ &ldquo;ಪತ್ರಿಕೆ ಪ್ರಕಟಗೊಳಿಸಿ&rdquo; ಕ್ಲಿಕ್ ಮಾಡಿ. ಫೈಲ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ನೇರವಾಗಿ ಡೇಟಾಬೇಸ್‌ಗೆ ಸೇರ್ಪಡೆಗೊಳ್ಳುತ್ತವೆ.
           </p>
         </div>
 
@@ -727,11 +736,21 @@ export default function AdminUploadPage() {
               ಒಟ್ಟು ಪುಟಗಳು (Total Pages) <span className="text-red-500">*</span>
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={uploadTotalPages}
               onChange={(e) => handleFieldChange("totalPages", e.target.value)}
-              min={1}
-              max={100}
+              onBlur={() => {
+                setTouched((prev) => ({ ...prev, totalPages: true }));
+                if (!uploadTotalPages.trim() || Number(uploadTotalPages) < 1) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    totalPages: "ಒಟ್ಟು ಪುಟಗಳು ಕಡ್ಡಾಯವಾಗಿದೆ (ಕನಿಷ್ಠ ೧ ಪುಟ).",
+                  }));
+                }
+              }}
+              placeholder="ಉದಾ: 16"
               className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.totalPages && errors.totalPages
                   ? "border-red-400 bg-red-50/20"

@@ -175,7 +175,7 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <p>
-              <strong className="font-bold">Cloudflare R2 ಸಂಪರ್ಕ ಸಕ್ರಿಯವಾಗಿದೆ:</strong> ಪತ್ರಿಕೆಗಳ ಕ್ಯಾಟಲಾಗ್ ಮತ್ತು PDF ಫೈಲ್‌ಗಳು R2 ಆಬ್ಜೆಕ್ಟ್ ಸ್ಟೋರೇಜ್ ಮೂಲಕ ನೇರವಾಗಿ ವಿತರಣೆಯಾಗುತ್ತಿವೆ.
+              <strong className="font-bold">ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕ ಸಕ್ರಿಯವಾಗಿದೆ:</strong> ಪತ್ರಿಕೆಗಳ ಕ್ಯಾಟಲಾಗ್ ಮತ್ತು PDF ಫೈಲ್‌ಗಳು ಕ್ಲೌಡ್ ಸಂಗ್ರಹಣೆ ಮೂಲಕ ನೇರವಾಗಿ ವಿತರಣೆಯಾಗುತ್ತಿವೆ.
             </p>
           </div>
           <button

@@ -129,7 +129,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
               <span className="truncate">{edition.title}</span>
               {hasDirectPdf && (
                 <span className="shrink-0 px-1.5 py-0.5 text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-700 rounded font-bold">
-                  R2 PDF
+                  PDF
                 </span>
               )}
             </h1>
@@ -245,7 +245,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
               type="button"
               onClick={() => {
                 alert(
-                  `"${edition.title}" ಪತ್ರಿಕೆಯು ಡೆವಲಪ್‌ಮೆಂಟ್ ಪ್ರಿವ್ಯೂ ಆಗಿದೆ. ನೈಜ R2 ಪಿಡಿಎಫ್ ಲಿಂಕ್ ಅಪ್‌ಲೋಡ್ ಆದ ನಂತರ ನೇರ ಡೌನ್‌ಲೋಡ್ ಲಭ್ಯವಾಗಲಿದೆ.`
+                  `"${edition.title}" ಪತ್ರಿಕೆಯು ಡೆವಲಪ್‌ಮೆಂಟ್ ಪ್ರಿವ್ಯೂ ಆಗಿದೆ. ನೈಜ PDF ಲಿಂಕ್ ಅಪ್‌ಲೋಡ್ ಆದ ನಂತರ ನೇರ ಡೌನ್‌ಲೋಡ್ ಲಭ್ಯವಾಗಲಿದೆ.`
                 );
               }}
               className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
@@ -285,7 +285,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
                     ಪಿಡಿಎಫ್ ಫೈಲ್ ಲೋಡ್ ಆಗುತ್ತಿಲ್ಲ
                   </h3>
                   <p className="text-xs text-neutral-400 leading-relaxed">
-                    Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್(public domain) ಅಥವಾ ಫೈಲ್ ವಿಳಾಸವನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ.
+                    ಡೇಟಾಬೇಸ್ ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ (Public Domain) ಅಥವಾ ಫೈಲ್ ವಿಳಾಸವನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ.
                   </p>
                 </div>
                 <div className="bg-neutral-950 p-2.5 rounded-md text-[11px] font-mono text-neutral-400 break-all border border-neutral-800">
@@ -372,7 +372,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
                   </h3>
 
                   <p className="text-xs text-[#5A6A85] leading-relaxed">
-                    ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. Cloudflare R2 ನೊಂದಿಗೆ ಸಂಪರ್ಕ ಹೊಂದಿರುವ ಅಧಿಕೃತ PDF ಆವೃತ್ತಿ.
+                    ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಅಧಿಕೃತ ಡಿಜಿಟಲ್ PDF ಆವೃತ್ತಿ.
                   </p>
                 </div>
               </div>

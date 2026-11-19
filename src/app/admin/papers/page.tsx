@@ -132,11 +132,11 @@ export default function AdminPapersPage() {
 
       if (data.success) {
         setDeleteNotice(
-          `"${deleteTarget.title}" ಪತ್ರಿಕೆ ಮತ್ತು ಸಂಬಂಧಿತ PDF ಫೈಲ್ ಅನ್ನು ಡೇಟಾಬೇಸ್ ಹಾಗೂ R2 ನಿಂದ ಯಶಸ್ವಿಯಾಗಿ ಅಳಿಸಲಾಗಿದೆ.`
+          `"${deleteTarget.title}" ಪತ್ರಿಕೆ ಮತ್ತು ಸಂಬಂಧಿತ PDF ಫೈಲ್ ಅನ್ನು ಡೇಟಾಬೇಸ್‌ನಿಂದ ಯಶಸ್ವಿಯಾಗಿ ಅಳಿಸಲಾಗಿದೆ.`
         );
       } else {
         setDeleteNotice(
-          `ಸ್ಥಳೀಯ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ. (${data.message || "R2 ಸಿಂಕ್ ವಿಫಲ"})`
+          `ಸ್ಥಳೀಯ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ. (${data.message || "ಡೇಟಾಬೇಸ್ ಸಿಂಕ್ ವಿಫಲ"})`
         );
       }
     } catch {
@@ -314,7 +314,7 @@ export default function AdminPapersPage() {
               <tr>
                 <th className="py-3.5 px-4">ಸಂಚಿಕೆ ವಿವರಗಳು</th>
                 <th className="py-3.5 px-4">ಪ್ರಕಟಣಾ ಮಾಹೆ</th>
-                <th className="py-3.5 px-4">R2 ಮೂಲ / PDF</th>
+                <th className="py-3.5 px-4">ಡೇಟಾಬೇಸ್ / PDF</th>
                 <th className="py-3.5 px-4 text-center">ಸ್ಥಿತಿ</th>
                 <th className="py-3.5 px-4 text-right">ಕ್ರಮಗಳು (Actions)</th>
               </tr>
@@ -405,7 +405,7 @@ export default function AdminPapersPage() {
                           disabled={isDeleting}
                           onClick={() => handleDeleteClick(edition)}
                           className="p-1.5 text-neutral-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                          title="ಡೇಟಾಬೇಸ್ ಮತ್ತು R2 ನಿಂದ ಶಾಶ್ವತವಾಗಿ ತೆಗೆದುಹಾಕಿ"
+                          title="ಡೇಟಾಬೇಸ್‌ನಿಂದ ಶಾಶ್ವತವಾಗಿ ತೆಗೆದುಹಾಕಿ"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -468,7 +468,7 @@ export default function AdminPapersPage() {
 
               <div className="space-y-1">
                 <label className="block text-xs font-bold text-neutral-700">
-                  R2 PDF ವಿಳಾಸ (Public PDF URL)
+                  PDF ಫೈಲ್ ವಿಳಾಸ (Public PDF URL)
                 </label>
                 <input
                   type="text"
@@ -599,8 +599,8 @@ export default function AdminPapersPage() {
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 space-y-1">
                 <p className="font-bold">⚠️ ಈ ಕ್ರಿಯೆಯನ್ನು ಹಿಂಪಡೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ:</p>
                 <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-red-700">
-                  <li>Cloudflare R2 ಬಕೆಟ್‌ನಿಂದ PDF ಫೈಲ್ ಅಳಿಸಿಹೋಗುತ್ತದೆ.</li>
-                  <li>ಆನ್‌ಲೈನ್ ಡೇಟಾಬೇಸ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್‌ನಿಂದ ವಿವರಗಳು ರದ್ದಾಗುತ್ತವೆ.</li>
+                  <li>ಆನ್‌ಲೈನ್ ಡೇಟಾಬೇಸ್ ಮತ್ತು ಸಂಗ್ರಹಣೆಯಿಂದ PDF ಫೈಲ್ ಅಳಿಸಿಹೋಗುತ್ತದೆ.</li>
+                  <li>ಕ್ಯಾಟಲಾಗ್‌ನಿಂದ ಈ ಆವೃತ್ತಿಯ ವಿವರಗಳು ಸಂಪೂರ್ಣವಾಗಿ ರದ್ದಾಗುತ್ತವೆ.</li>
                 </ul>
               </div>
             </div>
