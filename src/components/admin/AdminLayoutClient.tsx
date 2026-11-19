@@ -103,7 +103,7 @@ export default function AdminLayoutClient({
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="font-serif font-black text-lg text-white">ನ್ಯಾಯಘರ್ಜನೆ</span>
+          <span className="font-serif font-black text-lg text-white">ನ್ಯಾಯ ಘರ್ಜನೆ</span>
           <span className="px-1.5 py-0.5 text-[10px] bg-red-600 rounded font-bold uppercase tracking-wider">
             ಆಡಳಿತ
           </span>
@@ -132,7 +132,7 @@ export default function AdminLayoutClient({
             <Link href="/admin/dashboard" className="flex flex-col group">
               <div className="flex items-center gap-2">
                 <span className="text-2xl font-black text-white font-serif tracking-tight">
-                  ನ್ಯಾಯಘರ್ಜನೆ
+                  ನ್ಯಾಯ ಘರ್ಜನೆ
                 </span>
                 <span className="px-2 py-0.5 text-[9px] bg-[#C62828] text-white font-bold rounded">
                   ಆಡಳಿತ
@@ -240,7 +240,7 @@ export default function AdminLayoutClient({
         <header className="hidden lg:flex items-center justify-between h-16 bg-white border-b border-[#E2E8F0] px-8 sticky top-0 z-30 shadow-2xs">
           <div className="flex items-center gap-3">
             <h2 className="text-sm font-bold text-[#172B4D]">
-              ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಆಡಳಿತ ವ್ಯವಸ್ಥೆ
+              ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಆಡಳಿತ ವ್ಯವಸ್ಥೆ
             </h2>
             <span className="h-4 w-px bg-neutral-300" />
             <span className="text-xs text-neutral-500 font-medium">

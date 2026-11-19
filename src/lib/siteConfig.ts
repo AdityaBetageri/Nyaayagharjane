@@ -1,5 +1,5 @@
 /**
- * Central SEO & Site Configuration for Nyaayagharjane (ನ್ಯಾಯಘರ್ಜನೆ) E-Newspaper
+ * Central SEO & Site Configuration for Nyaayagharjane (ನ್ಯಾಯ ಘರ್ಜನೆ) E-Newspaper
  * Designed to provide top-ranking SEO in Google Search for Kannada & English queries.
  */
 
@@ -23,26 +23,26 @@ export function getSiteUrl(): string {
 }
 
 export const SITE_CONFIG = {
-  name: "ನ್ಯಾಯಘರ್ಜನೆ",
+  name: "ನ್ಯಾಯ ಘರ್ಜನೆ",
   nameEn: "Nyaayagharjane",
   alternateNames: [
     "Nyaaya Gharjane",
     "Nyaya Gharjane",
     "Nyaayagharjane E-Paper",
-    "ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
-    "ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆ",
   ],
   tagline: "ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ",
   taglineEn: "The Voice of Truth • The Roar of Justice",
   description:
-    "ನ್ಯಾಯಘರ್ಜನೆ — ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳನ್ನು ಹೊತ್ತು ತರುವ ನಿರ್ಭೀತ ಪತ್ರಿಕೆ. ಇತ್ತೀಚಿನ ಮತ್ತು ಹಿಂದಿನ ಎಲ್ಲಾ ಸಂಚಿಕೆಗಳನ್ನು ಉಚಿತವಾಗಿ ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ — ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳನ್ನು ಹೊತ್ತು ತರುವ ನಿರ್ಭೀತ ಪತ್ರಿಕೆ. ಇತ್ತೀಚಿನ ಮತ್ತು ಹಿಂದಿನ ಎಲ್ಲಾ ಸಂಚಿಕೆಗಳನ್ನು ಉಚಿತವಾಗಿ ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.",
   descriptionEn:
     "Nyaayagharjane is a leading monthly Kannada e-newspaper from Karnataka, India. Fearless journalism delivering in-depth investigative reports, public interest issues, legal awareness, and social justice news. Read the latest and archived monthly editions online for free.",
   locale: "kn_IN",
   languages: ["kn", "en"],
   keywords: [
     // Primary Brand Keywords
-    "ನ್ಯಾಯಘರ್ಜನೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ",
     "Nyaayagharjane",
     "Nyaaya Gharjane",
     "Nyaya Gharjane",
@@ -50,9 +50,9 @@ export const SITE_CONFIG = {
     "Nyaayagharjane e-paper",
     "Nyaayagharjane online",
     "ನ್ಯಾಯ ಘರ್ಜನೆ",
-    "ನ್ಯಾಯಘರ್ಜನೆ ಪತ್ರಿಕೆ",
-    "ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
-    "ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆ",
 
     // Industry / Category Keywords
     "Kannada e-paper",
@@ -85,8 +85,8 @@ export const SITE_CONFIG = {
     "ಕಾನೂನು ಜಾಗೃತಿ ಲೇಖನಗಳು",
   ],
   publisher: {
-    name: "ನ್ಯಾಯಘರ್ಜನೆ ಪ್ರಕಾಶನ (Nyaayagharjane Publications)",
-    founder: "ನ್ಯಾಯಘರ್ಜನೆ ಸಂಪಾದಕೀಯ ಮಂಡಳಿ",
+    name: "ನ್ಯಾಯ ಘರ್ಜನೆ ಪ್ರಕಾಶನ (Nyaayagharjane Publications)",
+    founder: "ನ್ಯಾಯ ಘರ್ಜನೆ ಸಂಪಾದಕೀಯ ಮಂಡಳಿ",
     address: {
       addressLocality: "ಮಂಗಳೂರು / ಬೆಂಗಳೂರು",
       addressRegion: "Karnataka",

@@ -14,7 +14,6 @@ import {
   Download,
   ExternalLink,
   BookOpen,
-  Sparkles,
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
@@ -128,13 +127,9 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
           <div className="flex flex-col min-w-0">
             <h1 className="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 truncate">
               <span className="truncate">{edition.title}</span>
-              {hasDirectPdf ? (
+              {hasDirectPdf && (
                 <span className="shrink-0 px-1.5 py-0.5 text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-700 rounded font-bold">
                   R2 PDF
-                </span>
-              ) : (
-                <span className="shrink-0 px-1.5 py-0.5 text-[9px] bg-amber-950 text-amber-300 border border-amber-700 rounded font-bold">
-                  ಮಾದರಿ ಮುನ್ನೋಟ
                 </span>
               )}
             </h1>
@@ -344,12 +339,12 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
               {/* Header of Simulated Page */}
               <div className="border-b-2 border-neutral-900 pb-2.5 text-center">
                 <div className="flex items-baseline justify-between text-[10px] sm:text-[11px] font-bold text-neutral-600 pb-1">
-                  <span>ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
+                  <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
                   <span className="text-[#C62828] hidden xs:inline">ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
                   <span>{edition.formattedDate}</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#172B4D] font-serif">
-                  ನ್ಯಾಯಘರ್ಜನೆ
+                  ನ್ಯಾಯ ಘರ್ಜನೆ
                 </h2>
                 <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-neutral-500 pt-1 border-t border-neutral-300 mt-1">
                   <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
@@ -367,9 +362,9 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
                 </div>
 
                 <div className="space-y-2 max-w-md mx-auto px-2">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                    <span>ವಾಚಕ ವಿನ್ಯಾಸ ಮುನ್ನೋಟ (Development Preview)</span>
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-neutral-100 text-[#172B4D] border border-neutral-300">
+                    <BookOpen className="w-3.5 h-3.5 text-[#C62828] shrink-0" />
+                    <span>ಡಿಜಿಟಲ್ ವಾಚಕ</span>
                   </span>
 
                   <h3 className="text-base sm:text-lg lg:text-xl font-bold text-[#172B4D]">
@@ -377,14 +372,14 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
                   </h3>
 
                   <p className="text-xs text-[#5A6A85] leading-relaxed">
-                    ಈ ಆವೃತ್ತಿಯು ಮಾದರಿ ಮುನ್ನೋಟವಾಗಿದೆ. ಅಡ್ಮಿನ್ ಪ್ಯಾನೆಲ್ ಮೂಲಕ Cloudflare R2 ಗೆ PDF ಅಪ್‌ಲೋಡ್ ಮಾಡಿ, ಕ್ಯಾಟಲಾಗ್ ಸೇರಿಸಿದ ನಂತರ ನೈಜ PDF ಇಲ್ಲಿ ನೇರವಾಗಿ ಪ್ರದರ್ಶನಗೊಳ್ಳುತ್ತದೆ.
+                    ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. Cloudflare R2 ನೊಂದಿಗೆ ಸಂಪರ್ಕ ಹೊಂದಿರುವ ಅಧಿಕೃತ PDF ಆವೃತ್ತಿ.
                   </p>
                 </div>
               </div>
 
               {/* Footer */}
               <div className="border-t border-neutral-300 pt-2 flex items-center justify-between text-[10px] text-neutral-500">
-                <span>ನ್ಯಾಯಘರ್ಜನೆ ಡಿಜಿಟಲ್ ಇ-ಪತ್ರಿಕೆ</span>
+                <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಡಿಜಿಟಲ್ ಇ-ಪತ್ರಿಕೆ</span>
                 <span>ಪುಟ {currentPage}</span>
                 <span>ಮುದ್ರಣ & ಪ್ರಕಟಣೆ: ಬೆಂಗಳೂರು</span>
               </div>

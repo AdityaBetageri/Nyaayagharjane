@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
 
             <div className="pt-2">
               <h1 className="text-2xl sm:text-3xl font-black text-white font-serif tracking-tight">
-                ನ್ಯಾಯಘರ್ಜನೆ
+                ನ್ಯಾಯ ಘರ್ಜನೆ
               </h1>
               <p className="text-xs font-semibold text-[#FF8A80] mt-0.5">
                 ಆಡಳಿತ ಮಂಡಳಿ ಲಾಗಿನ್ (Admin Portal)
@@ -203,7 +203,7 @@ export default function AdminLoginPage() {
 
       {/* Footer */}
       <footer className="relative z-10 p-4 text-center text-xs text-neutral-500">
-        © 2026 ನ್ಯಾಯಘರ್ಜನೆ • ಆಡಳಿತ ವಿಭಾಗ (Admin Panel)
+        © 2026 ನ್ಯಾಯ ಘರ್ಜನೆ • ಆಡಳಿತ ವಿಭಾಗ (Admin Panel)
       </footer>
     </main>
   );

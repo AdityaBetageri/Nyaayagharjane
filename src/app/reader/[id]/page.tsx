@@ -30,7 +30,7 @@ async function getEdition(id: string): Promise<Edition> {
   return found || {
     ...PLACEHOLDER_LATEST_EDITION,
     id,
-    title: `ನ್ಯಾಯಘರ್ಜನೆ - ಆವೃತ್ತಿ ${id}`,
+    title: `ನ್ಯಾಯ ಘರ್ಜನೆ - ಆವೃತ್ತಿ ${id}`,
   };
 }
 
@@ -40,15 +40,15 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
   const siteUrl = getSiteUrl();
 
   const title = `${edition.title} | ${SITE_CONFIG.name} (${SITE_CONFIG.nameEn})`;
-  const description = `${edition.title} - ${edition.description || SITE_CONFIG.description}. ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.`;
+  const description = `${edition.title} - ${edition.description || SITE_CONFIG.description}. ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.`;
 
   return {
     title,
     description,
     keywords: [
       edition.title,
-      "ನ್ಯಾಯಘರ್ಜನೆ",
-      "ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+      "ನ್ಯಾಯ ಘರ್ಜನೆ",
+      "ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
       "Nyaayagharjane",
       "Kannada epaper reader",
       "ಕನ್ನಡ ಪತ್ರಿಕೆ ವಾಚಕ",

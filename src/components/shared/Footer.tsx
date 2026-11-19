@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex flex-col">
               <span className="text-3xl font-black tracking-tight text-white font-serif leading-none">
-                ನ್ಯಾಯಘರ್ಜನೆ
+                ನ್ಯಾಯ ಘರ್ಜನೆ
               </span>
             </div>
             <p className="text-sm font-medium text-[#FF8A80] mt-2">
@@ -91,20 +91,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Editorial Desk (Explicitly Marked as Placeholders) */}
+          {/* Contact & Editorial Desk */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-neutral-700 pb-2">
+            <div className="border-b border-neutral-700 pb-2">
               <h4 className="text-sm font-bold uppercase tracking-wider text-white">
                 ಸಂಪಾದಕೀಯ ಕಚೇರಿ
               </h4>
-              <span className="text-[10px] text-amber-400 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-800">
-                ಮಾದರಿ ವಿವರ
-              </span>
             </div>
             <div className="space-y-2.5 text-xs text-neutral-300">
               <p className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#FF8A80] shrink-0 mt-0.5" />
-                <span>ನ್ಯಾಯಘರ್ಜನೆ ಭವನ, ಬೆಂಗಳೂರು, ಕರ್ನಾಟಕ - ೫೬೦೦೦೧ <span className="text-neutral-400">(ಮಾದರಿ ವಿಳಾಸ / Placeholder)</span></span>
+                <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಭವನ, ಬೆಂಗಳೂರು, ಕರ್ನಾಟಕ - ೫೬೦೦೦೧ <span className="text-neutral-400">(ಮಾದರಿ ವಿಳಾಸ / Placeholder)</span></span>
               </p>
               <p className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#FF8A80] shrink-0" />
@@ -123,7 +120,7 @@ export default function Footer() {
       <div className="border-t border-neutral-800 bg-[#0F1C33] text-neutral-400 text-xs py-4 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="w-full max-w-[1920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
           <p>
-            © 2026 ನ್ಯಾಯಘರ್ಜನೆ. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.
+            © 2026 ನ್ಯಾಯ ಘರ್ಜನೆ. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.
           </p>
           <p className="text-[11px] text-neutral-400">
             ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ — ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ

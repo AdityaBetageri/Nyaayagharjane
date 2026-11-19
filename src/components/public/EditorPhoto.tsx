@@ -12,7 +12,7 @@ interface EditorPhotoProps {
 
 export default function EditorPhoto({
   src = "/editor.jpg",
-  alt = "ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯಘರ್ಜನೆ",
+  alt = "ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ",
   editorName = "ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್",
   className = "",
 }: EditorPhotoProps) {
@@ -38,14 +38,14 @@ export default function EditorPhoto({
           </div>
           <span className="text-sm font-bold text-[#172B4D]">{editorName}</span>
           <span className="text-xs font-medium text-[#C62828]">ಪ್ರಧಾನ ಸಂಪಾದಕರು</span>
-          <span className="text-[10px] text-stone-500">ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
+          <span className="text-[10px] text-stone-500">ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
         </div>
       )}
 
       {/* Elegant bottom label */}
       <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#172B4D] via-[#172B4D]/85 to-transparent p-3 pt-6 text-white text-center">
         <p className="text-xs sm:text-sm font-bold leading-tight tracking-wide">{editorName}</p>
-        <p className="text-[10px] text-[#FF8A80] font-medium">ಪ್ರಧಾನ ಸಂಪಾದಕರು • ನ್ಯಾಯಘರ್ಜನೆ</p>
+        <p className="text-[10px] text-[#FF8A80] font-medium">ಪ್ರಧಾನ ಸಂಪಾದಕರು • ನ್ಯಾಯ ಘರ್ಜನೆ</p>
       </div>
     </div>
   );

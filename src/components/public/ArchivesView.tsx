@@ -170,7 +170,7 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
   return (
     <div className="space-y-6">
       {/* Status Notice / Connection Indicator */}
-      {dataSource === "r2" ? (
+      {dataSource === "r2" && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between gap-2.5 text-xs text-emerald-900">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -186,25 +186,6 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
             title="ಕ್ಯಾಟಲಾಗ್ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          </button>
-        </div>
-      ) : (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between gap-2.5 text-xs text-amber-900">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <p>
-              <strong className="font-bold">ಗಮನಿಸಿ:</strong> ಪ್ರಸ್ತುತ ಮಾದರಿ ಮುನ್ನೋಟ (Sample Data) ಪ್ರದರ್ಶಿಸಲಾಗುತ್ತಿದೆ. R2 ನಲ್ಲಿ ಹೊಸ ಪತ್ರಿಕೆಗಳು ಪ್ರಕಟವಾದಾಗ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ನವೀಕರಣಗೊಳ್ಳುತ್ತದೆ.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => loadCatalogue(true)}
-            disabled={loading}
-            className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded font-semibold transition-colors shrink-0"
-            title="ಮತ್ತೊಮ್ಮೆ ಪರಿಶೀಲಿಸಿ"
-          >
-            <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
-            <span>ರಿಫ್ರೆಶ್</span>
           </button>
         </div>
       )}

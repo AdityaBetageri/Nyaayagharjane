@@ -32,15 +32,15 @@ export default function ContactPage() {
           </h1>
         </div>
         <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-          ನ್ಯಾಯಘರ್ಜನೆ ಪತ್ರಿಕೆಯ ಸಂಪಾದಕೀಯ ಮಂಡಳಿ ಹಾಗೂ ಕಚೇರಿಯ ಸಂಪರ್ಕ ವಿವರಗಳು
+          ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆಯ ಸಂಪಾದಕೀಯ ಮಂಡಳಿ ಹಾಗೂ ಕಚೇರಿಯ ಸಂಪರ್ಕ ವಿವರಗಳು
         </p>
       </div>
 
       {/* Notice Banner */}
-      <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-4 flex items-start gap-3 text-xs leading-relaxed">
-        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+      <div className="bg-blue-50 border border-blue-200 text-[#172B4D] rounded-lg p-4 flex items-start gap-3 text-xs leading-relaxed">
+        <AlertCircle className="w-4 h-4 text-[#C62828] shrink-0 mt-0.5" />
         <div>
-          <strong className="font-bold">ಗಮನಿಸಿ (Development Preview Notice):</strong> ಈ ಪುಟದಲ್ಲಿ ತೋರಿಸಲಾದ ಎಲ್ಲಾ ಸಂಪರ್ಕ ವಿವರಗಳು (ವಿಳಾಸ, ದೂರವಾಣಿ, ಇಮೇಲ್) ಮತ್ತು ಸಂದೇಶ ನಮೂನೆ ವಿನ್ಯಾಸವು ಅಭಿವೃದ್ಧಿ ಹಂತದ ಮಾದರಿಗಳಾಗಿವೆ (Placeholders). ಮುಂಬರುವ ಹಂತಗಳಲ್ಲಿ ಅಧಿಕೃತ ಕಚೇರಿ ವಿವರಗಳು ಮತ್ತು ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕ ಕಲ್ಪಿಸಲಾಗುವುದು.
+          <strong className="font-bold">ಗಮನಿಸಿ:</strong> ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವರದಿಗಳು, ಜಾಹೀರಾತು ಅಥವಾ ಪ್ರತಿಕ್ರಿಯೆಗಳಿಗಾಗಿ ಕೆಳಗಿನ ವಿವರಗಳ ಮೂಲಕ ಸಂಪರ್ಕಿಸಬಹುದು.
         </div>
       </div>
 
@@ -49,18 +49,15 @@ export default function ContactPage() {
         {/* Contact Information Details */}
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+            <div className="border-b border-[#E2E8F0] pb-3">
               <div>
                 <h2 className="text-lg font-bold text-[#172B4D]">
                   ಕಚೇರಿ ಸಂಪರ್ಕ ವಿವರಗಳು
                 </h2>
                 <p className="text-xs text-[#5A6A85]">
-                  ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ ಕಾರ್ಯಾಲಯ
+                  ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ ಕಾರ್ಯಾಲಯ
                 </p>
               </div>
-              <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200">
-                ಮಾದರಿ ವಿವರ
-              </span>
             </div>
 
             <div className="space-y-4 text-xs text-[#5A6A85]">
@@ -71,7 +68,7 @@ export default function ContactPage() {
                 <div>
                   <h4 className="font-bold text-[#172B4D]">ಕಚೇರಿ ವಿಳಾಸ (ಮಾದರಿ):</h4>
                   <p className="mt-0.5 leading-relaxed">
-                    ನ್ಯಾಯಘರ್ಜನೆ ಭವನ, ಮುಖ್ಯ ರಸ್ತೆ,<br />
+                    ನ್ಯಾಯ ಘರ್ಜನೆ ಭವನ, ಮುಖ್ಯ ರಸ್ತೆ,<br />
                     ಬೆಂಗಳೂರು, ಕರ್ನಾಟಕ - ೫೬೦೦೦೧ <span className="text-neutral-400 font-medium">(ಮಾದರಿ ವಿಳಾಸ / Placeholder)</span>
                   </p>
                 </div>

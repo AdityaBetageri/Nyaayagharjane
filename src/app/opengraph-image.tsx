@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { SITE_CONFIG } from "@/lib/siteConfig";
 
-export const alt = "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | Kannada Monthly E-Newspaper";
+export const alt = "ನ್ಯಾಯ ಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | Kannada Monthly E-Newspaper";
 export const size = {
   width: 1200,
   height: 630,

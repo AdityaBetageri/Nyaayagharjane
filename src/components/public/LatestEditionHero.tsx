@@ -8,9 +8,7 @@ import {
   Layers,
   HardDrive,
   CheckCircle2,
-  Sparkles,
   ArrowRight,
-  AlertTriangle,
 } from "lucide-react";
 import { Edition } from "@/types";
 
@@ -27,39 +25,24 @@ export default function LatestEditionHero({
 
   return (
     <section className="w-full bg-white border border-[#E2E8F0] rounded-xl p-5 sm:p-8 lg:p-10 shadow-xs">
-      {/* Banner */}
-      {!hasDirectPdf && (
-        <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2.5 text-xs text-amber-900">
-          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-          <p className="leading-relaxed">
-            <strong className="font-bold">ಡೆವಲಪ್‌ಮೆಂಟ್ ಪ್ರಿವ್ಯೂ (Development Preview):</strong> ಕೆಳಗೆ ಪ್ರದರ್ಶಿಸಲಾದ ಮುಖಪುಟ ಹಾಗೂ ಮಾಹಿತಿ ವಿನ್ಯಾಸ ಪರೀಕ್ಷೆಗಾಗಿ ರೂಪಿಸಲಾದ ಮಾದರಿಯಾಗಿದೆ (Sample Data). Cloudflare R2 ನಲ್ಲಿ ಪತ್ರಿಕೆ ಪ್ರಕಟವಾದಾಗ ಅಧಿಕೃತ PDF ಲಭ್ಯವಾಗಲಿದೆ.
-          </p>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         {/* Left: Newspaper Cover Preview */}
         <div className="lg:col-span-5 flex justify-center w-full">
           <div className="relative w-full max-w-sm aspect-[1/1.41] bg-linear-to-b from-stone-50 via-stone-100 to-stone-200 rounded-lg border-2 border-stone-300 shadow-md p-4 sm:p-5 flex flex-col justify-between overflow-hidden">
             {/* Top Stamp */}
-            <div className="absolute top-3 right-3 z-10">
-              {hasDirectPdf ? (
+            {hasDirectPdf && (
+              <div className="absolute top-3 right-3 z-10">
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-700 text-white shadow-xs">
                   <CheckCircle2 className="w-3 h-3" />
                   <span>ಪ್ರಕಟಿತ ಆವೃತ್ತಿ</span>
                 </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#C62828] text-white shadow-xs">
-                  <Sparkles className="w-3 h-3" />
-                  <span>ಮಾದರಿ ಮುನ್ನೋಟ</span>
-                </span>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Newspaper Front Page Masthead Simulation */}
             <div className="text-center pt-2 border-b-2 border-stone-400 pb-2.5">
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#172B4D] tracking-tight font-serif pb-1">
-                ನ್ಯಾಯಘರ್ಜನೆ
+                ನ್ಯಾಯ ಘರ್ಜನೆ
               </h3>
               <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-stone-600 mt-2 pt-1 border-t border-stone-300">
                 <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
@@ -79,11 +62,6 @@ export default function LatestEditionHero({
               <p className="text-xs text-[#5A6A85] leading-relaxed line-clamp-3">
                 {edition.description || "ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾದ ಸಮಗ್ರ ವಿಶ್ಲೇಷಣೆ, ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು ಮತ್ತು ವಿಶೇಷ ತನಿಖಾ ಲೇಖನಗಳು."}
               </p>
-              {!hasDirectPdf && (
-                <div className="pt-1.5 text-[9px] text-amber-800 italic border-t border-stone-200">
-                  * ಇದು ಪ್ರಿಪರೇಶನ್ ಮುನ್ನೋಟ ಮಾದರಿ (Preview Only).
-                </div>
-              )}
             </div>
 
             {/* Cover Bottom Dateline */}
@@ -109,7 +87,7 @@ export default function LatestEditionHero({
               ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
             </p>
             <p className="text-xs sm:text-sm text-[#5A6A85] leading-relaxed pt-1">
-              ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆಯ ಈ ಸಂಚಿಕೆಯನ್ನು ನೀವು ಸುಲಭವಾಗಿ ಕಂಪ್ಯೂಟರ್, ಟ್ಯಾಬ್ಲೆಟ್ ಅಥವಾ ಮೊಬೈಲ್ ಪರದೆಯ ಮೂಲಕ ನೇರವಾಗಿ ಓದಬಹುದು ಅಥವಾ ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಲು ಉಚಿತವಾಗಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿಕೊಳ್ಳಬಹುದು.
+              ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆಯ ಈ ಸಂಚಿಕೆಯನ್ನು ನೀವು ಸುಲಭವಾಗಿ ಕಂಪ್ಯೂಟರ್, ಟ್ಯಾಬ್ಲೆಟ್ ಅಥವಾ ಮೊಬೈಲ್ ಪರದೆಯ ಮೂಲಕ ನೇರವಾಗಿ ಓದಬಹುದು ಅಥವಾ ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಲು ಉಚಿತವಾಗಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿಕೊಳ್ಳಬಹುದು.
             </p>
           </div>
 
@@ -189,7 +167,7 @@ export default function LatestEditionHero({
                 type="button"
                 onClick={() => {
                   alert(
-                    `"${edition.title}" ಪತ್ರಿಕೆಯು ಅಭಿವೃದ್ಧಿ ಹಂತದ ಮಾದರಿಯಾಗಿದೆ. ಅಧಿಕೃತ ಪಿಡಿಎಫ್ ಡೌನ್‌ಲೋಡ್ R2 ಅಪ್‌ಲೋಡ್ ಆದ ನಂತರ ಸಕ್ರಿಯಗೊಳ್ಳಲಿದೆ.`
+                    `"${edition.title}" ಪತ್ರಿಕೆಯ ಪಿಡಿಎಫ್ ಡೌನ್‌ಲೋಡ್ ಸದ್ಯದಲ್ಲೇ ಲಭ್ಯವಾಗಲಿದೆ.`
                   );
                 }}
                 className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white hover:bg-neutral-50 text-[#172B4D] border border-[#E2E8F0] text-xs sm:text-sm font-semibold rounded-lg shadow-2xs transition-colors"

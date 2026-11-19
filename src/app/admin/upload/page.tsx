@@ -55,7 +55,7 @@ export default function AdminUploadPage() {
   const [r2Configured, setR2Configured] = useState<boolean | null>(null);
 
   // Form Fields
-  const [uploadTitle, setUploadTitle] = useState("ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬");
+  const [uploadTitle, setUploadTitle] = useState("ನ್ಯಾಯ ಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬");
   const [uploadYear, setUploadYear] = useState(2026);
   const [uploadMonth, setUploadMonth] = useState(11);
   const [uploadEditionArea, setUploadEditionArea] = useState("ರಾಜ್ಯ ಆವೃತ್ತಿ");
@@ -65,7 +65,7 @@ export default function AdminUploadPage() {
   const [uploadTotalPages, setUploadTotalPages] = useState(16);
   const [uploadFileSize, setUploadFileSize] = useState("೧೨.೪ MB");
   const [uploadDescription, setUploadDescription] = useState(
-    "ನ್ಯಾಯಘರ್ಜನೆ ನವೆಂಬರ್ ೨೦೨೬ ರ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ನವೆಂಬರ್ ೨೦೨೬ ರ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
   );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [sessionKeyVersion, setSessionKeyVersion] = useState(0);
@@ -176,7 +176,7 @@ export default function AdminUploadPage() {
       setErrors((prev) => ({ ...prev, year: undefined }));
     }
     const monthName = KANNADA_MONTH_MAP[uploadMonth] || "ನವೆಂಬರ್";
-    setUploadTitle(`ನ್ಯಾಯಘರ್ಜನೆ - ${monthName} ${year}`);
+    setUploadTitle(`ನ್ಯಾಯ ಘರ್ಜನೆ - ${monthName} ${year}`);
   };
 
   const handleMonthChange = (month: number) => {
@@ -186,7 +186,7 @@ export default function AdminUploadPage() {
       setErrors((prev) => ({ ...prev, month: undefined }));
     }
     const monthName = KANNADA_MONTH_MAP[month] || "ನವೆಂಬರ್";
-    setUploadTitle(`ನ್ಯಾಯಘರ್ಜನೆ - ${monthName} ${uploadYear}`);
+    setUploadTitle(`ನ್ಯಾಯ ಘರ್ಜನೆ - ${monthName} ${uploadYear}`);
     const monthFolder = getR2MonthFolder(month);
     setUploadFileName(`kannada-${monthFolder}.pdf`);
   };

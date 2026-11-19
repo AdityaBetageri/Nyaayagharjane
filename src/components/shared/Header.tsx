@@ -50,10 +50,7 @@ export default function Header() {
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-[#172B4D] group-hover:text-[#C62828] transition-colors">
-                ನ್ಯಾಯಘರ್ಜನೆ
-              </span>
-              <span className="text-[9px] sm:text-[10px] font-bold tracking-widest text-[#C62828] uppercase">
-                NYAAYAGHARJANE
+                ನ್ಯಾಯ ಘರ್ಜನೆ
               </span>
             </div>
           </Link>

@@ -22,11 +22,11 @@ import { Edition } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ಪತ್ರಿಕೆ ಓದಿ (Read E-Paper) | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+  title: "ಪತ್ರಿಕೆ ಓದಿ (Read E-Paper) | ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
   description:
-    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಉಚಿತವಾಗಿ ಓದಿ ಮತ್ತು PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಉಚಿತವಾಗಿ ಓದಿ ಮತ್ತು PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
   keywords: [
-    "ನ್ಯಾಯಘರ್ಜನೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ",
     "Nyaayagharjane",
     "Nyaaya Gharjane",
     "ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/read" },
   openGraph: {
-    title: "ಪತ್ರಿಕೆ ಓದಿ | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+    title: "ಪತ್ರಿಕೆ ಓದಿ | ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
     description:
       "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಸಮಾಜದ ಬೆಳವಣಿಗೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
     url: "/read",
@@ -148,28 +148,20 @@ export default async function ReadPage() {
                 {/* Cover card */}
                 <div className="relative bg-gradient-to-b from-stone-50 to-stone-100 rounded-xl border-2 border-stone-300 shadow-2xl overflow-hidden aspect-[1/1.41] flex flex-col">
                   {/* Status badge */}
-                  <div className="absolute top-3 right-3 z-10">
-                    {hasDirectPdf ? (
+                  {hasDirectPdf && (
+                    <div className="absolute top-3 right-3 z-10">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-700 text-white shadow-sm">
                         <CheckCircle2 className="w-3 h-3" />
                         ಪ್ರಕಟಿತ ಆವೃತ್ತಿ
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#C62828] text-white shadow-sm">
-                        <Sparkles className="w-3 h-3" />
-                        ಮಾದರಿ ಮುನ್ನೋಟ
-                      </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* Masthead */}
                   <div className="px-4 pt-4 pb-3 border-b-2 border-stone-300 text-center bg-white">
                     <h3 className="text-2xl font-black text-[#172B4D] font-serif tracking-tight">
-                      ನ್ಯಾಯಘರ್ಜನೆ
+                      ನ್ಯಾಯ ಘರ್ಜನೆ
                     </h3>
-                    <p className="text-[9px] font-bold text-[#C62828] uppercase tracking-widest mt-0.5">
-                      NYAAYAGHARJANE
-                    </p>
                     <div className="flex items-center justify-between text-[9px] text-stone-500 mt-2 pt-1.5 border-t border-stone-200">
                       <span>ಸಂಪುಟ {latestEdition.volumeNumber ?? 1}</span>
                       <span className="font-semibold text-stone-700">{latestEdition.formattedDate}</span>
@@ -189,11 +181,6 @@ export default async function ReadPage() {
                       <p className="text-[10px] text-[#5A6A85] leading-relaxed line-clamp-2">
                         {latestEdition.description ?? "ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾದ ಸಮಗ್ರ ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು."}
                       </p>
-                      {!hasDirectPdf && (
-                        <p className="text-[9px] text-amber-700 italic border-t border-stone-100 pt-1">
-                          * ಇದು ಮುನ್ನೋಟ ಮಾದರಿ (Preview Only)
-                        </p>
-                      )}
                     </div>
 
                     {/* Decorative article lines */}
@@ -258,12 +245,12 @@ export default async function ReadPage() {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight leading-snug">
-              ನ್ಯಾಯಘರ್ಜನೆ ಎಂದರೇನು?
+              ನ್ಯಾಯ ಘರ್ಜನೆ ಎಂದರೇನು?
             </h2>
 
             <div className="pl-4 border-l-4 border-[#C62828] py-1">
               <p className="text-base sm:text-lg text-[#172B4D] font-medium leading-relaxed font-serif">
-                &ldquo;ನ್ಯಾಯಘರ್ಜನೆ ಕೇವಲ ಒಂದು ಪತ್ರಿಕೆಯಲ್ಲ; ಸಮಾಜದ ಆಗುಹೋಗುಗಳನ್ನು ಅರಿಯಲು, ಜನರ ಧ್ವನಿಯನ್ನು ಗುರುತಿಸಲು ಮತ್ತು ಸಾರ್ವಜನಿಕ ವಿಚಾರಗಳ ಬಗ್ಗೆ ಓದುಗರಲ್ಲಿ ಜಾಗೃತಿ ಮೂಡಿಸಲು ರೂಪುಗೊಂಡಿರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.&rdquo;
+                &ldquo;ನ್ಯಾಯ ಘರ್ಜನೆ ಕೇವಲ ಒಂದು ಪತ್ರಿಕೆಯಲ್ಲ; ಸಮಾಜದ ಆಗುಹೋಗುಗಳನ್ನು ಅರಿಯಲು, ಜನರ ಧ್ವನಿಯನ್ನು ಗುರುತಿಸಲು ಮತ್ತು ಸಾರ್ವಜನಿಕ ವಿಚಾರಗಳ ಬಗ್ಗೆ ಓದುಗರಲ್ಲಿ ಜಾಗೃತಿ ಮೂಡಿಸಲು ರೂಪುಗೊಂಡಿರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.&rdquo;
               </p>
             </div>
 
@@ -318,91 +305,6 @@ export default async function ReadPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════
-          SECTION 3 — PURPOSE CARDS
-          ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#F0F2F5] border-y border-[#E2E8F0] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          {/* Heading */}
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#172B4D] text-xs font-bold border border-[#E2E8F0] shadow-sm">
-              ಧ್ಯೇಯ &amp; ಮೌಲ್ಯಗಳು
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight">
-              ನಮ್ಮ ಉದ್ದೇಶ ಮತ್ತು ಬದ್ಧತೆ
-            </h2>
-            <p className="text-sm text-[#5A6A85]">
-              ಸಮಾಜಮುಖಿ ಪತ್ರಿಕೋದ್ಯಮದ ನಾಲ್ಕು ಮೂಲಸ್ತಂಭಗಳ ಮೇಲೆ ನ್ಯಾಯಘರ್ಜನೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ
-            </p>
-          </div>
-
-          {/* Four Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[
-              {
-                icon: Scale,
-                num: "೧",
-                title: "ನ್ಯಾಯದ ಧ್ವನಿ",
-                desc: "ನ್ಯಾಯ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳಿಗೆ ಮಹತ್ವ.",
-                footer: "ಸಾರ್ವಜನಿಕ ನ್ಯಾಯ",
-                iconBg: "bg-red-50 text-[#C62828]",
-                iconHover: "group-hover:bg-[#C62828] group-hover:text-white",
-                footerColor: "text-[#C62828]",
-              },
-              {
-                icon: Users,
-                num: "೨",
-                title: "ಜನರ ಪರವಾಗಿ",
-                desc: "ಸಮಾಜದ ಸಮಸ್ಯೆಗಳು ಮತ್ತು ಜನರ ಅಭಿಪ್ರಾಯಗಳಿಗೆ ವೇದಿಕೆ.",
-                footer: "ಜನಪರ ನಿಲುವು",
-                iconBg: "bg-blue-50 text-[#172B4D]",
-                iconHover: "group-hover:bg-[#172B4D] group-hover:text-white",
-                footerColor: "text-[#172B4D]",
-              },
-              {
-                icon: Lightbulb,
-                num: "೩",
-                title: "ಮಾಹಿತಿಯ ಬೆಳಕು",
-                desc: "ಓದುಗರಿಗೆ ಉಪಯುಕ್ತವಾದ ಮಾಹಿತಿಯನ್ನು ತಲುಪಿಸುವುದು.",
-                footer: "ಉಪಯುಕ್ತ ಅರಿವು",
-                iconBg: "bg-amber-50 text-amber-700",
-                iconHover: "group-hover:bg-amber-600 group-hover:text-white",
-                footerColor: "text-amber-800",
-              },
-              {
-                icon: CheckCircle2,
-                num: "೪",
-                title: "ಜವಾಬ್ದಾರಿಯುತ ಪತ್ರಿಕೋದ್ಯಮ",
-                desc: "ವಿಷಯಗಳ ನಿರೂಪಣೆಯಲ್ಲಿ ನಿಖರತೆ ಮತ್ತು ಜವಾಬ್ದಾರಿಗೆ ಆದ್ಯತೆ.",
-                footer: "ನಿಷ್ಠೆ ಮತ್ತು ನೈತಿಕತೆ",
-                iconBg: "bg-emerald-50 text-emerald-700",
-                iconHover: "group-hover:bg-emerald-700 group-hover:text-white",
-                footerColor: "text-emerald-800",
-              },
-            ].map(({ icon: Icon, num, title, desc, footer, iconBg, iconHover, footerColor }) => (
-              <div
-                key={title}
-                className="group bg-white rounded-xl border border-[#E2E8F0] shadow-sm hover:shadow-md hover:border-[#C62828]/30 hover:-translate-y-0.5 transition-all duration-200 p-5 sm:p-6 flex flex-col"
-              >
-                <div className="space-y-3 flex-1">
-                  <div className={`w-11 h-11 rounded-lg flex items-center justify-center transition-colors ${iconBg} ${iconHover}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-[#5A6A85] uppercase tracking-wider mb-1">{num}</p>
-                    <h3 className="text-base font-bold text-[#172B4D] leading-snug">{title}</h3>
-                    <p className="text-xs text-[#5A6A85] leading-relaxed mt-1.5">{desc}</p>
-                  </div>
-                </div>
-                <div className={`pt-3 mt-3 border-t border-neutral-100 text-[11px] font-semibold flex items-center gap-1 ${footerColor}`}>
-                  <span>{footer}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════════════════════
           SECTION 4 — LATEST EDITION (Full LatestEditionHero)
@@ -433,7 +335,7 @@ export default async function ReadPage() {
                 </h2>
               </div>
               <p className="text-sm text-[#5A6A85] mt-1 ml-3.5">
-                ನ್ಯಾಯಘರ್ಜನೆಯ ಹಿಂದಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ವೀಕ್ಷಿಸಿ.
+                ನ್ಯಾಯ ಘರ್ಜನೆಯ ಹಿಂದಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ವೀಕ್ಷಿಸಿ.
               </p>
             </div>
             <Link
@@ -469,7 +371,7 @@ export default async function ReadPage() {
               ಸುದ್ದಿಗಳನ್ನು ಓದಿ, ಸಮಾಜವನ್ನು ಅರಿಯಿರಿ.
             </h2>
             <p className="text-sm text-neutral-300 leading-relaxed">
-              ನ್ಯಾಯಘರ್ಜನೆಯೊಂದಿಗೆ ಕನ್ನಡ ಓದಿನ ಹೊಸ ಡಿಜಿಟಲ್ ಅನುಭವಕ್ಕೆ ಸ್ವಾಗತ.
+              ನ್ಯಾಯ ಘರ್ಜನೆಯೊಂದಿಗೆ ಕನ್ನಡ ಓದಿನ ಹೊಸ ಡಿಜಿಟಲ್ ಅನುಭವಕ್ಕೆ ಸ್ವಾಗತ.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
               <Link

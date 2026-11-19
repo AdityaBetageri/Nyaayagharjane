@@ -2,7 +2,7 @@ import { Edition } from "@/types";
 
 export const PLACEHOLDER_LATEST_EDITION: Edition = {
   id: "2026-11",
-  title: "ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬ (ಮಾದರಿ ಸಂಚಿಕೆ)",
+  title: "ನ್ಯಾಯ ಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬",
   editionMonth: "ನವೆಂಬರ್",
   editionYear: 2026,
   formattedDate: "ನವೆಂಬರ್ ೨೦೨೬",
@@ -12,13 +12,13 @@ export const PLACEHOLDER_LATEST_EDITION: Edition = {
   formattedFileSize: "೧೨.೪ MB",
   isPublished: true,
   publishedAt: "2026-11-01",
-  description: "ಅಭಿವೃದ್ಧಿ ಹಂತದ ಮಾದರಿ ಮುನ್ನೋಟ (Development Preview). ಅಧಿಕೃತ ಮಾಸಿಕ ಪತ್ರಿಕೆಗಳು ಮುಂದಿನ ಹಂತದಲ್ಲಿ ಅಡ್ಮಿನ್ ಮೂಲಕ ನೇರ ಪಿಡಿಎಫ್ ರೂಪದಲ್ಲಿ ಪ್ರಕಟಗೊಳ್ಳಲಿವೆ.",
+  description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸಮಾಜದ ಧ್ವನಿ, ಜನರ ಸಮಸ್ಯೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು.",
 };
 
 export const PLACEHOLDER_PREVIOUS_EDITIONS: Edition[] = [
   {
     id: "2026-10",
-    title: "ನ್ಯಾಯಘರ್ಜನೆ - ಅಕ್ಟೋಬರ್ ೨೦೨೬ (ಮಾದರಿ ಸಂಚಿಕೆ)",
+    title: "ನ್ಯಾಯ ಘರ್ಜನೆ - ಅಕ್ಟೋಬರ್ ೨೦೨೬",
     editionMonth: "ಅಕ್ಟೋಬರ್",
     editionYear: 2026,
     formattedDate: "ಅಕ್ಟೋಬರ್ ೨೦೨೬",
@@ -28,11 +28,11 @@ export const PLACEHOLDER_PREVIOUS_EDITIONS: Edition[] = [
     formattedFileSize: "೧೧.೮ MB",
     isPublished: true,
     publishedAt: "2026-10-01",
-    description: "ಅಭಿವೃದ್ಧಿ ಮತ್ತು ವಿನ್ಯಾಸ ಪರಿಶೀಲನೆಗಾಗಿ ಮಾದರಿ ಸಂಚಿಕೆ (Layout Preview Sample).",
+    description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
   },
   {
     id: "2026-09",
-    title: "ನ್ಯಾಯಘರ್ಜನೆ - ಸೆಪ್ಟೆಂಬರ್ ೨೦೨೬ (ಮಾದರಿ ಸಂಚಿಕೆ)",
+    title: "ನ್ಯಾಯ ಘರ್ಜನೆ - ಸೆಪ್ಟೆಂಬರ್ ೨೦೨೬",
     editionMonth: "ಸೆಪ್ಟೆಂಬರ್",
     editionYear: 2026,
     formattedDate: "ಸೆಪ್ಟೆಂಬರ್ ೨೦೨೬",
@@ -42,11 +42,11 @@ export const PLACEHOLDER_PREVIOUS_EDITIONS: Edition[] = [
     formattedFileSize: "೧೨.೧ MB",
     isPublished: true,
     publishedAt: "2026-09-01",
-    description: "ಅಭಿವೃದ್ಧಿ ಮತ್ತು ವಿನ್ಯಾಸ ಪರಿಶೀಲನೆಗಾಗಿ ಮಾದರಿ ಸಂಚಿಕೆ (Layout Preview Sample).",
+    description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
   },
   {
     id: "2026-08",
-    title: "ನ್ಯಾಯಘರ್ಜನೆ - ಆಗಸ್ಟ್ ೨೦೨೬ (ಮಾದರಿ ಸಂಚಿಕೆ)",
+    title: "ನ್ಯಾಯ ಘರ್ಜನೆ - ಆಗಸ್ಟ್ ೨೦೨೬",
     editionMonth: "ಆಗಸ್ಟ್",
     editionYear: 2026,
     formattedDate: "ಆಗಸ್ಟ್ ೨೦೨೬",
@@ -56,11 +56,11 @@ export const PLACEHOLDER_PREVIOUS_EDITIONS: Edition[] = [
     formattedFileSize: "೧೩.೦ MB",
     isPublished: true,
     publishedAt: "2026-08-01",
-    description: "ಅಭಿವೃದ್ಧಿ ಮತ್ತು ವಿನ್ಯಾಸ ಪರಿಶೀಲನೆಗಾಗಿ ಮಾದರಿ ಸಂಚಿಕೆ (Layout Preview Sample).",
+    description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
   },
   {
     id: "2026-07",
-    title: "ನ್ಯಾಯಘರ್ಜನೆ - ಜುಲೈ ೨೦೨೬ (ಮಾದರಿ ಸಂಚಿಕೆ)",
+    title: "ನ್ಯಾಯ ಘರ್ಜನೆ - ಜುಲೈ ೨೦೨೬",
     editionMonth: "ಜುಲೈ",
     editionYear: 2026,
     formattedDate: "ಜುಲೈ ೨೦೨೬",
@@ -70,6 +70,6 @@ export const PLACEHOLDER_PREVIOUS_EDITIONS: Edition[] = [
     formattedFileSize: "೧೧.೫ MB",
     isPublished: true,
     publishedAt: "2026-07-01",
-    description: "ಅಭಿವೃದ್ಧಿ ಮತ್ತು ವಿನ್ಯಾಸ ಪರಿಶೀಲನೆಗಾಗಿ ಮಾದರಿ ಸಂಚಿಕೆ (Layout Preview Sample).",
+    description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
   },
 ];

@@ -76,7 +76,7 @@ export default function AdminDashboardOverviewPage() {
             )}
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ನ್ಯಾಯಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಆಡಳಿತ ಕೇಂದ್ರ. ಒಟ್ಟು ಪತ್ರಿಕೆಗಳು, ಪ್ರಕಟಣೆಗಳು ಮತ್ತು R2 ಸ್ಥಿತಿ.
+            ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ ಆಡಳಿತ ಕೇಂದ್ರ. ಒಟ್ಟು ಪತ್ರಿಕೆಗಳು, ಪ್ರಕಟಣೆಗಳು ಮತ್ತು R2 ಸ್ಥಿತಿ.
           </p>
         </div>
 

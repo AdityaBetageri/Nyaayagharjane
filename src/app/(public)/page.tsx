@@ -16,11 +16,11 @@ import EditorPhoto from "@/components/public/EditorPhoto";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+  title: "ನ್ಯಾಯ ಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
   description:
-    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ. ಜನರ ಸಮಸ್ಯೆಗಳು, ಭ್ರಷ್ಟಾಚಾರದ ವಿರುದ್ಧ ಹೋರಾಟ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಶೇಷ ವರದಿಗಳು. ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ.",
   keywords: [
-    "ನ್ಯಾಯಘರ್ಜನೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ",
     "Nyaayagharjane",
     "ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
     "Kannada monthly newspaper",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/" },
   openGraph: {
-    title: "ನ್ಯಾಯಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+    title: "ನ್ಯಾಯ ಘರ್ಜನೆ | ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ | ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
     description:
       "ಸಮಾಜದ ಧ್ವನಿಗೆ ಅಕ್ಷರಗಳ ರೂಪ. ಜನರ ಸಮಸ್ಯೆಗಳು ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತಾಸಕ್ತಿಯ ವಿಚಾರಗಳನ್ನು ಓದುಗರ ಮುಂದೆ ತರುವ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ.",
     url: "/",
@@ -60,11 +60,8 @@ export default function HomePage() {
           {/* Newspaper Name & Tagline */}
           <div className="space-y-2">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-serif">
-              ನ್ಯಾಯಘರ್ಜನೆ
+              ನ್ಯಾಯ ಘರ್ಜನೆ
             </h1>
-            <p className="text-xs sm:text-sm font-bold tracking-widest text-[#FF8A80] uppercase">
-              NYAAYAGHARJANE
-            </p>
             <p className="text-lg sm:text-xl font-bold text-white/95 pt-1">
               ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
             </p>
@@ -127,7 +124,7 @@ export default function HomePage() {
               <div className="w-full max-w-[260px] sm:max-w-[280px]">
                 <EditorPhoto
                   src="/editor.jpg"
-                  alt="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯಘರ್ಜನೆ"
+                  alt="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ"
                   editorName="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್"
                 />
               </div>
@@ -145,7 +142,7 @@ export default function HomePage() {
                   ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್
                 </h2>
                 <p className="text-xs sm:text-sm font-semibold text-[#C62828] mt-0.5">
-                  ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ
+                  ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ
                 </p>
               </div>
 
@@ -158,7 +155,7 @@ export default function HomePage() {
               </div>
 
               <p className="text-xs sm:text-sm text-[#5A6A85] leading-relaxed">
-                ನ್ಯಾಯಘರ್ಜನೆ ಪತ್ರಿಕೆಯು ಯಾವುದೇ ರಾಜಕೀಯ ಅಥವಾ ವಾಣಿಜ್ಯ ಹಿತಾಸಕ್ತಿಗಳಿಗೆ ಮಣಿಯದೆ, ಸಾರ್ವಜನಿಕರ ಪರವಾಗಿ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾಗಿ ನಿಲ್ಲುವ ಬದ್ಧತೆಯೊಂದಿಗೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ. ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು, ಜನಪರ ಹೋರಾಟಗಳು ಮತ್ತು ಉಪಯುಕ್ತ ಮಾಹಿತಿಯನ್ನು ಪ್ರತಿ ತಿಂಗಳು ನಮ್ಮ ಓದುಗರಿಗೆ ತಲುಪಿಸಲು ನಾವು ಸದಾ ಬದ್ಧರಾಗಿದ್ದೇವೆ.
+                ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆಯು ಯಾವುದೇ ರಾಜಕೀಯ ಅಥವಾ ವಾಣಿಜ್ಯ ಹಿತಾಸಕ್ತಿಗಳಿಗೆ ಮಣಿಯದೆ, ಸಾರ್ವಜನಿಕರ ಪರವಾಗಿ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾಗಿ ನಿಲ್ಲುವ ಬದ್ಧತೆಯೊಂದಿಗೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ. ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು, ಜನಪರ ಹೋರಾಟಗಳು ಮತ್ತು ಉಪಯುಕ್ತ ಮಾಹಿತಿಯನ್ನು ಪ್ರತಿ ತಿಂಗಳು ನಮ್ಮ ಓದುಗರಿಗೆ ತಲುಪಿಸಲು ನಾವು ಸದಾ ಬದ್ಧರಾಗಿದ್ದೇವೆ.
               </p>
 
               {/* Editorial Values Pills */}
@@ -193,7 +190,7 @@ export default function HomePage() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ಸಮಾಜಮುಖಿ ಪತ್ರಿಕೋದ್ಯಮದ ನಾಲ್ಕು ಮೂಲಸ್ತಂಭಗಳ ಮೇಲೆ ನ್ಯಾಯಘರ್ಜನೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ
+            ಸಮಾಜಮುಖಿ ಪತ್ರಿಕೋದ್ಯಮದ ನಾಲ್ಕು ಮೂಲಸ್ತಂಭಗಳ ಮೇಲೆ ನ್ಯಾಯ ಘರ್ಜನೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ
           </p>
         </div>
 
@@ -250,7 +247,7 @@ export default function HomePage() {
 
           <div className="relative z-10 max-w-xl mx-auto space-y-3">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-serif text-white">
-              ನ್ಯಾಯಘರ್ಜನೆಯ ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಈಗಲೇ ಓದಿ
+              ನ್ಯಾಯ ಘರ್ಜನೆಯ ಇತ್ತೀಚಿನ ಸಂಚಿಕೆಯನ್ನು ಈಗಲೇ ಓದಿ
             </h2>
             <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-light">
               ಮಾಸಿಕ ಆವೃತ್ತಿಯನ್ನು ನಿಮ್ಮ ಮೊಬೈಲ್ ಅಥವಾ ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಡಿಜಿಟಲ್ ರೂಪದಲ್ಲಿ ಆನಂದಿಸಿ ಅಥವಾ ಉಚಿತವಾಗಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.

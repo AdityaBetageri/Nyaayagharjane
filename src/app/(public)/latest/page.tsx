@@ -8,23 +8,23 @@ import { Edition } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ (Latest Edition) | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+  title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ (Latest Edition) | ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
   description:
-    "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಯನ್ನು ನೇರವಾಗಿ ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ ಮತ್ತು ಪೂರ್ಣ PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿಕೊಳ್ಳಿ. ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ.",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಯನ್ನು ನೇರವಾಗಿ ಆನ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಿ ಮತ್ತು ಪೂರ್ಣ PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿಕೊಳ್ಳಿ. ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ.",
   keywords: [
-    "ನ್ಯಾಯಘರ್ಜನೆ ಇತ್ತೀಚಿನ ಸಂಚಿಕೆ",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಇತ್ತೀಚಿನ ಸಂಚಿಕೆ",
     "Nyaayagharjane latest edition",
     "Nyaayagharjane epaper download",
     "Kannada monthly paper latest",
     "ಇಂದಿನ ಪತ್ರಿಕೆ",
-    "ನ್ಯಾಯಘರ್ಜನೆ ಪಿಡಿಎಫ್",
+    "ನ್ಯಾಯ ಘರ್ಜನೆ ಪಿಡಿಎಫ್",
   ],
   alternates: {
     canonical: "/latest",
   },
   openGraph: {
-    title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ | ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
-    description: "ನ್ಯಾಯಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆ.",
+    title: "ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ | ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ",
+    description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಇತ್ತೀಚಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆ.",
     url: "/latest",
     images: ["/opengraph-image"],
   },
@@ -33,7 +33,6 @@ export const metadata: Metadata = {
 export default async function LatestEditionPage() {
   let edition: Edition = PLACEHOLDER_LATEST_EDITION;
   let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
-  let isR2Connected = false;
 
   try {
     const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
@@ -42,7 +41,6 @@ export default async function LatestEditionPage() {
       if (res.data.length > 1) {
         previousEditions = res.data.slice(1, 5).map(r2ItemToEdition);
       }
-      isR2Connected = true;
     }
   } catch {
     // Graceful fallback to static
@@ -69,8 +67,7 @@ export default async function LatestEditionPage() {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ನ್ಯಾಯಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆಯ ಪ್ರಸ್ತುತ ಸಂಚಿಕೆಯ ಮಾಹಿತಿ ಮತ್ತು ಡಿಜಿಟಲ್ ವಾಚಕ
-            {isR2Connected ? " (Cloudflare R2 ಅಧಿಕೃತ ವಿತರಣೆ)" : " (ಮಾದರಿ ಮುನ್ನೋಟ / Preview)"}
+            ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಪತ್ರಿಕೆಯ ಪ್ರಸ್ತುತ ಸಂಚಿಕೆಯ ಮಾಹಿತಿ ಮತ್ತು ಡಿಜಿಟಲ್ ವಾಚಕ
           </p>
         </div>
 
@@ -84,14 +81,8 @@ export default async function LatestEditionPage() {
           <h2 className="text-base sm:text-lg font-bold text-[#172B4D]">
             ಈ ಸಂಚಿಕೆಯ ಪ್ರಮುಖ ಮುಖ್ಯಾಂಶಗಳು
           </h2>
-          <span
-            className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-              isR2Connected
-                ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                : "bg-amber-100 text-amber-800 border-amber-200"
-            }`}
-          >
-            {isR2Connected ? "ಪ್ರಕಟಿತ" : "ಮಾದರಿ ಮುನ್ನೋಟ"}
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded border bg-emerald-100 text-emerald-800 border-emerald-300">
+            ಪ್ರಕಟಿತ ಆವೃತ್ತಿ
           </span>
         </div>
 
@@ -142,7 +133,7 @@ export default async function LatestEditionPage() {
               ಹಿಂದಿನ ಇತರ ಸಂಚಿಕೆಗಳು
             </h2>
             <p className="text-xs text-[#5A6A85] mt-1">
-              ನ್ಯಾಯಘರ್ಜನೆಯ ಈ ಹಿಂದಿನ ಆವೃತ್ತಿಗಳನ್ನು ಸಹ ನೀವು ಇಲ್ಲಿ ವೀಕ್ಷಿಸಬಹುದು.
+              ನ್ಯಾಯ ಘರ್ಜನೆಯ ಈ ಹಿಂದಿನ ಆವೃತ್ತಿಗಳನ್ನು ಸಹ ನೀವು ಇಲ್ಲಿ ವೀಕ್ಷಿಸಬಹುದು.
             </p>
           </div>
           <Link
