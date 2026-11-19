@@ -28,9 +28,9 @@ export default function AdminLoginPage() {
   useEffect(() => {
     const session = getAdminSession();
     if (session) {
-      window.location.href = "/admin/dashboard";
+      router.replace("/admin/dashboard");
     }
-  }, []);
+  }, [router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
     });
 
     // Direct, reliable transition to dashboard
-    window.location.href = "/admin/dashboard";
+    router.push("/admin/dashboard");
   };
 
   const fillDemoCredentials = () => {

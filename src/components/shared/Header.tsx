@@ -3,13 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Menu,
-  X,
-  BookOpen,
-  Calendar,
-  ChevronRight,
-} from "lucide-react";
+import { Menu, X, BookOpen, ChevronRight } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "ಮುಖಪುಟ", href: "/" },
@@ -24,62 +18,58 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="w-full bg-[#FFFFFF] border-b border-[#E2E8F0] sticky top-0 z-40 shadow-xs">
-      {/* Top Dateline & Utility Bar */}
-      <div className="w-full bg-[#172B4D] text-white text-xs py-1.5 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-[1920px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-[#C62828]" />
-            <span className="font-medium">ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
-            <span className="hidden sm:inline text-neutral-400">•</span>
-            <span className="hidden sm:inline text-neutral-300">ತಿಂಗಳ ಪ್ರತಿಯೊಂದು ಆವೃತ್ತಿ ಡಿಜಿಟಲ್ ರೂಪದಲ್ಲಿ</span>
-          </div>
+    <header className="w-full bg-white border-b border-[#E2E8F0] sticky top-0 z-40 shadow-sm">
+      {/* ── Thin Utility Bar ── */}
+      <div className="w-full bg-[#172B4D] text-white text-[11px] py-1 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <span className="text-neutral-300 hidden sm:block">
+            ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ &nbsp;•&nbsp; ತಿಂಗಳ ಪ್ರತಿಯೊಂದು ಆವೃತ್ತಿ ಡಿಜಿಟಲ್ ರೂಪದಲ್ಲಿ
+          </span>
+          <span className="text-neutral-300 sm:hidden">ಕರ್ನಾಟಕ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
           <div className="flex items-center gap-4">
-            <span className="hidden md:inline text-neutral-300">
-              ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
-            </span>
+            <span className="hidden md:block text-neutral-400">ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
             <Link
               href="/admin/login"
-              className="inline-flex items-center gap-1.5 text-neutral-200 hover:text-white transition-colors text-[11px] bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded border border-white/10"
+              className="text-neutral-400 hover:text-white transition-colors underline underline-offset-2"
             >
-              <span>ನಿರ್ವಾಹಕರ ವಿಭಾಗ (Admin)</span>
+              ನಿರ್ವಾಹಕರ ವಿಭಾಗ
             </Link>
           </div>
         </div>
       </div>
 
-      {/* =========================================================
-          DESKTOP UNIFIED NAVBAR (lg: and above) - Single Clean Bar
-          ========================================================= */}
-      <div className="hidden lg:block w-full bg-[#FFFFFF]">
-        <div className="w-full max-w-[1920px] mx-auto px-6 xl:px-12 2xl:px-16 h-20 flex items-center justify-between">
-          {/* 1. Left: Brand Title */}
-          <Link
-            href="/"
-            className="group flex flex-col justify-center shrink-0 pr-6"
-          >
-            <span className="text-2xl xl:text-3xl font-black tracking-tight text-[#172B4D] font-serif leading-none">
-              ನ್ಯಾಯಘರ್ಜನೆ
-            </span>
-            <p className="text-[11px] font-medium text-[#C62828] mt-2 flex items-center gap-1.5">
-              <span>ಸತ್ಯದ ಧ್ವನಿ</span>
-              <span className="text-neutral-400">•</span>
-              <span>ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
-            </p>
+      {/* ── Main Header Row: Logo Left | Nav Center | CTA Right ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-4 py-2.5 sm:py-3">
+
+          {/* Logo / Brand — left-aligned */}
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+            {/* Icon mark */}
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-[#172B4D] flex items-center justify-center shrink-0">
+              <span className="text-[#C62828] font-black text-sm sm:text-base leading-none select-none">ನ್ಯಾ</span>
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-[#172B4D] group-hover:text-[#C62828] transition-colors">
+                ನ್ಯಾಯಘರ್ಜನೆ
+              </span>
+              <span className="text-[9px] sm:text-[10px] font-bold tracking-widest text-[#C62828] uppercase">
+                NYAAYAGHARJANE
+              </span>
+            </div>
           </Link>
 
-          {/* 2. Center: Navigation Items */}
-          <nav className="flex items-center gap-1 xl:gap-2">
+          {/* Desktop nav — centered, hidden on mobile */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2 flex-1 justify-center">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3.5 xl:px-5 py-2 text-sm font-semibold rounded-md transition-colors ${
+                  className={`px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
                     isActive
-                      ? "bg-red-50 text-[#C62828] font-bold shadow-2xs"
-                      : "text-[#172B4D] hover:text-[#C62828] hover:bg-neutral-100/70"
+                      ? "bg-[#172B4D] text-white font-semibold"
+                      : "text-[#172B4D] hover:bg-[#F0F2F5] hover:text-[#C62828]"
                   }`}
                 >
                   {item.label}
@@ -88,112 +78,66 @@ export default function Header() {
             })}
           </nav>
 
-          {/* 3. Right: CTA Button */}
-          <div className="shrink-0 pl-6">
+          {/* CTA + Mobile Menu — right-aligned */}
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/latest"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold rounded-lg shadow-xs hover:shadow-md transition-all"
+              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-semibold rounded-md shadow-sm transition-all hover:shadow-md"
             >
-              <BookOpen className="w-4 h-4" />
-              <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ</span>
+              <span className="sm:hidden">ಓದಿ</span>
             </Link>
+
+            {/* Mobile menu toggle */}
+            <button
+              type="button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden p-1.5 rounded-md text-[#172B4D] hover:bg-neutral-100 transition-colors"
+              aria-label="Toggle menu"
+              aria-expanded={menuOpen}
+            >
+              {menuOpen ? <X className="w-5 h-5 text-[#C62828]" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* =========================================================
-          MOBILE / TABLET NAVBAR & DRAWER (< lg)
-          Uses native disclosure for 100% reliable click & touch
-          ========================================================= */}
-      <details
-        open={menuOpen}
-        onToggle={(e) => setMenuOpen(e.currentTarget.open)}
-        className="lg:hidden w-full group/details relative"
-      >
-        <summary className="list-none [&::-webkit-details-marker]:hidden w-full bg-[#FFFFFF] px-4 sm:px-6 py-3 select-none pointer-events-none">
-          <div className="relative flex items-center justify-between min-h-[48px]">
-            {/* Hamburger / Close Button on Left */}
-            <div
-              role="button"
-              tabIndex={0}
-              aria-label="Toggle navigation menu"
-              className="relative z-30 p-2 rounded-lg text-[#172B4D] hover:bg-neutral-100 transition-colors cursor-pointer pointer-events-auto focus:outline-hidden focus:ring-2 focus:ring-[#C62828] flex items-center justify-center"
-            >
-              <Menu className="w-6 h-6 text-[#172B4D] group-open/details:hidden block pointer-events-none" />
-              <X className="w-6 h-6 text-[#C62828] group-open/details:block hidden pointer-events-none" />
-            </div>
-
-            {/* Brand Title (Centered in mobile view) */}
-            <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center text-center z-10 pointer-events-auto">
-              <Link
-                href="/"
-                onClick={(e) => e.stopPropagation()}
-                className="text-2xl sm:text-3xl font-black tracking-tight text-[#172B4D] font-serif leading-none"
-              >
-                ನ್ಯಾಯಘರ್ಜನೆ
-              </Link>
-              <p className="text-[10px] sm:text-xs font-medium text-[#C62828] mt-1.5 flex items-center gap-1">
-                <span>ಸತ್ಯದ ಧ್ವನಿ</span>
-                <span>•</span>
-                <span>ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
-              </p>
-            </div>
-
-            {/* Right Action Button on Mobile/Tablet */}
-            <div className="relative z-20 pointer-events-auto">
+      {/* ── Mobile Navigation Drawer ── */}
+      {menuOpen && (
+        <div className="md:hidden border-t border-[#E2E8F0] bg-[#F8F9FA]">
+          <div className="px-4 py-2 space-y-0.5">
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-white text-[#C62828] font-semibold shadow-sm border-l-4 border-[#C62828]"
+                      : "text-[#172B4D] hover:bg-white hover:text-[#C62828]"
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  <ChevronRight className={`w-4 h-4 ${isActive ? "text-[#C62828]" : "text-neutral-400"}`} />
+                </Link>
+              );
+            })}
+            <div className="pt-2 pb-1">
               <Link
                 href="/latest"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-semibold rounded-md shadow-xs transition-all"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white rounded-md font-semibold text-sm transition-colors"
               >
-                <BookOpen className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ</span>
+                <BookOpen className="w-4 h-4" />
+                <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
               </Link>
             </div>
           </div>
-        </summary>
-
-        {/* Mobile / Tablet Navigation Drawer */}
-        <div className="w-full border-t border-[#E2E8F0] bg-white shadow-lg px-4 py-3 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-sm font-semibold transition-colors ${
-                  isActive
-                    ? "bg-red-50 text-[#C62828]"
-                    : "text-[#172B4D] hover:bg-neutral-100 active:bg-neutral-200"
-                }`}
-              >
-                <span>{item.label}</span>
-                <ChevronRight className="w-4 h-4 text-neutral-400" />
-              </Link>
-            );
-          })}
-
-          <div className="pt-3 pb-1 space-y-2">
-            <Link
-              href="/latest"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-[#C62828] hover:bg-[#B71C1C] text-white rounded-lg font-bold text-sm shadow-xs transition-colors"
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>ಇತ್ತೀಚಿನ ಪತ್ರಿಕೆ ಓದಿ</span>
-            </Link>
-
-            <Link
-              href="/admin/login"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center justify-center gap-1.5 w-full py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg text-xs font-semibold transition-colors border border-neutral-200"
-            >
-              <span>ನಿರ್ವಾಹಕರ ವಿಭಾಗ (Admin Portal)</span>
-            </Link>
-          </div>
         </div>
-      </details>
+      )}
     </header>
   );
 }
