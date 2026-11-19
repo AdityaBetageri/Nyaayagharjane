@@ -86,13 +86,13 @@ export function ConfirmationModal({
       role="dialog"
       aria-modal="true"
     >
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden transform transition-all p-6 sm:p-7 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-md bg-white rounded-lg shadow-2xl border border-neutral-200 overflow-hidden transform transition-all p-6 sm:p-7 space-y-5 animate-in fade-in zoom-in-95 duration-150">
         {/* Close Button */}
         {!isLoading && (
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-700 p-1.5 rounded-xl hover:bg-neutral-100 transition-colors cursor-pointer"
+            className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-700 p-1.5 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer"
             aria-label="ಮುಚ್ಚಿ"
           >
             <X className="w-5 h-5" />
@@ -101,7 +101,7 @@ export function ConfirmationModal({
 
         <div className="flex items-start gap-4">
           <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border ${getIconBg()}`}
+            className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 border ${getIconBg()}`}
           >
             {renderIcon()}
           </div>
@@ -122,7 +122,7 @@ export function ConfirmationModal({
             type="button"
             disabled={isLoading}
             onClick={onClose}
-            className="px-4 py-2.5 text-xs sm:text-sm font-bold text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 text-xs sm:text-sm font-bold text-neutral-700 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
           >
             {cancelText}
           </button>
@@ -131,7 +131,7 @@ export function ConfirmationModal({
             type="button"
             disabled={isLoading}
             onClick={onConfirm}
-            className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50 ${getConfirmBtnClasses()}`}
+            className={`inline-flex items-center justify-center gap-2 px-5 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer disabled:opacity-50 ${getConfirmBtnClasses()}`}
           >
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             <span>{confirmText}</span>

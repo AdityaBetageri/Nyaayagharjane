@@ -1,0 +1,24 @@
+[
+  {
+    "AllowedOrigins": [
+      "https://nyaayagharjane.com",
+      "https://www.nyaayagharjane.com",
+      "http://localhost:3000",
+      "http://localhost:3001"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "PUT",
+      "HEAD"
+    ],
+    "AllowedHeaders": [
+      "content-type",
+      "content-length",
+      "x-amz-*"
+    ],
+    "ExposeHeaders": [
+      "ETag"
+    ],
+    "MaxAgeSeconds": 3600
+  }
+]

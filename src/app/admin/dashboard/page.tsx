@@ -58,7 +58,7 @@ export default function AdminDashboardOverviewPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* 1. Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-lg border border-[#E2E8F0] shadow-xs">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-[#172B4D]">
@@ -86,7 +86,7 @@ export default function AdminDashboardOverviewPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-bold rounded-lg shadow-xs transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span>ಹೊಸ ಪತ್ರಿಕೆ ಅಪ್‌ಲೋಡ್</span>
@@ -96,7 +96,7 @@ export default function AdminDashboardOverviewPage() {
             type="button"
             onClick={loadData}
             title="ದತ್ತಾಂಶ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
-            className="p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-xl border border-neutral-200 transition-colors cursor-pointer"
+            className="p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-lg border border-neutral-200 transition-colors cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -105,7 +105,7 @@ export default function AdminDashboardOverviewPage() {
 
       {/* 2. Key KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-2">
+        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E2E8F0] shadow-xs space-y-2">
           <div className="flex items-center justify-between text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">ಒಟ್ಟು ಪತ್ರಿಕೆಗಳು</span>
             <FileText className="w-4 h-4 text-blue-600" />
@@ -119,7 +119,7 @@ export default function AdminDashboardOverviewPage() {
           <p className="text-[11px] text-[#5A6A85]">ಕ್ಯಾಟಲಾಗ್‌ನಲ್ಲಿ ಲಭ್ಯ</p>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-2">
+        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E2E8F0] shadow-xs space-y-2">
           <div className="flex items-center justify-between text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">ಪ್ರಕಟಿತ (Live)</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -133,7 +133,7 @@ export default function AdminDashboardOverviewPage() {
           <p className="text-[11px] text-emerald-600 font-medium">ಓದುಗರಿಗೆ ನೇರ ಪ್ರದರ್ಶನ</p>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-2">
+        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E2E8F0] shadow-xs space-y-2">
           <div className="flex items-center justify-between text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">ಕರಡು (Drafts)</span>
             <AlertCircle className="w-4 h-4 text-amber-600" />
@@ -147,7 +147,7 @@ export default function AdminDashboardOverviewPage() {
           <p className="text-[11px] text-[#5A6A85]">ಇನ್ನೂ ಪ್ರಕಟವಾಗಿಲ್ಲ</p>
         </div>
 
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-2">
+        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E2E8F0] shadow-xs space-y-2">
           <div className="flex items-center justify-between text-neutral-500">
             <span className="text-xs font-bold uppercase tracking-wider">ಡೇಟಾಬೇಸ್ / ಸಂಗ್ರಹಣಾ ಡೊಮೈನ್</span>
             <Globe className="w-4 h-4 text-purple-600" />
@@ -165,10 +165,10 @@ export default function AdminDashboardOverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/admin/papers"
-          className="group bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs hover:border-[#172B4D] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+          className="group bg-white p-5 rounded-lg border border-[#E2E8F0] shadow-xs hover:border-[#172B4D] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
         >
           <div className="space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center group-hover:bg-[#172B4D] group-hover:text-white transition-colors">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center group-hover:bg-[#172B4D] group-hover:text-white transition-colors">
               <FileText className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-[#172B4D]">ಪತ್ರಿಕೆಗಳ ನಿರ್ವಹಣೆ</h3>
@@ -184,10 +184,10 @@ export default function AdminDashboardOverviewPage() {
 
         <Link
           href="/admin/upload"
-          className="group bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs hover:border-[#C62828] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+          className="group bg-white p-5 rounded-lg border border-[#E2E8F0] shadow-xs hover:border-[#C62828] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
         >
           <div className="space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-red-50 text-[#C62828] flex items-center justify-center group-hover:bg-[#C62828] group-hover:text-white transition-colors">
+            <div className="w-10 h-10 rounded-lg bg-red-50 text-[#C62828] flex items-center justify-center group-hover:bg-[#C62828] group-hover:text-white transition-colors">
               <Upload className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-[#172B4D]">ಹೊಸ ಪತ್ರಿಕೆ ಅಪ್‌ಲೋಡ್</h3>
@@ -203,10 +203,10 @@ export default function AdminDashboardOverviewPage() {
 
         <Link
           href="/admin/guide"
-          className="group bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs hover:border-[#172B4D] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+          className="group bg-white p-5 rounded-lg border border-[#E2E8F0] shadow-xs hover:border-[#172B4D] hover:shadow-md transition-all flex flex-col justify-between space-y-3"
         >
           <div className="space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:bg-[#172B4D] group-hover:text-white transition-colors">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center group-hover:bg-[#172B4D] group-hover:text-white transition-colors">
               <FolderTree className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-[#172B4D]">ಪ್ರಕಟಣಾ ಮಾರ್ಗದರ್ಶಿ</h3>
@@ -222,10 +222,10 @@ export default function AdminDashboardOverviewPage() {
 
         <Link
           href="/admin/verifier"
-          className="group bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs hover:border-purple-700 hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+          className="group bg-white p-5 rounded-lg border border-[#E2E8F0] shadow-xs hover:border-purple-700 hover:shadow-md transition-all flex flex-col justify-between space-y-3"
         >
           <div className="space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center group-hover:bg-purple-700 group-hover:text-white transition-colors">
+            <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center group-hover:bg-purple-700 group-hover:text-white transition-colors">
               <Globe className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-[#172B4D]">ಡೇಟಾಬೇಸ್ ಕನೆಕ್ಟಿವಿಟಿ ಟೆಸ್ಟರ್</h3>
@@ -241,7 +241,7 @@ export default function AdminDashboardOverviewPage() {
       </div>
 
       {/* 4. Recent Editions Table Preview */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-4">
+      <div className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
           <div>
             <h2 className="text-base sm:text-lg font-bold text-[#172B4D]">

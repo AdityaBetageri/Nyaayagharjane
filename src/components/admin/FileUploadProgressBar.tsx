@@ -44,11 +44,11 @@ export default function FileUploadProgressBar({
   const uploadedReadable = getReadableFileSize(uploadedBytes || 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div className="bg-white rounded-lg border border-[#E2E8F0] shadow-sm p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-200">
       {/* Top Header */}
       <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0] flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-[#C62828]">
+          <div className="w-10 h-10 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-[#C62828]">
             {isFailed ? (
               <AlertCircle className="w-5 h-5 text-red-600" />
             ) : (
@@ -70,7 +70,7 @@ export default function FileUploadProgressBar({
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ (Retry)</span>
@@ -80,7 +80,7 @@ export default function FileUploadProgressBar({
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 hover:bg-red-50 hover:text-red-600 text-neutral-700 text-xs font-bold rounded-xl transition-colors cursor-pointer border border-neutral-200"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 hover:bg-red-50 hover:text-red-600 text-neutral-700 text-xs font-bold rounded-lg transition-colors cursor-pointer border border-neutral-200"
             title="ಅಪ್‌ಲೋಡ್ ರದ್ದುಮಾಡಿ"
           >
             <X className="w-4 h-4" />
@@ -91,7 +91,7 @@ export default function FileUploadProgressBar({
 
       {/* File Upload Progress Item (Untitled UI Style) */}
       <div
-        className={`rounded-2xl border p-4 sm:p-5 transition-all ${
+        className={`rounded-lg border p-4 sm:p-5 transition-all ${
           isFailed
             ? "border-red-300 bg-red-50/30"
             : "border-neutral-200 bg-neutral-50/50 hover:bg-neutral-50"
@@ -99,7 +99,7 @@ export default function FileUploadProgressBar({
       >
         <div className="flex items-start gap-3.5 sm:gap-4">
           {/* File Icon Badge */}
-          <div className="w-11 h-11 rounded-xl bg-red-100/80 border border-red-200 flex flex-col items-center justify-center shrink-0 text-[#C62828]">
+          <div className="w-11 h-11 rounded-lg bg-red-100/80 border border-red-200 flex flex-col items-center justify-center shrink-0 text-[#C62828]">
             <FileText className="w-5 h-5" />
             <span className="text-[9px] font-black uppercase tracking-wider leading-none mt-0.5">
               PDF
@@ -150,7 +150,7 @@ export default function FileUploadProgressBar({
       </div>
 
       {/* Cloud Guarantee Footer Note */}
-      <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs text-emerald-950">
+      <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-lg flex items-center gap-3 text-xs text-emerald-950">
         <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
         <div>
           <p className="font-bold text-emerald-900">ಸ್ವಯಂಚಾಲಿತ ಚಂಕ್ ಅಪ್‌ಲೋಡ್ ಸಕ್ರಿಯವಾಗಿದೆ</p>

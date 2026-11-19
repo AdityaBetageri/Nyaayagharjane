@@ -1,0 +1,19 @@
+{
+  "name": "nyaayagharjane-worker",
+  "version": "1.0.0",
+  "description": "Secure Cloudflare Worker Gateway for Nyaayagharjane E-Newspaper with Firebase Auth and R2",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241112.0",
+    "typescript": "^5.6.3",
+    "wrangler": "^3.88.0"
+  }
+}

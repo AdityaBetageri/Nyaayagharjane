@@ -1,8 +1,27 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, Phone, MapPin, ShieldCheck } from "lucide-react";
+import { getLocalSiteSettings, fetchSiteSettings, SiteContactSettings, DEFAULT_SITE_SETTINGS } from "@/lib/siteSettings";
 
 export default function Footer() {
+  const [settings, setSettings] = useState<SiteContactSettings>(DEFAULT_SITE_SETTINGS);
+
+  useEffect(() => {
+    setSettings(getLocalSiteSettings());
+    fetchSiteSettings().then((res) => {
+      if (res) setSettings(res);
+    });
+
+    const handleUpdate = () => {
+      setSettings(getLocalSiteSettings());
+    };
+
+    window.addEventListener("site_settings_updated", handleUpdate);
+    return () => window.removeEventListener("site_settings_updated", handleUpdate);
+  }, []);
   return (
     <footer className="w-full bg-[#172B4D] text-white border-t-4 border-[#C62828] mt-auto">
       {/* Upper Footer */}
@@ -113,15 +132,15 @@ export default function Footer() {
             <div className="space-y-2.5 text-xs text-neutral-300">
               <p className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#FF8A80] shrink-0 mt-0.5" />
-                <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಭವನ, ಬೆಂಗಳೂರು, ಕರ್ನಾಟಕ - ೫೬೦೦೦೧ <span className="text-neutral-400">(ಮಾದರಿ ವಿಳಾಸ / Placeholder)</span></span>
+                <span>{settings.officeAddress}</span>
               </p>
               <p className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#FF8A80] shrink-0" />
-                <span>contact@nyaayagharjane.com <span className="text-neutral-400">(ಮಾದರಿ ಇಮೇಲ್)</span></span>
+                <span>{settings.contactEmail}</span>
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#FF8A80] shrink-0" />
-                <span>+91 00000 00000 <span className="text-neutral-400">(ಮಾದರಿ ಸಂಖ್ಯೆ)</span></span>
+                <span>{settings.contactPhone}</span>
               </p>
             </div>
           </div>

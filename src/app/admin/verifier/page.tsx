@@ -122,7 +122,7 @@ export default function AdminVerifierPage() {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
+    <div className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="border-b border-[#E2E8F0] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -139,7 +139,7 @@ export default function AdminVerifierPage() {
 
         <Link
           href="/admin/guide"
-          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-xl transition-colors shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-lg transition-colors shrink-0"
         >
           <FolderTree className="w-4 h-4" />
           <span>ಪ್ರಕಟಣಾ ಮಾರ್ಗದರ್ಶಿ</span>
@@ -157,13 +157,13 @@ export default function AdminVerifierPage() {
               value={r2Url}
               onChange={(e) => setR2Url(e.target.value)}
               placeholder="https://storage.yourdomain.com ಅಥವಾ PDF URL"
-              className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] font-mono focus:border-[#172B4D] transition-colors"
+              className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm bg-[#F8F9FA] border border-neutral-300 rounded-lg text-[#172B4D] font-mono focus:border-[#172B4D] transition-colors"
             />
             <button
               type="button"
               disabled={testResult.loading}
               onClick={handleRunR2Test}
-              className="px-5 py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 shadow-xs"
+              className="px-5 py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0 shadow-xs"
             >
               <RefreshCw className={`w-4 h-4 ${testResult.loading ? "animate-spin" : ""}`} />
               <span>{testResult.loading ? "ಪರೀಕ್ಷಿಸಲಾಗುತ್ತಿದೆ..." : "ಸಂಪರ್ಕ ಪರೀಕ್ಷಿಸಿ"}</span>
@@ -176,7 +176,7 @@ export default function AdminVerifierPage() {
 
         {/* Sync message alert */}
         {syncMessage && (
-          <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-900 flex items-center gap-2">
+          <div className="p-3.5 rounded-lg bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-900 flex items-center gap-2">
             <UploadCloud className="w-4 h-4 text-blue-600 shrink-0" />
             <span>{syncMessage}</span>
           </div>
@@ -186,7 +186,7 @@ export default function AdminVerifierPage() {
         {testResult.tested && (
           <div className="space-y-4">
             {/* 1. S3 Storage Bucket Status Card */}
-            <div className="p-4 sm:p-5 rounded-2xl border bg-[#F8F9FA] border-[#E2E8F0] space-y-3">
+            <div className="p-4 sm:p-5 rounded-lg border bg-[#F8F9FA] border-[#E2E8F0] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-[#172B4D]">
                   <Database className="w-4 h-4 text-purple-600" />
@@ -230,7 +230,7 @@ export default function AdminVerifierPage() {
                     type="button"
                     disabled={isSyncing}
                     onClick={handleSyncCatalogue}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#172B4D] hover:bg-[#091E42] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#172B4D] hover:bg-[#091E42] text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {isSyncing ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -245,7 +245,7 @@ export default function AdminVerifierPage() {
 
             {/* 2. Public CDN / Custom Domain Status Card */}
             <div
-              className={`p-4 sm:p-5 rounded-2xl border space-y-3 ${
+              className={`p-4 sm:p-5 rounded-lg border space-y-3 ${
                 testResult.ok
                   ? "bg-emerald-50 border-emerald-300 text-emerald-950"
                   : "bg-red-50 border-red-300 text-red-950"
@@ -265,7 +265,7 @@ export default function AdminVerifierPage() {
                 )}
               </div>
 
-              <div className="text-xs space-y-1.5 font-mono bg-white/70 p-3 rounded-xl border border-black/5">
+              <div className="text-xs space-y-1.5 font-mono bg-white/70 p-3 rounded-lg border border-black/5">
                 <div className="break-all">
                   <span className="font-sans font-bold text-neutral-600">ಪರೀಕ್ಷಿತ ಕ್ಯಾಟಲಾಗ್ ವಿಳಾಸ:</span>{" "}
                   <a
@@ -291,7 +291,7 @@ export default function AdminVerifierPage() {
 
               {/* 3. Specific PDF check if applicable */}
               {testResult.pdfCheck && (
-                <div className="p-3 bg-white/80 rounded-xl border border-black/5 text-xs font-mono space-y-1">
+                <div className="p-3 bg-white/80 rounded-lg border border-black/5 text-xs font-mono space-y-1">
                   <div className="flex items-center gap-1.5 font-sans font-bold text-[#172B4D]">
                     <FileCheck className="w-4 h-4 text-blue-600" />
                     <span>ನಿರ್ದಿಷ್ಟ PDF ಫೈಲ್ ತಪಾಸಣೆ:</span>

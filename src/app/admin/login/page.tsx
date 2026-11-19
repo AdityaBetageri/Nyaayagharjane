@@ -16,6 +16,7 @@ import {
   LogIn,
 } from "lucide-react";
 import { getAdminSession, setAdminSession } from "@/lib/editionsStore";
+import { isFirebaseConfigured, signInAdmin } from "@/lib/firebase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -33,23 +34,71 @@ export default function AdminLoginPage() {
     }
   }, [router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    const userEmail = email.trim() || "admin@nyaayagharjane.com";
+    const userEmail = email.trim();
+    if (!userEmail) {
+      setError("ದಯವಿಟ್ಟು ಈಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ (Please enter your email).");
+      setIsLoading(false);
+      return;
+    }
 
-    // Store admin session
-    setAdminSession({
-      email: userEmail,
-      name: "ಮುಖ್ಯ ನಿರ್ವಾಹಕರು (Chief Admin)",
-      role: "Super Admin",
-      loggedInAt: new Date().toISOString(),
-    });
+    if (!password) {
+      setError("ದಯವಿಟ್ಟು ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ (Please enter your password).");
+      setIsLoading(false);
+      return;
+    }
 
-    // Direct, reliable transition to dashboard
-    router.push("/admin/dashboard");
+    try {
+      // 1. If Firebase is configured, perform real Firebase Authentication
+      if (isFirebaseConfigured()) {
+        const { user, idToken } = await signInAdmin(userEmail, password);
+
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("admin_firebase_id_token", idToken);
+          sessionStorage.setItem("admin_firebase_uid", user.uid);
+        }
+
+        setAdminSession({
+          email: user.email || userEmail,
+          name: user.displayName || "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ",
+          role: "Super Admin",
+          loggedInAt: new Date().toISOString(),
+        });
+
+        router.push("/admin/dashboard");
+        return;
+      }
+
+      // 2. Fallback / Development Demo Mode (if Firebase environment keys are not configured yet)
+      setAdminSession({
+        email: userEmail,
+        name: "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ",
+        role: "Super Admin",
+        loggedInAt: new Date().toISOString(),
+      });
+
+      router.push("/admin/dashboard");
+    } catch (err: unknown) {
+      console.error("Login failed:", err);
+      let errorMsg = "ಲಾಗಿನ್ ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.";
+      if (err instanceof Error) {
+        if (err.message.includes("auth/invalid-credential") || err.message.includes("auth/wrong-password")) {
+          errorMsg = "ತಪ್ಪಾದ ಈಮೇಲ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್. ದಯವಿಟ್ಟು ಮರುಪರಿಶೀಲಿಸಿ (Invalid email or password).";
+        } else if (err.message.includes("auth/user-not-found")) {
+          errorMsg = "ಈ ಈಮೇಲ್ ಹೊಂದಿರುವ ನಿರ್ವಾಹಕ ಖಾತೆ ಕಂಡುಬಂದಿಲ್ಲ (Admin account not found).";
+        } else if (err.message.includes("auth/too-many-requests")) {
+          errorMsg = "ಹೆಚ್ಚು ಬಾರಿ ವಿಫಲ ಯತ್ನಗಳು ನಡೆದಿವೆ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಪ್ರಯತ್ನಿಸಿ (Too many attempts. Try later).";
+        } else {
+          errorMsg = `ದೋಷ: ${err.message}`;
+        }
+      }
+      setError(errorMsg);
+      setIsLoading(false);
+    }
   };
 
   const fillDemoCredentials = () => {
@@ -83,17 +132,17 @@ export default function AdminLoginPage() {
 
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md mx-auto p-4 sm:p-6 my-auto">
-        <div className="bg-neutral-950/80 border border-neutral-800 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-md space-y-6">
+        <div className="bg-neutral-950/80 border border-neutral-800 rounded-lg p-6 sm:p-8 shadow-2xl backdrop-blur-md space-y-6">
           {/* Brand & Icon Header */}
           <div className="text-center space-y-2">
-            <div className="w-16 h-16 rounded-2xl p-1 bg-white/10 border border-white/20 shadow-xl mx-auto">
+            <div className="w-16 h-16 rounded-lg p-1 bg-white/10 border border-white/20 shadow-xl mx-auto">
               <Image
                 src="/logo.png"
                 alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
                 width={968}
                 height={968}
                 priority
-                className="w-full h-full object-contain rounded-xl drop-shadow-md"
+                className="w-full h-full object-contain rounded-lg drop-shadow-md"
               />
             </div>
 

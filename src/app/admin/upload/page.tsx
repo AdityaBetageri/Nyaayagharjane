@@ -31,6 +31,13 @@ import {
 } from "@/lib/chunkUploader";
 import { R2NewspaperItem } from "@/types/r2";
 import FileUploadProgressBar from "@/components/admin/FileUploadProgressBar";
+import { getAdminIdToken } from "@/lib/firebase";
+import {
+  isWorkerConfigured,
+  requestPresignedUploadUrl,
+  uploadPdfToR2PresignedUrl,
+  completeUploadViaWorker,
+} from "@/lib/workerClient";
 
 interface FormErrors {
   file?: string;
@@ -277,7 +284,7 @@ export default function AdminUploadPage() {
     });
   };
 
-  // 1. Automatic R2 Upload Handler (Chunked + Auto JSON Update)
+  // 1. Automatic Upload Handler (Worker Presigned Direct-to-R2 or S3 Chunked Fallback)
   const handleAutoUpload = async () => {
     touchAllFields();
     if (!validateForm()) {
@@ -294,6 +301,129 @@ export default function AdminUploadPage() {
     setIsUploading(true);
     isPausedRef.current = false;
 
+    // Check if Cloudflare Worker Gateway is active
+    if (isWorkerConfigured()) {
+      try {
+        const idToken = await getAdminIdToken();
+        if (!idToken) {
+          throw new Error("ಸುರಕ್ಷಿತ ಅಪ್‌ಲೋಡ್‌ಗಾಗಿ ನಿರ್ವಾಹಕರ ಲಾಗಿನ್ ಅಗತ್ಯವಿದೆ (Admin login required). ದಯವಿಟ್ಟು ಲಾಗಿನ್ ಆಗಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.");
+        }
+
+        // Step 1: Request Presigned URL from Worker Gateway
+        setUploadProgress({
+          stage: "initializing",
+          percent: 5,
+          currentPart: 1,
+          totalParts: 1,
+          uploadedBytes: 0,
+          totalBytes: selectedFile.size,
+          statusMessage: "ಸರ್ವರ್‌ನಿಂದ ಸುರಕ್ಷಿತ ಪ್ರಿಸೈನ್ಡ್ ಲಿಂಕ್ ಪಡೆಯಲಾಗುತ್ತಿದೆ...",
+          error: null,
+        });
+
+        const presigned = await requestPresignedUploadUrl(
+          {
+            filename: selectedFile.name,
+            fileSizeBytes: selectedFile.size,
+            year: Number(uploadYear),
+            month: Number(uploadMonth),
+            editionArea: uploadEditionArea,
+          },
+          idToken
+        );
+
+        // Step 2: Upload Directly from Browser to Cloudflare R2
+        setUploadProgress({
+          stage: "uploading_pdf",
+          percent: 10,
+          currentPart: 1,
+          totalParts: 1,
+          uploadedBytes: 0,
+          totalBytes: selectedFile.size,
+          statusMessage: "PDF ಫೈಲ್ ಅನ್ನು ನೇರವಾಗಿ ಕ್ಲೌಡ್ ಸಂಗ್ರಹಣೆಗೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
+          error: null,
+        });
+
+        await uploadPdfToR2PresignedUrl(
+          presigned.uploadUrl,
+          selectedFile,
+          (percent) => {
+            const mappedPercent = 10 + Math.round((percent / 100) * 85);
+            setUploadProgress({
+              stage: "uploading_pdf",
+              percent: mappedPercent,
+              currentPart: 1,
+              totalParts: 1,
+              uploadedBytes: Math.round((percent / 100) * selectedFile.size),
+              totalBytes: selectedFile.size,
+              statusMessage: `ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತಿದೆ (${percent}%)...`,
+              error: null,
+            });
+          }
+        );
+
+        // Step 3: Complete Upload & Atomically Update Catalogue in R2
+        setUploadProgress({
+          stage: "updating_catalogue",
+          percent: 96,
+          currentPart: 1,
+          totalParts: 1,
+          uploadedBytes: selectedFile.size,
+          totalBytes: selectedFile.size,
+          statusMessage: "ಕ್ಯಾಟಲಾಗ್ ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ ಮತ್ತು ಫೈಲ್ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...",
+          error: null,
+        });
+
+        const calculatedTitle = uploadTitle.trim() || currentItemRecord.title || `ನ್ಯಾಯ ಘರ್ಜನೆ — ${uploadYear}-${String(uploadMonth).padStart(2, "0")}`;
+
+        const completeResult = await completeUploadViaWorker(
+          {
+            objectKey: presigned.objectKey,
+            title: calculatedTitle,
+            year: Number(uploadYear),
+            month: Number(uploadMonth),
+            editionArea: uploadEditionArea,
+            language: uploadLanguage,
+            totalPages: Number(uploadTotalPages) || 16,
+            formattedFileSize: uploadFileSize.trim() || `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
+            status: uploadStatus,
+            description: uploadDescription.trim(),
+          },
+          idToken
+        );
+
+        setUploadProgress({
+          stage: "completed",
+          percent: 100,
+          currentPart: 1,
+          totalParts: 1,
+          uploadedBytes: selectedFile.size,
+          totalBytes: selectedFile.size,
+          statusMessage: "ಅಪ್‌ಲೋಡ್ ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ!",
+          error: null,
+        });
+
+        // Add to local storage for immediate preview in reader
+        const newEd = r2ItemToEdition((completeResult.item as unknown as R2NewspaperItem) || currentItemRecord);
+        addStoredEdition(newEd);
+        setLastUploadedId(newEd.id);
+        setSuccessNotice(
+          `"${newEd.title}" ಪತ್ರಿಕೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿ ಪ್ರಕಟಗೊಂಡಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
+        );
+        setSessionKeyVersion((v) => v + 1);
+
+        clearFormData();
+        return;
+      } catch (err: unknown) {
+        console.error("Worker presigned upload error:", err);
+        const msg = err instanceof Error ? err.message : "ಅಪ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ.";
+        setUploadError(msg);
+        setIsUploading(false);
+        return;
+      }
+    }
+
+    // Fallback: S3 Chunked Uploader
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -310,7 +440,6 @@ export default function AdminUploadPage() {
       });
 
       if (result.success) {
-        // Also save to local edition store so reader and admin reflect immediately
         const newEd = r2ItemToEdition(currentItemRecord);
         addStoredEdition(newEd);
         setLastUploadedId(newEd.id);
@@ -318,8 +447,6 @@ export default function AdminUploadPage() {
           `"${newEd.title}" ಪತ್ರಿಕೆ ಡೇಟಾಬೇಸ್‌ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
         );
         setSessionKeyVersion((v) => v + 1);
-
-        // Clear all form data after upload
         clearFormData();
       }
     } catch (err: unknown) {
@@ -373,7 +500,7 @@ export default function AdminUploadPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Page Header */}
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-lg border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-black text-[#172B4D]">
@@ -399,7 +526,7 @@ export default function AdminUploadPage() {
             <button
               type="button"
               onClick={() => setShowClearModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
               title="ಫಾರ್ಮ್ ತೆರವುಗೊಳಿಸಿ"
             >
               <Trash2 className="w-4 h-4 text-neutral-500" />
@@ -409,7 +536,7 @@ export default function AdminUploadPage() {
 
           <Link
             href="/admin/papers"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-xl transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-lg transition-colors shrink-0"
           >
             <FileText className="w-4 h-4" />
             <span>ಪತ್ರಿಕೆಗಳ ಪಟ್ಟಿ ನೋಡಿ</span>
@@ -419,7 +546,7 @@ export default function AdminUploadPage() {
 
       {/* Offline/Fallback Notice if storage is not yet connected */}
       {r2Configured === false && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between gap-3 text-blue-950 text-xs">
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between gap-3 text-blue-950 text-xs">
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-4 h-4 text-blue-600 shrink-0" />
             <span>
@@ -431,7 +558,7 @@ export default function AdminUploadPage() {
 
       {/* Success Banner */}
       {successNotice && (
-        <div className="p-4 sm:p-5 bg-emerald-50 border-2 border-emerald-400 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-emerald-950 animate-in fade-in duration-300">
+        <div className="p-4 sm:p-5 bg-emerald-50 border-2 border-emerald-400 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-emerald-950 animate-in fade-in duration-300">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
             <div>
@@ -445,7 +572,7 @@ export default function AdminUploadPage() {
               <Link
                 href={`/reader/${lastUploadedId}`}
                 target="_blank"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>ವಾಚಕದಲ್ಲಿ ನೋಡಿ (Test in Reader)</span>
@@ -454,7 +581,7 @@ export default function AdminUploadPage() {
             <Link
               href="/latest"
               target="_blank"
-              className="inline-flex items-center gap-1 px-3 py-2 bg-white text-emerald-900 border border-emerald-300 hover:bg-emerald-100 text-xs font-bold rounded-xl transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-2 bg-white text-emerald-900 border border-emerald-300 hover:bg-emerald-100 text-xs font-bold rounded-lg transition-colors"
             >
               <span>ಇತ್ತೀಚಿನ ಪುಟ</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -465,7 +592,7 @@ export default function AdminUploadPage() {
 
       {/* Upload Error Banner */}
       {uploadError && (
-        <div className="p-4 bg-red-50 border-2 border-red-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-950 text-xs">
+        <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-red-950 text-xs">
           <div className="flex items-start gap-2.5">
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div>
@@ -504,7 +631,7 @@ export default function AdminUploadPage() {
         />
       ) : (
         /* Main Clean Upload Form (Visible when not uploading) */
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-6 sm:p-8 space-y-6">
+        <div className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs p-6 sm:p-8 space-y-6">
           <div className="border-b border-[#E2E8F0] pb-4">
             <div className="flex items-center gap-2 text-[#C62828]">
               <Upload className="w-5 h-5" />
@@ -524,7 +651,7 @@ export default function AdminUploadPage() {
           </label>
           <div
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all ${
+            className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-all ${
               touched.file && errors.file
                 ? "border-red-400 bg-red-50/30"
                 : selectedFile
@@ -595,7 +722,7 @@ export default function AdminUploadPage() {
               value={uploadTitle}
               placeholder="ಉದಾ: ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬"
               onChange={(e) => handleFieldChange("title", e.target.value)}
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.title && errors.title ? "border-red-400 bg-red-50/20" : "border-neutral-300"
               }`}
             />
@@ -618,7 +745,7 @@ export default function AdminUploadPage() {
               onChange={(e) => handleFieldChange("year", e.target.value)}
               min={2020}
               max={2035}
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.year && errors.year ? "border-red-400 bg-red-50/20" : "border-neutral-300"
               }`}
             />
@@ -638,7 +765,7 @@ export default function AdminUploadPage() {
             <select
               value={uploadMonth}
               onChange={(e) => handleFieldChange("month", e.target.value)}
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.month && errors.month ? "border-red-400 bg-red-50/20" : "border-neutral-300"
               }`}
             >
@@ -673,7 +800,7 @@ export default function AdminUploadPage() {
               value={uploadEditionArea}
               onChange={(e) => handleFieldChange("editionArea", e.target.value)}
               placeholder="ಉದಾ: ರಾಜ್ಯ ಆವೃತ್ತಿ / ಜಿಲ್ಲಾ ಆವೃತ್ತಿ"
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.editionArea && errors.editionArea
                   ? "border-red-400 bg-red-50/20"
                   : "border-neutral-300"
@@ -696,7 +823,7 @@ export default function AdminUploadPage() {
               type="text"
               value={uploadLanguage}
               onChange={(e) => handleFieldChange("language", e.target.value)}
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.language && errors.language ? "border-red-400 bg-red-50/20" : "border-neutral-300"
               }`}
             />
@@ -718,7 +845,7 @@ export default function AdminUploadPage() {
               value={uploadFileName}
               placeholder="ಉದಾ: newspaper.pdf"
               onChange={(e) => handleFieldChange("fileName", e.target.value)}
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm font-mono focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm font-mono focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.fileName && errors.fileName ? "border-red-400 bg-red-50/20" : "border-neutral-300"
               }`}
             />
@@ -751,7 +878,7 @@ export default function AdminUploadPage() {
                 }
               }}
               placeholder="ಉದಾ: 16"
-              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
                 touched.totalPages && errors.totalPages
                   ? "border-red-400 bg-red-50/20"
                   : "border-neutral-300"
@@ -771,7 +898,7 @@ export default function AdminUploadPage() {
             <select
               value={uploadStatus}
               onChange={(e) => setUploadStatus(e.target.value as "published" | "draft")}
-              className="w-full px-3.5 py-2.5 bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
+              className="w-full px-3.5 py-2.5 bg-[#F8F9FA] border border-neutral-300 rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
             >
               <option value="published">published (ಓದುಗರಿಗೆ ನೇರವಾಗಿ ಪ್ರಕಟಿಸು)</option>
               <option value="draft">draft (ಕರಡು ರೂಪದಲ್ಲಿ ಉಳಿಸು)</option>
@@ -786,7 +913,7 @@ export default function AdminUploadPage() {
               value={uploadDescription}
               placeholder="ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
               onChange={(e) => setUploadDescription(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
+              className="w-full px-3.5 py-2.5 bg-[#F8F9FA] border border-neutral-300 rounded-lg text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
             />
           </div>
         </div>
@@ -797,7 +924,7 @@ export default function AdminUploadPage() {
           <button
             type="button"
             onClick={handleAutoUpload}
-            className="w-full py-4 px-6 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md bg-[#C62828] hover:bg-[#B71C1C] cursor-pointer hover:shadow-lg"
+            className="w-full py-3.5 px-6 rounded-lg text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md bg-[#C62828] hover:bg-[#B71C1C] cursor-pointer hover:shadow-lg"
           >
             {hasResumeSession ? (
               <>
@@ -816,7 +943,7 @@ export default function AdminUploadPage() {
           <button
             type="button"
             onClick={handleSaveToPreview}
-            className="w-full py-3 bg-[#172B4D] hover:bg-[#0F1C33] text-white font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer text-xs"
+            className="w-full py-2.5 bg-[#172B4D] hover:bg-[#0F1C33] text-white font-bold rounded-lg transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer text-xs"
           >
             <Save className="w-4 h-4" />
             <span>ಸ್ಥಳೀಯ ಮುನ್ನೋಟಕ್ಕೆ ಸೇರಿಸಿ & ವಾಚಕದಲ್ಲಿ ಪರೀಕ್ಷಿಸಿ</span>

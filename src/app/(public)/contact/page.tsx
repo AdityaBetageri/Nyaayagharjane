@@ -1,11 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Send, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { getLocalSiteSettings, fetchSiteSettings, SiteContactSettings, DEFAULT_SITE_SETTINGS } from "@/lib/siteSettings";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [settings, setSettings] = useState<SiteContactSettings>(DEFAULT_SITE_SETTINGS);
+
+  useEffect(() => {
+    setSettings(getLocalSiteSettings());
+    fetchSiteSettings().then((res) => {
+      if (res) setSettings(res);
+    });
+
+    const handleUpdate = () => {
+      setSettings(getLocalSiteSettings());
+    };
+
+    window.addEventListener("site_settings_updated", handleUpdate);
+    return () => window.removeEventListener("site_settings_updated", handleUpdate);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,10 +82,9 @@ export default function ContactPage() {
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#172B4D]">ಕಚೇರಿ ವಿಳಾಸ (ಮಾದರಿ):</h4>
-                  <p className="mt-0.5 leading-relaxed">
-                    ನ್ಯಾಯ ಘರ್ಜನೆ ಭವನ, ಮುಖ್ಯ ರಸ್ತೆ,<br />
-                    ಬೆಂಗಳೂರು, ಕರ್ನಾಟಕ - ೫೬೦೦೦೧ <span className="text-neutral-400 font-medium">(ಮಾದರಿ ವಿಳಾಸ / Placeholder)</span>
+                  <h4 className="font-bold text-[#172B4D]">ಕಚೇರಿ ವಿಳಾಸ (Office Address):</h4>
+                  <p className="mt-0.5 leading-relaxed whitespace-pre-line text-neutral-700 font-medium">
+                    {settings.officeAddress}
                   </p>
                 </div>
               </div>
@@ -79,9 +94,8 @@ export default function ContactPage() {
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#172B4D]">ಇ-ಮೇಲ್ (ಮಾದರಿ):</h4>
-                  <p className="mt-0.5">contact@nyaayagharjane.com <span className="text-neutral-400 font-medium">(ಮಾದರಿ ಇಮೇಲ್)</span></p>
-                  <p className="text-[11px] text-neutral-400">editor@nyaayagharjane.com (ಸಂಪಾದಕೀಯ ವಿಭಾಗ)</p>
+                  <h4 className="font-bold text-[#172B4D]">ಇ-ಮೇಲ್ (Email):</h4>
+                  <p className="mt-0.5 text-neutral-700 font-medium">{settings.contactEmail}</p>
                 </div>
               </div>
 
@@ -90,8 +104,8 @@ export default function ContactPage() {
                   <Phone className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#172B4D]">ದೂರವಾಣಿ ಸಂಖ್ಯೆ (ಮಾದರಿ):</h4>
-                  <p className="mt-0.5">+91 00000 00000 <span className="text-neutral-400 font-medium">(ಮಾದರಿ ಸಂಖ್ಯೆ / Placeholder)</span></p>
+                  <h4 className="font-bold text-[#172B4D]">ದೂರವಾಣಿ ಸಂಖ್ಯೆ (Phone):</h4>
+                  <p className="mt-0.5 text-neutral-700 font-medium">{settings.contactPhone}</p>
                   <p className="text-[11px] text-neutral-400">ಸೋಮವಾರದಿಂದ ಶನಿವಾರ (ಬೆಳಿಗ್ಗೆ ೧೦ ರಿಂದ ಸಂಜೆ ೬ ರವರೆಗೆ)</p>
                 </div>
               </div>

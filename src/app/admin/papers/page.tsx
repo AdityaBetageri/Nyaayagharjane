@@ -24,6 +24,8 @@ import {
   togglePublishStoredEdition,
 } from "@/lib/editionsStore";
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { getAdminIdToken } from "@/lib/firebase";
+import { isWorkerConfigured, deleteNewspaperViaWorker } from "@/lib/workerClient";
 import { Edition } from "@/types";
 
 export default function AdminPapersPage() {
@@ -111,6 +113,26 @@ export default function AdminPapersPage() {
 
     setIsDeleting(true);
     setDeleteNotice(null);
+
+    // If Worker gateway is configured, delete through the secure Worker API
+    if (isWorkerConfigured()) {
+      try {
+        const idToken = await getAdminIdToken();
+        if (idToken) {
+          const workerRes = await deleteNewspaperViaWorker(deleteTarget.id, idToken);
+          const updated = deleteStoredEdition(deleteTarget.id);
+          setEditions(updated);
+          setDeleteNotice(
+            workerRes.message || `"${deleteTarget.title}" ಪತ್ರಿಕೆಯನ್ನು ಕ್ಲೌಡ್ ಸಂಗ್ರಹಣೆಯಿಂದ ಅಳಿಸಲಾಗಿದೆ.`
+          );
+          setIsDeleting(false);
+          setDeleteTarget(null);
+          return;
+        }
+      } catch (err: unknown) {
+        console.warn("Worker deletion failed, falling back to local/S3 API:", err);
+      }
+    }
 
     try {
       const res = await fetch("/api/r2/delete", {
@@ -204,7 +226,7 @@ export default function AdminPapersPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-lg border border-[#E2E8F0] shadow-xs">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-[#172B4D]">
@@ -222,7 +244,7 @@ export default function AdminPapersPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs sm:text-sm font-bold rounded-lg shadow-xs transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>ಹೊಸ ಪತ್ರಿಕೆ ಸೇರಿಸಿ</span>
@@ -232,7 +254,7 @@ export default function AdminPapersPage() {
             type="button"
             onClick={loadData}
             title="ದತ್ತಾಂಶ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
-            className="p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-xl border border-neutral-200 transition-colors cursor-pointer"
+            className="p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-lg border border-neutral-200 transition-colors cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -240,7 +262,7 @@ export default function AdminPapersPage() {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="bg-white p-4 rounded-lg border border-[#E2E8F0] shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -291,7 +313,7 @@ export default function AdminPapersPage() {
 
       {/* Delete Notice Banner */}
       {deleteNotice && (
-        <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs sm:text-sm font-semibold text-emerald-800 shadow-xs">
+        <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-xs sm:text-sm font-semibold text-emerald-800 shadow-xs">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{deleteNotice}</span>
@@ -307,7 +329,7 @@ export default function AdminPapersPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-[#F8F9FA] border-b border-[#E2E8F0] text-neutral-600 font-bold uppercase tracking-wider text-[11px]">
@@ -432,7 +454,7 @@ export default function AdminPapersPage() {
       {/* Edit Paper Modal */}
       {editingEdition && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
               <h3 className="text-base font-bold text-[#172B4D] flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-[#C62828]" />
@@ -596,7 +618,7 @@ export default function AdminPapersPage() {
               <p>
                 <strong className="text-neutral-800">&ldquo;{deleteTarget.title}&rdquo;</strong> ಪತ್ರಿಕೆಯನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?
               </p>
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 space-y-1">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 space-y-1">
                 <p className="font-bold">⚠️ ಈ ಕ್ರಿಯೆಯನ್ನು ಹಿಂಪಡೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ:</p>
                 <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-red-700">
                   <li>ಆನ್‌ಲೈನ್ ಡೇಟಾಬೇಸ್ ಮತ್ತು ಸಂಗ್ರಹಣೆಯಿಂದ PDF ಫೈಲ್ ಅಳಿಸಿಹೋಗುತ್ತದೆ.</li>

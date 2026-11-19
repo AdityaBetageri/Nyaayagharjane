@@ -11,7 +11,7 @@ import {
 
 export default function AdminGuidePage() {
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-5xl mx-auto">
+    <div className="bg-white rounded-lg border border-[#E2E8F0] shadow-xs p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-5xl mx-auto">
       {/* Header */}
       <div className="border-b border-[#E2E8F0] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -28,7 +28,7 @@ export default function AdminGuidePage() {
 
         <Link
           href="/admin/upload"
-          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold rounded-xl transition-colors shrink-0 shadow-xs"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold rounded-lg transition-colors shrink-0 shadow-xs"
         >
           <Upload className="w-4 h-4" />
           <span>ಪತ್ರಿಕೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ</span>
@@ -36,7 +36,7 @@ export default function AdminGuidePage() {
       </div>
 
       {/* Quick Summary Banner */}
-      <div className="p-4 sm:p-5 bg-gradient-to-r from-red-50 to-amber-50 border-2 border-[#C62828]/25 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[#172B4D]">
+      <div className="p-4 sm:p-5 bg-gradient-to-r from-red-50 to-amber-50 border-2 border-[#C62828]/25 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[#172B4D]">
         <div className="flex items-start gap-3">
           <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-[#C62828] shrink-0 mt-0.5" />
           <div>
@@ -51,7 +51,7 @@ export default function AdminGuidePage() {
 
         <Link
           href="/admin/upload"
-          className="inline-flex items-center gap-1 px-4 py-2 bg-[#172B4D] hover:bg-[#0F1C33] text-white text-xs font-bold rounded-xl shrink-0 transition-colors"
+          className="inline-flex items-center gap-1 px-4 py-2 bg-[#172B4D] hover:bg-[#0F1C33] text-white text-xs font-bold rounded-lg shrink-0 transition-colors"
         >
           <span>ಅಪ್‌ಲೋಡ್ ಪುಟ</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -59,7 +59,7 @@ export default function AdminGuidePage() {
       </div>
 
       {/* Step 1 */}
-      <div className="p-4 sm:p-5 rounded-xl border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
+      <div className="p-4 sm:p-5 rounded-lg border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
         <div className="flex items-center gap-2 font-black text-sm text-[#172B4D]">
           <span className="w-6 h-6 rounded-full bg-[#172B4D] text-white flex items-center justify-center text-xs shrink-0 font-bold">
             ೧
@@ -77,7 +77,7 @@ export default function AdminGuidePage() {
       </div>
 
       {/* Step 2 */}
-      <div className="p-4 sm:p-5 rounded-xl border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
+      <div className="p-4 sm:p-5 rounded-lg border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
         <div className="flex items-center gap-2 font-black text-sm text-[#172B4D]">
           <span className="w-6 h-6 rounded-full bg-[#172B4D] text-white flex items-center justify-center text-xs shrink-0 font-bold">
             ೨
@@ -96,7 +96,7 @@ export default function AdminGuidePage() {
       </div>
 
       {/* Step 3 */}
-      <div className="p-4 sm:p-5 rounded-xl border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
+      <div className="p-4 sm:p-5 rounded-lg border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
         <div className="flex items-center gap-2 font-black text-sm text-[#172B4D]">
           <span className="w-6 h-6 rounded-full bg-[#172B4D] text-white flex items-center justify-center text-xs shrink-0 font-bold">
             ೩
@@ -118,7 +118,7 @@ export default function AdminGuidePage() {
       </div>
 
       {/* Step 4 */}
-      <div className="p-4 sm:p-5 rounded-xl border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
+      <div className="p-4 sm:p-5 rounded-lg border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
         <div className="flex items-center gap-2 font-black text-sm text-[#172B4D]">
           <span className="w-6 h-6 rounded-full bg-[#172B4D] text-white flex items-center justify-center text-xs shrink-0 font-bold">
             ೪
@@ -147,7 +147,7 @@ export default function AdminGuidePage() {
       </div>
 
       {/* Step 5 */}
-      <div className="p-4 sm:p-5 rounded-xl border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
+      <div className="p-4 sm:p-5 rounded-lg border border-neutral-200 bg-[#F8F9FA] space-y-2.5">
         <div className="flex items-center gap-2 font-black text-sm text-[#172B4D]">
           <span className="w-6 h-6 rounded-full bg-[#172B4D] text-white flex items-center justify-center text-xs shrink-0 font-bold">
             ೫

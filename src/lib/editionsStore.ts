@@ -117,7 +117,7 @@ export function getAdminSession(): AdminUser | null {
     if (typeof document !== "undefined" && document.cookie.includes("nyaayagharjane_admin=1")) {
       return {
         email: "admin@nyaayagharjane.com",
-        name: "ಮುಖ್ಯ ನಿರ್ವಾಹಕರು (Chief Admin)",
+        name: "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ",
         role: "Super Admin",
         loggedInAt: new Date().toISOString(),
       };
