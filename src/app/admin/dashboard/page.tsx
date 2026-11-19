@@ -1,7 +1,5 @@
 "use client";
 
-export const instant = false;
-
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
