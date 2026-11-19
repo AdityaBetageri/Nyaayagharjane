@@ -125,58 +125,92 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Editorial Mission Statement Box */}
+      {/* Editorial Mission Statement & About Editor Box */}
       <section className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sm:p-10 shadow-xs">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-          <div className="md:col-span-3 flex justify-center">
-            <div className="w-full max-w-[200px]">
-              <div className="relative aspect-[4/5] rounded-xl overflow-hidden border border-stone-200 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+          {/* Editor Photo */}
+          <div className="md:col-span-4 flex justify-center">
+            <div className="w-full max-w-[260px] sticky top-24">
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border-2 border-[#172B4D]/15 shadow-md bg-stone-100">
                 <Image
                   src="/editor.jpg"
-                  alt="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ"
-                  width={839}
-                  height={1024}
-                  className="w-full h-full object-cover object-top"
+                  alt="ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ"
+                  width={778}
+                  height={982}
+                  priority
+                  className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300"
                 />
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#172B4D] via-[#172B4D]/85 to-transparent p-3 pt-6 text-white text-center">
+                  <p className="text-xs sm:text-sm font-bold leading-tight tracking-wide">ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ</p>
+                  <p className="text-[10px] text-[#FF8A80] font-medium">ಪ್ರಧಾನ ಸಂಪಾದಕರು • ನ್ಯಾಯ ಘರ್ಜನೆ</p>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="md:col-span-5 space-y-4">
-            <h2 className="text-2xl font-black text-[#172B4D]">
-              ಸಂಪಾದಕರ ಸಂದೇಶ & ಧ್ಯೇಯೋದ್ದೇಶ
-            </h2>
-            <p className="text-sm text-[#5A6A85] leading-relaxed">
-              &quot;ಪತ್ರಿಕೋದ್ಯಮ ಕೇವಲ ಸುದ್ದಿಗಳನ್ನು ಪ್ರಸಾರ ಮಾಡುವ ಸಾಧನವಲ್ಲ; ಅದು ಜನತಂತ್ರದ ನಾಲ್ಕನೇ ಸ್ತಂಭವಾಗಿ ಸಮಾಜದ ಹಿತ ರಕ್ಷಿಸುವ ಪವಿತ್ರ ಜವಾಬ್ದಾರಿ. ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆಯು ಪ್ರತಿ ತಿಂಗಳು ಜನರ ಮುಂದಿಡುವ ಪ್ರತಿಯೊಂದು ಪುಟವೂ ಸಮಾಜಮುಖಿ ಚಿಂತನೆಗೆ ಪ್ರೇರಣೆಯಾಗಿದೆ.&quot;
-            </p>
-            <div className="pt-2">
-              <p className="text-sm font-bold text-[#172B4D]">ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್</p>
-              <p className="text-xs text-[#C62828] font-medium">ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</p>
             </div>
           </div>
 
-          {/* Quick Stats / Info Card */}
-          <div className="md:col-span-4 bg-[#F8F9FA] border border-[#E2E8F0] rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold text-[#172B4D] uppercase tracking-wider">
-              ಪತ್ರಿಕೆಯ ಸ್ವರೂಪ ವಿವರಗಳು
-            </h3>
-            <div className="space-y-2 text-xs text-[#5A6A85]">
-              <div className="flex justify-between py-1 border-b border-neutral-200">
-                <span>ಭಾಷೆ:</span>
-                <strong className="text-[#172B4D]">ಕನ್ನಡ (Kannada)</strong>
-              </div>
-              <div className="flex justify-between py-1 border-b border-neutral-200">
-                <span>ಆವರ್ತನ:</span>
-                <strong className="text-[#172B4D]">ಮಾಸಿಕ (Monthly)</strong>
-              </div>
-              <div className="flex justify-between py-1 border-b border-neutral-200">
-                <span>ಮಾಧ್ಯಮ:</span>
-                <strong className="text-[#172B4D]">ಡಿಜಿಟಲ್ ಇ-ಪೇಪರ್ & PDF</strong>
-              </div>
-              <div className="flex justify-between py-1">
-                <span>ಪ್ರಸರಣ ವ್ಯಾಪ್ತಿ:</span>
-                <strong className="text-[#172B4D]">ಸಮಗ್ರ ಕರ್ನಾಟಕ & ಜಾಗತಿಕ ಕನ್ನಡಿಗರು</strong>
-              </div>
+          {/* Editor Bio & Message */}
+          <div className="md:col-span-8 space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#C62828] text-xs font-bold border border-red-100">
+              <Shield className="w-3.5 h-3.5" />
+              <span>ಸಂಪಾದಕರ ಕುರಿತು</span>
             </div>
+
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight">
+                ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ
+              </h2>
+              <p className="text-xs sm:text-sm font-semibold text-[#C62828] mt-0.5">
+                ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ
+              </p>
+            </div>
+
+            {/* Quote */}
+            <div className="relative bg-[#F8F9FA] border-l-4 border-[#C62828] p-4 rounded-r-lg">
+              <p className="text-sm sm:text-base text-[#172B4D] font-medium leading-relaxed font-serif">
+                &ldquo;ಪತ್ರಿಕೋದ್ಯಮವು ಕೇವಲ ಸುದ್ದಿಗಳನ್ನು ಪ್ರಕಟಿಸುವ ಮಾಧ್ಯಮವಲ್ಲ; ಅದು ಸಮಾಜದ ತಪ್ಪುಗಳನ್ನು ಪ್ರಶ್ನಿಸುವ, ಜನರ ಹಕ್ಕುಗಳನ್ನು ಪ್ರತಿಪಾದಿಸುವ ಮತ್ತು ಪ್ರಜಾಪ್ರಭುತ್ವದ ಮೌಲ್ಯಗಳನ್ನು ಎತ್ತಿಹಿಡಿಯುವ ಶಕ್ತಿಯುತ ವೇದಿಕೆ ಎಂಬ ನಂಬಿಕೆಯನ್ನು ಹೊಂದಿದ್ದಾರೆ.&rdquo;
+              </p>
+            </div>
+
+            {/* Paragraphs */}
+            <div className="space-y-3 text-sm text-[#5A6A85] leading-relaxed">
+              <p>
+                ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ ಅವರು ಪತ್ರಿಕೋದ್ಯಮದ ಮೂಲಕ ಸಮಾಜದಲ್ಲಿ ಜಾಗೃತಿ ಮೂಡಿಸುವ ಹಾಗೂ ಜನಸಾಮಾನ್ಯರ ಧ್ವನಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸುವ ಆಶಯ ಹೊಂದಿರುವ ಯುವ ಪತ್ರಕರ್ತರು.
+              </p>
+              <p>
+                ಸತ್ಯ, ನ್ಯಾಯ ಮತ್ತು ಜನಪರ ಕಾಳಜಿಯನ್ನು ಪತ್ರಿಕೋದ್ಯಮದ ಮೂಲ ಆಶಯಗಳನ್ನಾಗಿ ಪರಿಗಣಿಸಿರುವ ಇವರು, ಆಡಳಿತ ವ್ಯವಸ್ಥೆಯ ಜವಾಬ್ದಾರಿತನ, ಸಾರ್ವಜನಿಕ ಸಮಸ್ಯೆಗಳು, ಸಾಮಾಜಿಕ ಅನ್ಯಾಯ, ಭ್ರಷ್ಟಾಚಾರ ಹಾಗೂ ಜನಹಿತದ ವಿಚಾರಗಳಿಗೆ ಆದ್ಯತೆ ನೀಡುತ್ತಾರೆ.
+              </p>
+              <p>
+                ನಿಷ್ಪಕ್ಷಪಾತ ವರದಿಗಾರಿಕೆ, ವಾಸ್ತವಾಂಶ ಆಧಾರಿತ ಸುದ್ದಿಗಳು ಹಾಗೂ ಜನಪರ ಧೋರಣೆಯೊಂದಿಗೆ ಪತ್ರಿಕೋದ್ಯಮದಲ್ಲಿ ತಮ್ಮದೇ ಆದ ಗುರುತು ಮೂಡಿಸುವುದು ಇವರ ಆಶಯವಾಗಿದೆ.
+              </p>
+              <p className="font-medium text-[#172B4D]">
+                ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆಯ ಮೂಲಕ ಸತ್ಯಕ್ಕೆ ಧ್ವನಿಯಾಗಿ, ನ್ಯಾಯಕ್ಕೆ ಬೆಂಬಲವಾಗಿ ಮತ್ತು ಜನಸಾಮಾನ್ಯರ ಆಶೋತ್ತರಗಳಿಗೆ ವೇದಿಕೆಯಾಗುವ ಸಂಕಲ್ಪವನ್ನು ಹೊಂದಿದ್ದಾರೆ.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Stats / Info Card */}
+      <section className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sm:p-8 shadow-xs">
+        <h3 className="text-xs font-bold text-[#172B4D] uppercase tracking-wider mb-4 border-b border-[#E2E8F0] pb-2">
+          ಪತ್ರಿಕೆಯ ಸ್ವರೂಪ ವಿವರಗಳು
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-[#5A6A85]">
+          <div className="bg-[#F8F9FA] p-3 rounded-lg border border-neutral-200">
+            <span className="block text-stone-500 text-[11px]">ಭಾಷೆ</span>
+            <strong className="text-[#172B4D] text-sm">ಕನ್ನಡ (Kannada)</strong>
+          </div>
+          <div className="bg-[#F8F9FA] p-3 rounded-lg border border-neutral-200">
+            <span className="block text-stone-500 text-[11px]">ಆವರ್ತನ</span>
+            <strong className="text-[#172B4D] text-sm">ಮಾಸಿಕ (Monthly)</strong>
+          </div>
+          <div className="bg-[#F8F9FA] p-3 rounded-lg border border-neutral-200">
+            <span className="block text-stone-500 text-[11px]">ಮಾಧ್ಯಮ</span>
+            <strong className="text-[#172B4D] text-sm">ಡಿಜಿಟಲ್ ಇ-ಪೇಪರ್ & PDF</strong>
+          </div>
+          <div className="bg-[#F8F9FA] p-3 rounded-lg border border-neutral-200">
+            <span className="block text-stone-500 text-[11px]">ಪ್ರಸರಣ ವ್ಯಾಪ್ತಿ</span>
+            <strong className="text-[#172B4D] text-sm">ಸಮಗ್ರ ಕರ್ನಾಟಕ & ಜಾಗತಿಕ ಕನ್ನಡಿಗರು</strong>
           </div>
         </div>
       </section>

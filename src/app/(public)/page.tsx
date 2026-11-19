@@ -147,8 +147,8 @@ export default function HomePage() {
               <div className="w-full max-w-[260px] sm:max-w-[280px]">
                 <EditorPhoto
                   src="/editor.jpg"
-                  alt="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ"
-                  editorName="ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್"
+                  alt="ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ"
+                  editorName="ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ"
                 />
               </div>
             </div>
@@ -157,12 +157,12 @@ export default function HomePage() {
             <div className="md:col-span-7 space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#C62828] text-xs font-bold border border-red-100">
                 <Newspaper className="w-3.5 h-3.5" />
-                <span>ಸಂಪಾದಕರ ಪರಿಚಯ</span>
+                <span>ಸಂಪಾದಕರ ಕುರಿತು</span>
               </div>
 
               <div>
                 <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight">
-                  ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್
+                  ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ
                 </h2>
                 <p className="text-xs sm:text-sm font-semibold text-[#C62828] mt-0.5">
                   ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ
@@ -173,13 +173,21 @@ export default function HomePage() {
               <div className="relative bg-[#F8F9FA] border-l-4 border-[#C62828] p-4 rounded-r-lg space-y-2">
                 <Quote className="w-6 h-6 text-[#C62828]/30 absolute top-2 right-2" />
                 <p className="text-sm sm:text-base text-[#172B4D] font-medium leading-relaxed font-serif">
-                  &ldquo;ಪತ್ರಿಕೋದ್ಯಮವೆಂದರೆ ಕೇವಲ ಸುದ್ದಿಗಳನ್ನು ಪ್ರಕಟಿಸುವುದಲ್ಲ; ಅದು ಸಮಾಜದ ಕಟ್ಟಕಡೆಯ ವ್ಯಕ್ತಿಯ ಧ್ವನಿಯಾಗಿ, ಅನ್ಯಾಯದ ವಿರುದ್ಧ ಹೋರಾಡುವ ಮತ್ತು ಸಾರ್ವಜನಿಕ ಹಿತ ರಕ್ಷಿಸುವ ಪವಿತ್ರ ಜವಾಬ್ದಾರಿ.&rdquo;
+                  &ldquo;ಪತ್ರಿಕೋದ್ಯಮವು ಕೇವಲ ಸುದ್ದಿಗಳನ್ನು ಪ್ರಕಟಿಸುವ ಮಾಧ್ಯಮವಲ್ಲ; ಅದು ಸಮಾಜದ ತಪ್ಪುಗಳನ್ನು ಪ್ರಶ್ನಿಸುವ, ಜನರ ಹಕ್ಕುಗಳನ್ನು ಪ್ರತಿಪಾದಿಸುವ ಮತ್ತು ಪ್ರಜಾಪ್ರಭುತ್ವದ ಮೌಲ್ಯಗಳನ್ನು ಎತ್ತಿಹಿಡಿಯುವ ಶಕ್ತಿಯುತ ವೇದಿಕೆ.&rdquo;
                 </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#5A6A85] leading-relaxed">
-                ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆಯು ಯಾವುದೇ ರಾಜಕೀಯ ಅಥವಾ ವಾಣಿಜ್ಯ ಹಿತಾಸಕ್ತಿಗಳಿಗೆ ಮಣಿಯದೆ, ಸಾರ್ವಜನಿಕರ ಪರವಾಗಿ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾಗಿ ನಿಲ್ಲುವ ಬದ್ಧತೆಯೊಂದಿಗೆ ಮುನ್ನಡೆಯುತ್ತಿದೆ. ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು, ಜನಪರ ಹೋರಾಟಗಳು ಮತ್ತು ಉಪಯುಕ್ತ ಮಾಹಿತಿಯನ್ನು ಪ್ರತಿ ತಿಂಗಳು ನಮ್ಮ ಓದುಗರಿಗೆ ತಲುಪಿಸಲು ನಾವು ಸದಾ ಬದ್ಧರಾಗಿದ್ದೇವೆ.
-              </p>
+              <div className="space-y-2.5 text-xs sm:text-sm text-[#5A6A85] leading-relaxed">
+                <p>
+                  ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ ಅವರು ಪತ್ರಿಕೋದ್ಯಮದ ಮೂಲಕ ಸಮಾಜದಲ್ಲಿ ಜಾಗೃತಿ ಮೂಡಿಸುವ ಹಾಗೂ ಜನಸಾಮಾನ್ಯರ ಧ್ವನಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸುವ ಆಶಯ ಹೊಂದಿರುವ ಯುವ ಪತ್ರಕರ್ತರು.
+                </p>
+                <p>
+                  ಸತ್ಯ, ನ್ಯಾಯ ಮತ್ತು ಜನಪರ ಕಾಳಜಿಯನ್ನು ಪತ್ರಿಕೋದ್ಯಮದ ಮೂಲ ಆಶಯಗಳನ್ನಾಗಿ ಪರಿಗಣಿಸಿರುವ ಇವರು, ಆಡಳಿತ ವ್ಯವಸ್ಥೆಯ ಜವಾಬ್ದಾರಿತನ, ಸಾರ್ವಜನಿಕ ಸಮಸ್ಯೆಗಳು, ಸಾಮಾಜಿಕ ಅನ್ಯಾಯ, ಭ್ರಷ್ಟಾಚಾರ ಹಾಗೂ ಜನಹಿತದ ವಿಚಾರಗಳಿಗೆ ಆದ್ಯತೆ ನೀಡುತ್ತಾರೆ.
+                </p>
+                <p>
+                  ನ್ಯಾಯ ಘರ್ಜನೆ ಪತ್ರಿಕೆಯ ಮೂಲಕ ಸತ್ಯಕ್ಕೆ ಧ್ವನಿಯಾಗಿ, ನ್ಯಾಯಕ್ಕೆ ಬೆಂಬಲವಾಗಿ ಮತ್ತು ಜನಸಾಮಾನ್ಯರ ಆಶೋತ್ತರಗಳಿಗೆ ವೇದಿಕೆಯಾಗುವ ಸಂಕಲ್ಪದೊಂದಿಗೆ ಮುನ್ನಡೆಯುತ್ತಿದ್ದಾರೆ.
+                </p>
+              </div>
 
               {/* Editorial Values Pills */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 text-xs">

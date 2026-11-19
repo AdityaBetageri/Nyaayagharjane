@@ -12,8 +12,8 @@ interface EditorPhotoProps {
 
 export default function EditorPhoto({
   src = "/editor.jpg",
-  alt = "ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ",
-  editorName = "ಎಂ. ಎಸ್. ಮಧುಕುಮಾರ್",
+  alt = "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ - ಪ್ರಧಾನ ಸಂಪಾದಕರು, ನ್ಯಾಯ ಘರ್ಜನೆ",
+  editorName = "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ",
   className = "",
 }: EditorPhotoProps) {
   const [imgError, setImgError] = useState(false);
