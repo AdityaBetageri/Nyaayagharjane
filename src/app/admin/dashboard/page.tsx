@@ -22,30 +22,33 @@ import {
 import { Edition } from "@/types";
 
 export default function AdminDashboardOverviewPage() {
-  const [editions, setEditions] = useState<Edition[]>(() => getStoredEditions());
   const [isR2Loaded, setIsR2Loaded] = useState(false);
-  const [r2Url, setR2Url] = useState(() => getR2PublicUrl());
+  const [r2Url, setR2Url] = useState("");
+  const [editions, setEditions] = useState<Edition[]>([]);
 
-  const refreshCatalogue = useCallback(() => {
-    setR2Url(getR2PublicUrl());
-    setEditions(getStoredEditions());
+  const loadData = useCallback(() => {
+    Promise.resolve().then(() => {
+      setR2Url(getR2PublicUrl());
+      setEditions(getStoredEditions());
 
-    fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
-      if (res.success && res.data.length > 0) {
-        setIsR2Loaded(true);
-        setEditions(res.data.map(r2ItemToEdition));
-      }
+      fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
+        if (res.success && res.data.length > 0) {
+          setIsR2Loaded(true);
+          setEditions(res.data.map(r2ItemToEdition));
+        }
+      });
     });
   }, []);
 
   useEffect(() => {
-    fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
-      if (res.success && res.data.length > 0) {
-        setIsR2Loaded(true);
-        setEditions(res.data.map(r2ItemToEdition));
-      }
-    });
-  }, []);
+    loadData();
+
+    const handleStorage = () => {
+      setEditions(getStoredEditions());
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [loadData]);
 
   const totalEditions = editions.length;
   const publishedEditions = editions.filter((e) => e.isPublished).length;
@@ -91,7 +94,7 @@ export default function AdminDashboardOverviewPage() {
 
           <button
             type="button"
-            onClick={refreshCatalogue}
+            onClick={loadData}
             title="ದತ್ತಾಂಶ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
             className="p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-xl border border-neutral-200 transition-colors cursor-pointer"
           >
@@ -108,7 +111,9 @@ export default function AdminDashboardOverviewPage() {
             <FileText className="w-4 h-4 text-blue-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-[#172B4D]">{totalEditions}</span>
+            <span className="text-2xl sm:text-3xl font-black text-[#172B4D]">
+              {totalEditions}
+            </span>
             <span className="text-[11px] text-neutral-400">ಸಂಚಿಕೆಗಳು</span>
           </div>
           <p className="text-[11px] text-[#5A6A85]">ಕ್ಯಾಟಲಾಗ್‌ನಲ್ಲಿ ಲಭ್ಯ</p>
@@ -120,7 +125,9 @@ export default function AdminDashboardOverviewPage() {
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-emerald-700">{publishedEditions}</span>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-700">
+              {publishedEditions}
+            </span>
             <span className="text-[11px] text-neutral-400">ಪತ್ರಿಕೆಗಳು</span>
           </div>
           <p className="text-[11px] text-emerald-600 font-medium">ಓದುಗರಿಗೆ ನೇರ ಪ್ರದರ್ಶನ</p>
@@ -132,7 +139,9 @@ export default function AdminDashboardOverviewPage() {
             <AlertCircle className="w-4 h-4 text-amber-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-amber-700">{draftEditions}</span>
+            <span className="text-2xl sm:text-3xl font-black text-amber-700">
+              {draftEditions}
+            </span>
             <span className="text-[11px] text-neutral-400">ಆವೃತ್ತಿಗಳು</span>
           </div>
           <p className="text-[11px] text-[#5A6A85]">ಇನ್ನೂ ಪ್ರಕಟವಾಗಿಲ್ಲ</p>
@@ -262,38 +271,46 @@ export default function AdminDashboardOverviewPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E8F0]">
-              {latestEditions.map((ed) => (
-                <tr key={ed.id} className="hover:bg-neutral-50/80 transition-colors">
-                  <td className="py-3 px-4">
-                    <span className="font-bold text-[#172B4D]">{ed.title}</span>
-                    <span className="text-[11px] text-neutral-400 block">{ed.edition || "ರಾಜ್ಯ ಆವೃತ್ತಿ"}</span>
-                  </td>
-                  <td className="py-3 px-4 font-medium text-[#172B4D] whitespace-nowrap">
-                    {ed.formattedDate}
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                        ed.isPublished
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-neutral-100 text-neutral-600"
-                      }`}
-                    >
-                      {ed.isPublished ? "ಪ್ರಕಟಿತ" : "ಕರಡು"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right whitespace-nowrap">
-                    <Link
-                      href={`/reader/${ed.id}`}
-                      target="_blank"
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#172B4D] hover:bg-neutral-100 rounded-md"
-                    >
-                      <BookOpen className="w-3.5 h-3.5" />
-                      <span>ವಾಚಕ</span>
-                    </Link>
+              {latestEditions.length > 0 ? (
+                latestEditions.map((ed) => (
+                  <tr key={ed.id} className="hover:bg-neutral-50/80 transition-colors">
+                    <td className="py-3 px-4">
+                      <span className="font-bold text-[#172B4D]">{ed.title}</span>
+                      <span className="text-[11px] text-neutral-400 block">{ed.edition || "ರಾಜ್ಯ ಆವೃತ್ತಿ"}</span>
+                    </td>
+                    <td className="py-3 px-4 font-medium text-[#172B4D] whitespace-nowrap">
+                      {ed.formattedDate}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                          ed.isPublished
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-neutral-100 text-neutral-600"
+                        }`}
+                      >
+                        {ed.isPublished ? "ಪ್ರಕಟಿತ" : "ಕರಡು"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <Link
+                        href={`/reader/${ed.id}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#172B4D] hover:bg-neutral-100 rounded-md"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>ವಾಚಕ</span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-6 text-center text-xs text-neutral-400">
+                    ಯಾವುದೇ ಸಂಚಿಕೆಗಳು ಲಭ್ಯವಿಲ್ಲ
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

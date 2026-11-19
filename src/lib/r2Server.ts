@@ -451,6 +451,37 @@ export async function r2PutObject(
 }
 
 /**
+ * 6. Get Object as streaming response (Proxied S3 fetch)
+ */
+export async function r2GetObjectResponse(
+  key: string,
+  rangeHeader?: string | null
+): Promise<Response> {
+  const config = getR2ServerConfig();
+  if (!config) {
+    throw new Error("Cloudflare R2 ರುಜುವಾತುಗಳು ಕಾನ್ಫಿಗರ್ ಆಗಿಲ್ಲ (Missing R2 credentials).");
+  }
+
+  const cleanKey = key.replace(/^\/+/, "");
+  const headersToSign: Record<string, string> = {};
+  if (rangeHeader) {
+    headersToSign["range"] = rangeHeader;
+  }
+
+  const { url, headers } = signR2Request({
+    method: "GET",
+    config,
+    key: cleanKey,
+    headers: headersToSign,
+  });
+
+  return fetch(url, {
+    method: "GET",
+    headers,
+  });
+}
+
+/**
  * 6. Get Object (Fetch current JSON catalogue from R2)
  */
 export async function r2GetObject(key: string): Promise<string | null> {
@@ -476,5 +507,53 @@ export async function r2GetObject(key: string): Promise<string | null> {
     return await res.text();
   } catch {
     return null;
+  }
+}
+
+/**
+ * 7. Delete Object from Cloudflare R2 bucket
+ */
+export async function r2DeleteObject(
+  key: string
+): Promise<{ success: boolean; status?: number; error?: string }> {
+  const config = getR2ServerConfig();
+  if (!config) {
+    return {
+      success: false,
+      error: "Cloudflare R2 ರುಜುವಾತುಗಳು ಕಾನ್ಫಿಗರ್ ಆಗಿಲ್ಲ (Missing R2 credentials).",
+    };
+  }
+
+  const cleanKey = key.replace(/^\/+/, "");
+
+  try {
+    const { url, headers } = signR2Request({
+      method: "DELETE",
+      config,
+      key: cleanKey,
+    });
+
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers,
+    });
+
+    // In S3 API, DELETE returns 204 No Content on success (or 200 / 404 if not found)
+    if (res.ok || res.status === 204 || res.status === 404) {
+      return { success: true, status: res.status };
+    }
+
+    const text = await res.text();
+    const errorMatch = text.match(/<Message>(.*?)<\/Message>/);
+    return {
+      success: false,
+      status: res.status,
+      error: errorMatch ? errorMatch[1] : text || `HTTP ${res.status}`,
+    };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "R2 ಫೈಲ್ ಅಳಿಸಲು ವಿಫಲವಾಗಿದೆ",
+    };
   }
 }

@@ -25,12 +25,14 @@ import {
   AdminUser,
 } from "@/lib/editionsStore";
 import { getR2PublicUrl } from "@/lib/r2Service";
+import { ConfirmationModal } from "@/components/admin/ConfirmationModal";
 
 export default function AdminSettingsPage() {
   const router = useRouter();
   const [session, setSession] = useState<AdminUser | null>(null);
   const [r2Url, setR2Url] = useState("");
   const [r2Configured, setR2Configured] = useState<boolean | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Profile Form State
   const [displayName, setDisplayName] = useState("");
@@ -117,11 +119,14 @@ export default function AdminSettingsPage() {
     setTimeout(() => setPasswordSuccess(null), 3500);
   };
 
-  const handleLogout = () => {
-    if (confirm("ನೀವು ಖಂಡಿತವಾಗಿ ಲಾಗ್‌ಔಟ್ ಆಗಲು ಬಯಸುವಿರಾ? (Confirm logout?)")) {
-      clearAdminSession();
-      router.push("/admin/login");
-    }
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    clearAdminSession();
+    setShowLogoutModal(false);
+    router.push("/admin/login");
   };
 
   return (
@@ -144,7 +149,7 @@ export default function AdminSettingsPage() {
 
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-red-50 hover:bg-red-100 text-[#C62828] border border-red-200 text-xs font-bold rounded-xl transition-colors shrink-0 cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
@@ -391,7 +396,7 @@ export default function AdminSettingsPage() {
             <div className="pt-2">
               <button
                 type="button"
-                onClick={handleLogout}
+                onClick={handleLogoutClick}
                 className="w-full py-2.5 bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
@@ -401,6 +406,19 @@ export default function AdminSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Custom Logout Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="ಲಾಗ್‌ಔಟ್ ದೃಢೀಕರಣ (Confirm Logout)"
+        description="ನೀವು ಆಡಳಿತ ಮಂಡಳಿಯಿಂದ ಲಾಗ್ಔಟ್ ಆಗಲು ಬಯಸುವಿರಾ? ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸೆಶನ್ ಅಂತ್ಯಗೊಳ್ಳುತ್ತದೆ."
+        confirmText="ಹೌದು, ಲಾಗ್‌ಔಟ್ ಆಗಿ"
+        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        variant="warning"
+        iconType="logout"
+      />
     </div>
   );
 }

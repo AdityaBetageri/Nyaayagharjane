@@ -74,7 +74,11 @@ export function getR2PublicUrl(): string {
     process.env.NEXT_PUBLIC_R2_PUBLIC_URL ||
     process.env.VITE_R2_PUBLIC_URL ||
     "";
-  return url.trim().replace(/\/+$/, "");
+  const clean = url.trim().replace(/\/+$/, "");
+  if (clean.includes("r2.cloudflarestorage.com") || clean === "https://files.yourdomain.com") {
+    return "";
+  }
+  return clean;
 }
 
 /**
@@ -88,6 +92,7 @@ export function getR2MonthFolder(month: number | string): string {
 /**
  * Generates the expected public PDF URL in Cloudflare R2.
  * Pattern: https://files.yourdomain.com/newspapers/YYYY/MM-month/fileName.pdf
+ * If no public CDN URL is configured, falls back to the internal streaming API route.
  */
 export function generateR2PdfUrl(
   year: number,
@@ -95,10 +100,55 @@ export function generateR2PdfUrl(
   fileName: string,
   customBaseUrl?: string
 ): string {
-  const baseUrl = (customBaseUrl || getR2PublicUrl() || "https://files.yourdomain.com").replace(/\/+$/, "");
+  const baseUrl = (customBaseUrl || getR2PublicUrl() || "").replace(/\/+$/, "");
   const folder = getR2MonthFolder(month);
   const cleanFileName = fileName.replace(/^\/+/, "");
-  return `${baseUrl}/newspapers/${year}/${folder}/${cleanFileName}`;
+  const targetKey = `newspapers/${year}/${folder}/${cleanFileName}`;
+
+  if (baseUrl && !baseUrl.includes("r2.cloudflarestorage.com") && baseUrl !== "https://files.yourdomain.com") {
+    return `${baseUrl}/${targetKey}`;
+  }
+
+  return `/api/r2/file?key=${encodeURIComponent(targetKey)}`;
+}
+
+/**
+ * Extract or resolve the R2 object key from an edition or URL
+ */
+export function extractR2KeyFromEdition(params: {
+  pdfUrl?: string;
+  fileName?: string;
+  year?: number;
+  month?: number | string;
+}): string | null {
+  // 1. If pdfUrl has ?key=... query param or pathname
+  if (params.pdfUrl) {
+    try {
+      const parsedUrl = new URL(params.pdfUrl, "http://localhost");
+      const keyParam = parsedUrl.searchParams.get("key");
+      if (keyParam) {
+        return decodeURIComponent(keyParam).replace(/^\/+/, "");
+      }
+      const match = parsedUrl.pathname.match(/(newspapers\/.*)$/);
+      if (match) {
+        return decodeURIComponent(match[1]).replace(/^\/+/, "");
+      }
+    } catch {
+      const match = params.pdfUrl.match(/(newspapers\/.*)$/);
+      if (match) {
+        return decodeURIComponent(match[1]).replace(/^\/+/, "");
+      }
+    }
+  }
+
+  // 2. If year, month, fileName are available
+  if (params.year && params.month && params.fileName) {
+    const monthFolder = getR2MonthFolder(params.month);
+    const cleanFileName = params.fileName.replace(/^\/+/, "");
+    return `newspapers/${params.year}/${monthFolder}/${cleanFileName}`;
+  }
+
+  return null;
 }
 
 /**
@@ -154,6 +204,20 @@ const CACHE_TTL_MS = 60 * 1000; // 60 seconds client cache
  */
 export function r2ItemToEdition(item: R2NewspaperItem): Edition {
   const monthName = KANNADA_MONTH_MAP[item.month] || `ತಿಂಗಳು ${item.month}`;
+
+  let safePdfUrl = item.pdfUrl;
+  // If the stored URL is pointing to private S3 endpoint or placeholder, route through proxy
+  if (
+    !safePdfUrl ||
+    safePdfUrl.includes("r2.cloudflarestorage.com") ||
+    safePdfUrl.includes("files.yourdomain.com")
+  ) {
+    const folder = getR2MonthFolder(item.month);
+    const cleanFileName = item.fileName.replace(/^\/+/, "");
+    const targetKey = `newspapers/${item.year}/${folder}/${cleanFileName}`;
+    safePdfUrl = `/api/r2/file?key=${encodeURIComponent(targetKey)}`;
+  }
+
   return {
     id: item.id,
     title: sanitizeString(item.title),
@@ -162,7 +226,7 @@ export function r2ItemToEdition(item: R2NewspaperItem): Edition {
     formattedDate: `${monthName} ${item.year}`,
     volumeNumber: item.year >= 2026 ? item.year - 2025 : 1,
     issueNumber: item.month,
-    pdfUrl: item.pdfUrl,
+    pdfUrl: safePdfUrl,
     totalPages: item.totalPages || 16,
     formattedFileSize: item.formattedFileSize || "೧೨.೪ MB",
     isPublished: item.status === "published",
@@ -171,6 +235,24 @@ export function r2ItemToEdition(item: R2NewspaperItem): Edition {
     language: sanitizeString(item.language || "Kannada"),
     edition: sanitizeString(item.edition || "State Edition"),
     fileName: sanitizeString(item.fileName),
+  };
+}
+
+export function editionToR2Item(edition: Edition): R2NewspaperItem {
+  return {
+    id: edition.id,
+    title: edition.title,
+    language: edition.language || "Kannada",
+    edition: edition.edition || "ರಾಜ್ಯ ಆವೃತ್ತಿ",
+    month: edition.issueNumber || 11,
+    year: edition.editionYear || 2026,
+    fileName: edition.fileName || "kannada.pdf",
+    pdfUrl: edition.pdfUrl || "",
+    publishedAt: edition.publishedAt || "2026-11-01",
+    status: edition.isPublished ? "published" : "draft",
+    totalPages: edition.totalPages,
+    formattedFileSize: edition.formattedFileSize,
+    description: edition.description,
   };
 }
 
@@ -215,28 +297,32 @@ export async function fetchR2Catalogue(options?: {
     }
   }
 
-  // If R2 URL is not configured yet, fallback gracefully
-  if (!r2BaseUrl) {
+  let catalogueUrl = "";
+  if (r2BaseUrl) {
+    catalogueUrl = `${r2BaseUrl}/data/newspapers.json`;
+  } else if (isClient) {
+    catalogueUrl = "/api/r2/catalogue";
+  } else {
+    // Server-side fallback when no public R2 domain is configured
     return {
-      success: false,
-      data: [],
+      success: true,
+      data: getLocalFallbackEditions().map(editionToR2Item),
       source: "fallback",
-      error: "Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ ಕಾನ್ಫಿಗರ್ ಆಗಿಲ್ಲ (NEXT_PUBLIC_R2_PUBLIC_URL or VITE_R2_PUBLIC_URL is unset).",
     };
   }
 
-  const catalogueUrl = `${r2BaseUrl}/data/newspapers.json`;
-
   try {
+    const shouldBypass = Boolean(options?.bypassCache);
     const fetchOptions: RequestInit = {
       method: "GET",
       headers: {
         Accept: "application/json",
       },
+      cache: shouldBypass ? "no-store" : "force-cache",
     };
 
-    if (!isClient) {
-      // Short cache lifetime for metadata on server
+    if (!isClient && !shouldBypass) {
+      // Revalidate in background every 60 seconds
       (fetchOptions as Record<string, unknown>).next = { revalidate: 60 };
     }
 
@@ -377,7 +463,7 @@ export function filterNewspapers(
 }
 
 /**
- * Utility to test R2 connection and catalogue reachability.
+ * Utility to test R2 connection and catalogue reachability via server proxy.
  */
 export async function testR2Connection(customUrl?: string): Promise<{
   ok: boolean;
@@ -386,59 +472,61 @@ export async function testR2Connection(customUrl?: string): Promise<{
   itemCount: number;
   error?: string;
   durationMs: number;
+  s3Status?: {
+    configured: boolean;
+    bucketName: string;
+    catalogueFound: boolean;
+    itemCount: number;
+    ok: boolean;
+    error: string | null;
+  };
+  pdfCheck?: {
+    ok: boolean;
+    status: number;
+    url: string;
+    error?: string;
+  } | null;
 }> {
-  const base = (customUrl || getR2PublicUrl()).replace(/\/+$/, "");
-  if (!base) {
-    return {
-      ok: false,
-      status: 0,
-      url: "",
-      itemCount: 0,
-      error: "ಡೊಮೈನ್ URL ನಮೂದಿಸಲಾಗಿಲ್ಲ",
-      durationMs: 0,
-    };
-  }
-
-  const testUrl = `${base}/data/newspapers.json`;
-  const start = performance.now();
-
   try {
-    const res = await fetch(testUrl, {
-      method: "GET",
-      cache: "no-store",
+    const res = await fetch("/api/r2/verifier", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetUrl: customUrl }),
     });
-    const durationMs = Math.round(performance.now() - start);
 
-    if (!res.ok) {
+    const data = await res.json();
+    if (!res.ok || !data) {
       return {
         ok: false,
         status: res.status,
-        url: testUrl,
+        url: customUrl || "",
         itemCount: 0,
-        error: `HTTP ${res.status}: ${res.statusText}`,
-        durationMs,
+        error: data?.message || `HTTP ${res.status}`,
+        durationMs: data?.durationMs || 0,
       };
     }
 
-    const data = await res.json();
-    const count = Array.isArray(data?.newspapers) ? data.newspapers.length : 0;
+    const publicOk = Boolean(data.publicStatus?.ok);
+    const s3Ok = Boolean(data.s3Status?.ok);
 
     return {
-      ok: true,
-      status: res.status,
-      url: testUrl,
-      itemCount: count,
-      durationMs,
+      ok: publicOk || s3Ok,
+      status: data.publicStatus?.status || (s3Ok ? 200 : 0),
+      url: data.testedCatalogueUrl || data.publicStatus?.url || customUrl || "",
+      itemCount: data.publicStatus?.itemCount || data.s3Status?.itemCount || 0,
+      error: publicOk ? undefined : data.publicStatus?.error || data.s3Status?.error,
+      durationMs: data.durationMs || 0,
+      s3Status: data.s3Status,
+      pdfCheck: data.pdfCheck,
     };
   } catch (err: unknown) {
-    const durationMs = Math.round(performance.now() - start);
     return {
       ok: false,
       status: 0,
-      url: testUrl,
+      url: customUrl || "",
       itemCount: 0,
-      error: err instanceof Error ? err.message : "Connection failed",
-      durationMs,
+      error: err instanceof Error ? err.message : "ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ (Connection failed)",
+      durationMs: 0,
     };
   }
 }

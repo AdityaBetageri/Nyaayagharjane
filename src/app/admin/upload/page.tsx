@@ -6,20 +6,14 @@ import {
   Upload,
   BookOpen,
   CheckCircle2,
-  FolderTree,
   ExternalLink,
-  Terminal,
-  HelpCircle,
   Save,
-  Copy,
-  Download,
   FileText,
   AlertCircle,
-  Loader2,
   CloudUpload,
   ShieldCheck,
   RotateCcw,
-  XCircle,
+  Trash2,
 } from "lucide-react";
 import { addStoredEdition } from "@/lib/editionsStore";
 import {
@@ -27,16 +21,16 @@ import {
   getR2MonthFolder,
   generateR2PdfUrl,
   r2ItemToEdition,
-  fetchR2Catalogue,
   KANNADA_MONTH_MAP,
 } from "@/lib/r2Service";
+import { ConfirmationModal } from "@/components/admin/ConfirmationModal";
 import {
   uploadNewspaperWithChunks,
   UploadProgress,
   getSavedUploadSession,
-  clearUploadSession,
 } from "@/lib/chunkUploader";
-import { R2Catalogue, R2NewspaperItem } from "@/types/r2";
+import { R2NewspaperItem } from "@/types/r2";
+import FileUploadProgressBar from "@/components/admin/FileUploadProgressBar";
 
 interface FormErrors {
   file?: string;
@@ -51,22 +45,19 @@ interface FormErrors {
 
 export default function AdminUploadPage() {
   const [r2Url] = useState(() => getR2PublicUrl());
-  const [r2Items, setR2Items] = useState<R2NewspaperItem[]>([]);
   const [r2Configured, setR2Configured] = useState<boolean | null>(null);
 
   // Form Fields
-  const [uploadTitle, setUploadTitle] = useState("ನ್ಯಾಯ ಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬");
+  const [uploadTitle, setUploadTitle] = useState("");
   const [uploadYear, setUploadYear] = useState(2026);
   const [uploadMonth, setUploadMonth] = useState(11);
   const [uploadEditionArea, setUploadEditionArea] = useState("ರಾಜ್ಯ ಆವೃತ್ತಿ");
   const [uploadLanguage, setUploadLanguage] = useState("Kannada");
-  const [uploadFileName, setUploadFileName] = useState("kannada.pdf");
+  const [uploadFileName, setUploadFileName] = useState("");
   const [uploadStatus, setUploadStatus] = useState<"published" | "draft">("published");
   const [uploadTotalPages, setUploadTotalPages] = useState(16);
-  const [uploadFileSize, setUploadFileSize] = useState("೧೨.೪ MB");
-  const [uploadDescription, setUploadDescription] = useState(
-    "ನ್ಯಾಯ ಘರ್ಜನೆ ನವೆಂಬರ್ ೨೦೨೬ ರ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
-  );
+  const [uploadFileSize, setUploadFileSize] = useState("");
+  const [uploadDescription, setUploadDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [sessionKeyVersion, setSessionKeyVersion] = useState(0);
 
@@ -80,22 +71,14 @@ export default function AdminUploadPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [lastUploadedId, setLastUploadedId] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
-  const [copiedCode, setCopiedCode] = useState(false);
+  const [showClearModal, setShowClearModal] = useState<boolean>(false);
   const [publishedDate] = useState("2026-11-16");
-  const [lastUpdatedDate] = useState("2026-11-16T12:00:00Z");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isPausedRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // Fetch catalogue
-    fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
-      if (res.success && res.data.length > 0) {
-        setR2Items(res.data);
-      }
-    });
-
     // Check R2 Server Configuration
     fetch("/api/r2/status")
       .then((res) => res.json())
@@ -106,6 +89,21 @@ export default function AdminUploadPage() {
         setR2Configured(false);
       });
   }, []);
+
+  // Clear all form data
+  const clearFormData = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setUploadTitle("");
+    setUploadFileName("");
+    setUploadFileSize("");
+    setUploadDescription("");
+    setTouched({});
+    setErrors({});
+    setUploadProgress(null);
+  };
 
   // Validation function
   const validateForm = (): boolean => {
@@ -150,7 +148,7 @@ export default function AdminUploadPage() {
     if (!cleanFileName) {
       newErrors.fileName = "PDF ಫೈಲ್ ಹೆಸರು ಕಡ್ಡಾಯವಾಗಿದೆ.";
     } else if (!cleanFileName.toLowerCase().endsWith(".pdf")) {
-      newErrors.fileName = "ಫೈಲ್ ಹೆಸರು .pdf ನೊಂದಿಗೆ ಕೊನೆಗೊಳ್ಳಬೇಕು (ಉದಾ: kannada.pdf).";
+      newErrors.fileName = "ಫೈಲ್ ಹೆಸರು .pdf ನೊಂದಿಗೆ ಕೊನೆಗೊಳ್ಳಬೇಕು (ಉದಾ: newspaper.pdf).";
     } else if (/[/\\?%*:|"<> ]/g.test(cleanFileName)) {
       newErrors.fileName = "ಫೈಲ್ ಹೆಸರಿನಲ್ಲಿ ಅಮಾನ್ಯ ಅಕ್ಷರಗಳು ಅಥವಾ ಖಾಲಿ ಜಾಗವಿರಬಾರದು (ಕೇವಲ ಅಕ್ಷರ, ಅಂಕಿ, ಡ್ಯಾಶ್ ಬಳಸಿ).";
     }
@@ -164,38 +162,44 @@ export default function AdminUploadPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const markTouched = (field: string) => {
+  // Field change helper with validation
+  const handleFieldChange = (field: keyof FormErrors, value: unknown) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-  };
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
 
-  // Update handlers for Year & Month that sync title and filename
-  const handleYearChange = (year: number) => {
-    setUploadYear(year);
-    markTouched("year");
-    if (errors.year) {
-      setErrors((prev) => ({ ...prev, year: undefined }));
+    switch (field) {
+      case "title":
+        setUploadTitle(String(value));
+        break;
+      case "year":
+        setUploadYear(Number(value));
+        break;
+      case "month":
+        setUploadMonth(Number(value));
+        break;
+      case "editionArea":
+        setUploadEditionArea(String(value));
+        break;
+      case "language":
+        setUploadLanguage(String(value));
+        break;
+      case "fileName":
+        setUploadFileName(String(value));
+        break;
+      case "totalPages":
+        setUploadTotalPages(Number(value));
+        break;
     }
-    const monthName = KANNADA_MONTH_MAP[uploadMonth] || "ನವೆಂಬರ್";
-    setUploadTitle(`ನ್ಯಾಯ ಘರ್ಜನೆ - ${monthName} ${year}`);
   };
 
-  const handleMonthChange = (month: number) => {
-    setUploadMonth(month);
-    markTouched("month");
-    if (errors.month) {
-      setErrors((prev) => ({ ...prev, month: undefined }));
-    }
-    const monthName = KANNADA_MONTH_MAP[month] || "ನವೆಂಬರ್";
-    setUploadTitle(`ನ್ಯಾಯ ಘರ್ಜನೆ - ${monthName} ${uploadYear}`);
-    const monthFolder = getR2MonthFolder(month);
-    setUploadFileName(`kannada-${monthFolder}.pdf`);
-  };
-
-  // Handle local file picking
+  // PDF File Selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
       if (!file.name.toLowerCase().endsWith(".pdf")) {
+        setUploadError("ಆಯ್ಕೆಮಾಡಿದ ಫೈಲ್ PDF ಮಾದರಿಯದ್ದಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು .pdf ಫೈಲ್ ಮಾತ್ರ ಆಯ್ಕೆಮಾಡಿ.");
+        setSelectedFile(null);
         setErrors((prev) => ({
           ...prev,
           file: "ದಯವಿಟ್ಟು ಕೇವಲ PDF (.pdf) ಫೈಲ್ ಮಾತ್ರ ಆಯ್ಕೆಮಾಡಿ.",
@@ -205,7 +209,6 @@ export default function AdminUploadPage() {
       }
 
       setSelectedFile(file);
-      // Clean safe filename
       const safeName = file.name.replace(/\s+/g, "-");
       setUploadFileName(safeName);
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
@@ -213,15 +216,21 @@ export default function AdminUploadPage() {
       setUploadError(null);
       setErrors((prev) => ({ ...prev, file: undefined, fileName: undefined }));
       setTouched((prev) => ({ ...prev, file: true }));
+
+      // Auto-suggest title if empty
+      if (!uploadTitle.trim()) {
+        const monthName = KANNADA_MONTH_MAP[uploadMonth] || "";
+        setUploadTitle(`ನ್ಯಾಯಘರ್ಜನೆ - ${monthName} ${uploadYear}`);
+      }
     }
   };
 
   // Calculate R2 paths
   const currentMonthFolder = getR2MonthFolder(uploadMonth);
-  const currentPdfUrl = generateR2PdfUrl(uploadYear, uploadMonth, uploadFileName, r2Url);
-  const targetKey = `newspapers/${uploadYear}/${currentMonthFolder}/${uploadFileName}`;
+  const currentPdfUrl = generateR2PdfUrl(uploadYear, uploadMonth, uploadFileName || "newspaper.pdf", r2Url);
+  const targetKey = `newspapers/${uploadYear}/${currentMonthFolder}/${uploadFileName || "newspaper.pdf"}`;
 
-  // Derived resumable session info (no useEffect needed)
+  // Derived resumable session info
   const resumeSession =
     selectedFile && sessionKeyVersion >= 0
       ? getSavedUploadSession(selectedFile, targetKey)
@@ -236,26 +245,14 @@ export default function AdminUploadPage() {
     edition: uploadEditionArea.trim(),
     month: uploadMonth,
     year: uploadYear,
-    fileName: uploadFileName.trim(),
+    fileName: (uploadFileName || "newspaper.pdf").trim(),
     pdfUrl: currentPdfUrl,
     publishedAt: publishedDate,
     status: uploadStatus,
     totalPages: uploadTotalPages,
-    formattedFileSize: uploadFileSize.trim(),
-    description: uploadDescription.trim(),
+    formattedFileSize: uploadFileSize.trim() || "೧೨.೪ MB",
+    description: uploadDescription.trim() || "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ.",
   };
-
-  // Full Catalogue JSON string
-  const generatedCatalogue: R2Catalogue = {
-    version: "1.0",
-    lastUpdated: lastUpdatedDate,
-    newspapers: [
-      currentItemRecord,
-      ...r2Items.filter((item) => item.id !== currentItemRecord.id),
-    ],
-  };
-
-  const jsonCatalogueString = JSON.stringify(generatedCatalogue, null, 2);
 
   // Mark all fields as touched for validation highlight
   const touchAllFields = () => {
@@ -309,9 +306,12 @@ export default function AdminUploadPage() {
         addStoredEdition(newEd);
         setLastUploadedId(newEd.id);
         setSuccessNotice(
-          `"${newEd.title}" ಪತ್ರಿಕೆ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ Cloudflare R2 ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
+          `"${newEd.title}" ಪತ್ರಿಕೆ Cloudflare R2 ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
         );
         setSessionKeyVersion((v) => v + 1);
+
+        // Clear all form data after upload
+        clearFormData();
       }
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") {
@@ -356,36 +356,13 @@ export default function AdminUploadPage() {
     setSuccessNotice(
       `"${newEd.title}" ಪತ್ರಿಕೆಯನ್ನು ಸ್ಥಳೀಯವಾಗಿ ಸಿದ್ಧಪಡಿಸಲಾಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಪರೀಕ್ಷಿಸಿ.`
     );
-  };
 
-  const handleCopyJson = () => {
-    navigator.clipboard.writeText(jsonCatalogueString);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2500);
-  };
-
-  const handleDownloadJson = () => {
-    const blob = new Blob([jsonCatalogueString], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "newspapers.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleClearResume = () => {
-    if (selectedFile) {
-      clearUploadSession(selectedFile, targetKey);
-      setSessionKeyVersion((v) => v + 1);
-      setUploadProgress(null);
-    }
+    // Clear form data
+    clearFormData();
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Page Header */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -404,17 +381,31 @@ export default function AdminUploadPage() {
             )}
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ &ldquo;ಸ್ವಯಂಚಾಲಿತ ಅಪ್‌ಲೋಡ್&rdquo; ಕ್ಲಿಕ್ ಮಾಡಿ. PDF ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ JSON ಎರಡೂ ನೇರವಾಗಿ Cloudflare R2 ಗೆ ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತವೆ.
+            PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ &ldquo;ಅಪ್‌ಲೋಡ್&rdquo; ಕ್ಲಿಕ್ ಮಾಡಿ. ಫೈಲ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ನೇರವಾಗಿ Cloudflare R2 ಗೆ ಸೇರ್ಪಡೆಗೊಳ್ಳುತ್ತವೆ.
           </p>
         </div>
 
-        <Link
-          href="/admin/papers"
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-xl transition-colors shrink-0"
-        >
-          <FileText className="w-4 h-4" />
-          <span>ಪತ್ರಿಕೆಗಳ ಪಟ್ಟಿ ನೋಡಿ</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          {selectedFile && (
+            <button
+              type="button"
+              onClick={() => setShowClearModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+              title="ಫಾರ್ಮ್ ತೆರವುಗೊಳಿಸಿ"
+            >
+              <Trash2 className="w-4 h-4 text-neutral-500" />
+              <span>ತೆರವುಗೊಳಿಸಿ</span>
+            </button>
+          )}
+
+          <Link
+            href="/admin/papers"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-xl transition-colors shrink-0"
+          >
+            <FileText className="w-4 h-4" />
+            <span>ಪತ್ರಿಕೆಗಳ ಪಟ್ಟಿ ನೋಡಿ</span>
+          </Link>
+        </div>
       </div>
 
       {/* Offline/Fallback Notice if storage is not yet connected */}
@@ -431,7 +422,7 @@ export default function AdminUploadPage() {
 
       {/* Success Banner */}
       {successNotice && (
-        <div className="p-4 sm:p-5 bg-emerald-50 border-2 border-emerald-400 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-emerald-950">
+        <div className="p-4 sm:p-5 bg-emerald-50 border-2 border-emerald-400 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-emerald-950 animate-in fade-in duration-300">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
             <div>
@@ -486,75 +477,26 @@ export default function AdminUploadPage() {
         </div>
       )}
 
-      {/* Live Upload Progress Card */}
-      {(isUploading || (uploadProgress && uploadProgress.stage !== "idle")) && (
-        <div className="bg-white p-5 rounded-2xl border-2 border-[#172B4D]/20 shadow-md space-y-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              {isUploading ? (
-                <Loader2 className="w-5 h-5 text-[#C62828] animate-spin shrink-0" />
-              ) : uploadProgress?.stage === "completed" ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              ) : (
-                <CloudUpload className="w-5 h-5 text-[#172B4D] shrink-0" />
-              )}
-              <div>
-                <h3 className="text-sm font-bold text-[#172B4D]">
-                  {uploadProgress?.statusMessage || "ಅಪ್‌ಲೋಡ್ ಪ್ರಕ್ರಿಯೆ..."}
-                </h3>
-                <p className="text-[11px] text-[#5A6A85]">
-                  ಚಂಕ್ ಅಪ್‌ಲೋಡ್ (ತುಂಡುಗಳಾಗಿ ರವಾನೆ): ನೆಟ್‌ವರ್ಕ್ ಕಡಿತಗೊಂಡರೂ ನಿಂತಿದ್ದಲ್ಲಿಂದಲೇ ಮುಂದುವರಿಯುತ್ತದೆ.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-base font-black text-[#172B4D]">
-                {uploadProgress?.percent ?? 0}%
-              </span>
-              {isUploading && (
-                <button
-                  type="button"
-                  onClick={handleCancelUpload}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-100 hover:bg-red-200 text-[#C62828] text-xs font-bold rounded-lg transition-colors cursor-pointer border border-red-200"
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                  <span>ರದ್ದುಮಾಡಿ</span>
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Animated Progress Bar */}
-          <div className="w-full bg-neutral-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-neutral-200">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                uploadProgress?.stage === "completed"
-                  ? "bg-emerald-500"
-                  : "bg-gradient-to-r from-[#172B4D] via-[#C62828] to-[#172B4D] animate-pulse"
-              }`}
-              style={{ width: `${Math.max(3, uploadProgress?.percent ?? 0)}%` }}
-            />
-          </div>
-
-          {/* Progress Metrics & Stage Indicators */}
-          <div className="flex items-center justify-between text-[11px] text-[#5A6A85] pt-1 border-t border-neutral-100">
-            <span>
-              ಹಂತ: {uploadProgress?.currentPart ?? 0} / {uploadProgress?.totalParts ?? 1} ಭಾಗಗಳು
-            </span>
-            <span>
-              ಗಾತ್ರ: {((uploadProgress?.uploadedBytes ?? 0) / (1024 * 1024)).toFixed(1)} MB /{" "}
-              {((uploadProgress?.totalBytes ?? selectedFile?.size ?? 0) / (1024 * 1024)).toFixed(1)} MB
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Main Grid: Form Left, R2 Output Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Form & File Picker */}
-        <div className="lg:col-span-6 bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 space-y-4">
-          <div className="border-b border-[#E2E8F0] pb-3">
+      {/* When Uploading: HIDE FORM and ONLY show FileUploadProgressBar */}
+      {isUploading ? (
+        <FileUploadProgressBar
+          fileName={selectedFile?.name || uploadFileName || "newspaper.pdf"}
+          fileSize={selectedFile?.size || 0}
+          progress={uploadProgress?.percent ?? 0}
+          statusMessage={uploadProgress?.statusMessage || "ಪತ್ರಿಕೆ ಪ್ರಕಟಗೊಳ್ಳುತ್ತಿದೆ..."}
+          currentPart={uploadProgress?.currentPart}
+          totalParts={uploadProgress?.totalParts}
+          uploadedBytes={uploadProgress?.uploadedBytes}
+          totalBytes={uploadProgress?.totalBytes}
+          isFailed={!!uploadError}
+          errorMessage={uploadError}
+          onCancel={handleCancelUpload}
+          onRetry={handleAutoUpload}
+        />
+      ) : (
+        /* Main Clean Upload Form (Visible when not uploading) */
+        <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-6 sm:p-8 space-y-6">
+          <div className="border-b border-[#E2E8F0] pb-4">
             <div className="flex items-center gap-2 text-[#C62828]">
               <Upload className="w-5 h-5" />
               <h2 className="text-base sm:text-lg font-black text-[#172B4D]">
@@ -566,441 +508,319 @@ export default function AdminUploadPage() {
             </p>
           </div>
 
-          {/* PDF File Picker */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#172B4D]">
-              ಪತ್ರಿಕೆ PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ <span className="text-red-500">*</span>
-            </label>
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
-                touched.file && errors.file
-                  ? "border-red-400 bg-red-50/30"
-                  : selectedFile
-                  ? "border-emerald-400 bg-emerald-50/40"
-                  : "border-neutral-300 hover:border-[#C62828] bg-neutral-50/50"
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <div className="flex items-center justify-center gap-2">
-                {selectedFile ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                ) : (
-                  <Upload
-                    className={`w-5 h-5 shrink-0 ${
-                      touched.file && errors.file ? "text-red-600" : "text-[#C62828]"
-                    }`}
-                  />
-                )}
-                <div className="text-left">
-                  <p className="text-xs font-bold text-[#172B4D] truncate max-w-xs">
-                    {selectedFile ? selectedFile.name : "ಕ್ಲಿಕ್ ಮಾಡಿ PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ"}
-                  </p>
-                  <p className="text-[10px] text-[#5A6A85]">
-                    {selectedFile
-                      ? `ಗಾತ್ರ: ${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`
-                      : "ಫೈಲ್ ಹೆಸರು & ಗಾತ್ರವನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಲೆಕ್ಕಹಾಕುತ್ತದೆ"}
-                  </p>
-                </div>
-              </div>
+        {/* 1. PDF File Picker */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-[#172B4D]">
+            ಪತ್ರಿಕೆ PDF ಫೈಲ್ ಆಯ್ಕೆಮಾಡಿ <span className="text-red-500">*</span>
+          </label>
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all ${
+              touched.file && errors.file
+                ? "border-red-400 bg-red-50/30"
+                : selectedFile
+                ? "border-emerald-400 bg-emerald-50/40"
+                : "border-neutral-300 hover:border-[#C62828] bg-neutral-50/50 hover:bg-neutral-50"
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <div className="flex flex-col items-center justify-center gap-2">
+              {selectedFile ? (
+                <>
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <CheckCircle2 className="w-7 h-7" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-bold text-emerald-900 break-all">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-xs text-emerald-700 mt-0.5">
+                      ಗಾತ್ರ: {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • PDF ಆಯ್ಕೆಯಾಗಿದೆ
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-bold text-neutral-500 underline mt-1">
+                    ಬೇರೆ ಫೈಲ್ ಬದಲಾಯಿಸಲು ಇಲ್ಲಿ ಕ್ಲಿಕ್ ಮಾಡಿ
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-[#C62828]">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#172B4D]">
+                      PDF ಫೈಲ್ ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ಇಲ್ಲಿ ಕ್ಲಿಕ್ ಮಾಡಿ
+                    </p>
+                    <p className="text-xs text-[#5A6A85] mt-0.5">
+                      ಕೇವಲ .pdf ಫೈಲ್‌ಗಳನ್ನು ಮಾತ್ರ ಬೆಂಬಲಿಸುತ್ತದೆ (ಗರಿಷ್ಠ 200MB)
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
+          </div>
 
-            {/* File Error Message */}
-            {touched.file && errors.file && (
+          {touched.file && errors.file && (
+            <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>{errors.file}</span>
+            </p>
+          )}
+        </div>
+
+        {/* 2. Form Fields Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          {/* Title */}
+          <div className="md:col-span-2">
+            <label className="block font-bold text-[#172B4D] mb-1">
+              ಪತ್ರಿಕೆಯ ಶೀರ್ಷಿಕೆ (Title) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={uploadTitle}
+              placeholder="ಉದಾ: ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬"
+              onChange={(e) => handleFieldChange("title", e.target.value)}
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.title && errors.title ? "border-red-400 bg-red-50/20" : "border-neutral-300"
+              }`}
+            />
+            {touched.title && errors.title && (
               <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{errors.file}</span>
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.title}</span>
               </p>
             )}
+          </div>
 
-            {/* Resume Session Found Notification */}
-            {hasResumeSession && !isUploading && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-xs text-blue-900 mt-2">
-                <div className="flex items-center gap-2">
-                  <RotateCcw className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>
-                    ಹಿಂದಿನ ಅಪೂರ್ಣ ಅಪ್‌ಲೋಡ್ ಪತ್ತೆಯಾಗಿದೆ ({resumablePartsCount} ಭಾಗಗಳು ಈಗಾಗಲೇ ಸೇವ್ ಆಗಿದೆ).
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleClearResume}
-                  className="text-[11px] underline text-blue-700 hover:text-blue-900 ml-2"
-                >
-                  ರದ್ದುಗೊಳಿಸಿ
-                </button>
-              </div>
+          {/* Year */}
+          <div>
+            <label className="block font-bold text-[#172B4D] mb-1">
+              ವರ್ಷ (Year) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              value={uploadYear}
+              onChange={(e) => handleFieldChange("year", e.target.value)}
+              min={2020}
+              max={2035}
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.year && errors.year ? "border-red-400 bg-red-50/20" : "border-neutral-300"
+              }`}
+            />
+            {touched.year && errors.year && (
+              <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.year}</span>
+              </p>
             )}
           </div>
 
-          <div className="space-y-3 text-xs">
-            {/* Title */}
-            <div>
-              <label className="block font-bold text-[#172B4D] mb-1">
-                ಪತ್ರಿಕೆಯ ಶೀರ್ಷಿಕೆ (Title) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={uploadTitle}
-                onBlur={() => markTouched("title")}
-                onChange={(e) => {
-                  setUploadTitle(e.target.value);
-                  if (errors.title) setErrors((prev) => ({ ...prev, title: undefined }));
-                }}
-                className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] font-medium transition-colors ${
-                  touched.title && errors.title
-                    ? "border-red-500 bg-red-50/20 focus:ring-1 focus:ring-red-400"
-                    : "border-neutral-300 focus:border-[#172B4D]"
-                }`}
-              />
-              {touched.title && errors.title && (
-                <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                  <AlertCircle className="w-3 h-3 shrink-0" />
-                  <span>{errors.title}</span>
-                </p>
-              )}
-            </div>
+          {/* Month */}
+          <div>
+            <label className="block font-bold text-[#172B4D] mb-1">
+              ತಿಂಗಳು (Month) <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={uploadMonth}
+              onChange={(e) => handleFieldChange("month", e.target.value)}
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.month && errors.month ? "border-red-400 bg-red-50/20" : "border-neutral-300"
+              }`}
+            >
+              <option value={1}>ಜನವರಿ (1 - January)</option>
+              <option value={2}>ಫೆಬ್ರವರಿ (2 - February)</option>
+              <option value={3}>ಮಾರ್ಚ್ (3 - March)</option>
+              <option value={4}>ಏಪ್ರಿಲ್ (4 - April)</option>
+              <option value={5}>ಮೇ (5 - May)</option>
+              <option value={6}>ಜೂನ್ (6 - June)</option>
+              <option value={7}>ಜುಲೈ (7 - July)</option>
+              <option value={8}>ಆಗಸ್ಟ್ (8 - August)</option>
+              <option value={9}>ಸೆಪ್ಟೆಂಬರ್ (9 - September)</option>
+              <option value={10}>ಅಕ್ಟೋಬರ್ (10 - October)</option>
+              <option value={11}>ನವೆಂಬರ್ (11 - November)</option>
+              <option value={12}>ಡಿಸೆಂಬರ್ (12 - December)</option>
+            </select>
+            {touched.month && errors.month && (
+              <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.month}</span>
+              </p>
+            )}
+          </div>
 
-            {/* Year & Month */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-bold text-[#172B4D] mb-1">
-                  ವರ್ಷ (Year) <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={uploadYear}
-                  onChange={(e) => handleYearChange(Number(e.target.value))}
-                  className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] ${
-                    touched.year && errors.year ? "border-red-500" : "border-neutral-300"
-                  }`}
-                >
-                  <option value={2026}>2026</option>
-                  <option value={2025}>2025</option>
-                  <option value={2024}>2024</option>
-                  <option value={2023}>2023</option>
-                </select>
-                {touched.year && errors.year && (
-                  <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.year}</span>
-                  </p>
-                )}
-              </div>
+          {/* Edition Area */}
+          <div>
+            <label className="block font-bold text-[#172B4D] mb-1">
+              ಆವೃತ್ತಿ (Edition) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={uploadEditionArea}
+              onChange={(e) => handleFieldChange("editionArea", e.target.value)}
+              placeholder="ಉದಾ: ರಾಜ್ಯ ಆವೃತ್ತಿ / ಜಿಲ್ಲಾ ಆವೃತ್ತಿ"
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.editionArea && errors.editionArea
+                  ? "border-red-400 bg-red-50/20"
+                  : "border-neutral-300"
+              }`}
+            />
+            {touched.editionArea && errors.editionArea && (
+              <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.editionArea}</span>
+              </p>
+            )}
+          </div>
 
-              <div>
-                <label className="block font-bold text-[#172B4D] mb-1">
-                  ತಿಂಗಳು (Month) <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={uploadMonth}
-                  onChange={(e) => handleMonthChange(Number(e.target.value))}
-                  className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] ${
-                    touched.month && errors.month ? "border-red-500" : "border-neutral-300"
-                  }`}
-                >
-                  {Object.entries(KANNADA_MONTH_MAP).map(([num, name]) => (
-                    <option key={num} value={num}>
-                      {num} - {name}
-                    </option>
-                  ))}
-                </select>
-                {touched.month && errors.month && (
-                  <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.month}</span>
-                  </p>
-                )}
-              </div>
-            </div>
+          {/* Language */}
+          <div>
+            <label className="block font-bold text-[#172B4D] mb-1">
+              ಭಾಷೆ (Language) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={uploadLanguage}
+              onChange={(e) => handleFieldChange("language", e.target.value)}
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.language && errors.language ? "border-red-400 bg-red-50/20" : "border-neutral-300"
+              }`}
+            />
+            {touched.language && errors.language && (
+              <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.language}</span>
+              </p>
+            )}
+          </div>
 
-            {/* Edition & Language */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-bold text-[#172B4D] mb-1">
-                  ಆವೃತ್ತಿ (Edition) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={uploadEditionArea}
-                  onBlur={() => markTouched("editionArea")}
-                  onChange={(e) => {
-                    setUploadEditionArea(e.target.value);
-                    if (errors.editionArea)
-                      setErrors((prev) => ({ ...prev, editionArea: undefined }));
-                  }}
-                  placeholder="ರಾಜ್ಯ ಆವೃತ್ತಿ / ಮಂಗಳೂರು"
-                  className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] ${
-                    touched.editionArea && errors.editionArea
-                      ? "border-red-500 bg-red-50/20"
-                      : "border-neutral-300"
-                  }`}
-                />
-                {touched.editionArea && errors.editionArea && (
-                  <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.editionArea}</span>
-                  </p>
-                )}
-              </div>
+          {/* Target File Name */}
+          <div>
+            <label className="block font-bold text-[#172B4D] mb-1">
+              PDF ಫೈಲ್ ಹೆಸರು (Target File Name) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={uploadFileName}
+              placeholder="ಉದಾ: newspaper.pdf"
+              onChange={(e) => handleFieldChange("fileName", e.target.value)}
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm font-mono focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.fileName && errors.fileName ? "border-red-400 bg-red-50/20" : "border-neutral-300"
+              }`}
+            />
+            {touched.fileName && errors.fileName && (
+              <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.fileName}</span>
+              </p>
+            )}
+          </div>
 
-              <div>
-                <label className="block font-bold text-[#172B4D] mb-1">
-                  ಭಾಷೆ (Language) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={uploadLanguage}
-                  onBlur={() => markTouched("language")}
-                  onChange={(e) => {
-                    setUploadLanguage(e.target.value);
-                    if (errors.language)
-                      setErrors((prev) => ({ ...prev, language: undefined }));
-                  }}
-                  className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] ${
-                    touched.language && errors.language
-                      ? "border-red-500 bg-red-50/20"
-                      : "border-neutral-300"
-                  }`}
-                />
-                {touched.language && errors.language && (
-                  <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.language}</span>
-                  </p>
-                )}
-              </div>
-            </div>
+          {/* Total Pages */}
+          <div>
+            <label className="block font-bold text-[#172B4D] mb-1">
+              ಒಟ್ಟು ಪುಟಗಳು (Total Pages) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              value={uploadTotalPages}
+              onChange={(e) => handleFieldChange("totalPages", e.target.value)}
+              min={1}
+              max={100}
+              className={`w-full px-3.5 py-2.5 bg-[#F8F9FA] border rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828] ${
+                touched.totalPages && errors.totalPages
+                  ? "border-red-400 bg-red-50/20"
+                  : "border-neutral-300"
+              }`}
+            />
+            {touched.totalPages && errors.totalPages && (
+              <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span>{errors.totalPages}</span>
+              </p>
+            )}
+          </div>
 
-            {/* File Name & Pages */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-bold text-[#172B4D] mb-1">
-                  PDF ಫೈಲ್ ಹೆಸರು <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={uploadFileName}
-                  onBlur={() => markTouched("fileName")}
-                  onChange={(e) => {
-                    setUploadFileName(e.target.value);
-                    if (errors.fileName)
-                      setErrors((prev) => ({ ...prev, fileName: undefined }));
-                  }}
-                  className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] font-mono ${
-                    touched.fileName && errors.fileName
-                      ? "border-red-500 bg-red-50/20"
-                      : "border-neutral-300"
-                  }`}
-                />
-                {touched.fileName && errors.fileName && (
-                  <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.fileName}</span>
-                  </p>
-                )}
-              </div>
+          {/* Status */}
+          <div className="md:col-span-2">
+            <label className="block font-bold text-[#172B4D] mb-1">ಸ್ಥಿತಿ (Publication Status)</label>
+            <select
+              value={uploadStatus}
+              onChange={(e) => setUploadStatus(e.target.value as "published" | "draft")}
+              className="w-full px-3.5 py-2.5 bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
+            >
+              <option value="published">published (ಓದುಗರಿಗೆ ನೇರವಾಗಿ ಪ್ರಕಟಿಸು)</option>
+              <option value="draft">draft (ಕರಡು ರೂಪದಲ್ಲಿ ಉಳಿಸು)</option>
+            </select>
+          </div>
 
-              <div>
-                <label className="block font-bold text-[#172B4D] mb-1">
-                  ಒಟ್ಟು ಪುಟಗಳು <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={uploadTotalPages}
-                  onBlur={() => markTouched("totalPages")}
-                  onChange={(e) => {
-                    setUploadTotalPages(Number(e.target.value));
-                    if (errors.totalPages)
-                      setErrors((prev) => ({ ...prev, totalPages: undefined }));
-                  }}
-                  className={`w-full px-3 py-2 bg-[#F8F9FA] border rounded-lg text-[#172B4D] ${
-                    touched.totalPages && errors.totalPages
-                      ? "border-red-500 bg-red-50/20"
-                      : "border-neutral-300"
-                  }`}
-                />
-                {touched.totalPages && errors.totalPages && (
-                  <p className="text-[11px] font-semibold text-red-600 flex items-center gap-1 mt-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.totalPages}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block font-bold text-[#172B4D] mb-1">ಸ್ಥಿತಿ (Status)</label>
-              <select
-                value={uploadStatus}
-                onChange={(e) => setUploadStatus(e.target.value as "published" | "draft")}
-                className="w-full px-3 py-2 bg-[#F8F9FA] border border-neutral-300 rounded-lg text-[#172B4D]"
-              >
-                <option value="published">published (ಓದುಗರಿಗೆ ಪ್ರಕಟಿತ)</option>
-                <option value="draft">draft (ಕರಡು)</option>
-              </select>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block font-bold text-[#172B4D] mb-1">ವಿವರಣೆ (Description)</label>
-              <textarea
-                rows={2}
-                value={uploadDescription}
-                onChange={(e) => setUploadDescription(e.target.value)}
-                className="w-full px-3 py-2 bg-[#F8F9FA] border border-neutral-300 rounded-lg text-[#172B4D]"
-              />
-            </div>
-
-            {/* ACTION BUTTONS */}
-            <div className="pt-3 space-y-2">
-              {/* PRIMARY: Automatic R2 Upload with Chunks & Auto-JSON */}
-              <button
-                type="button"
-                onClick={handleAutoUpload}
-                disabled={isUploading}
-                className={`w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm ${
-                  isUploading
-                    ? "bg-neutral-500 cursor-not-allowed"
-                    : "bg-[#C62828] hover:bg-[#B71C1C] cursor-pointer"
-                }`}
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತಿದೆ... (Uploading...)</span>
-                  </>
-                ) : hasResumeSession ? (
-                  <>
-                    <RotateCcw className="w-5 h-5" />
-                    <span>ಅಪ್‌ಲೋಡ್ ಮುಂದುವರಿಸಿ (Resume Upload from Part {resumablePartsCount + 1})</span>
-                  </>
-                ) : (
-                  <>
-                    <CloudUpload className="w-5 h-5" />
-                    <span>Cloudflare R2 ಗೆ ಸ್ವಯಂಚಾಲಿತ ಅಪ್‌ಲೋಡ್ (PDF & JSON)</span>
-                  </>
-                )}
-              </button>
-
-              {/* CANCEL UPLOAD BUTTON (VISIBLE WHEN UPLOADING) */}
-              {isUploading && (
-                <button
-                  type="button"
-                  onClick={handleCancelUpload}
-                  className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-[#C62828] border border-red-300 font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer text-xs"
-                >
-                  <XCircle className="w-4 h-4" />
-                  <span>ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಿ (Cancel Upload)</span>
-                </button>
-              )}
-
-              {/* SECONDARY: Instant Local Preview */}
-              <button
-                type="button"
-                onClick={handleSaveToPreview}
-                disabled={isUploading}
-                className="w-full py-2.5 bg-[#172B4D] hover:bg-[#0F1C33] text-white font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer text-xs"
-              >
-                <Save className="w-4 h-4" />
-                <span>ಸ್ಥಳೀಯ ಮುನ್ನೋಟಕ್ಕೆ ಸೇರಿಸಿ & ವಾಚಕದಲ್ಲಿ ಪರೀಕ್ಷಿಸಿ</span>
-              </button>
-            </div>
+          {/* Description */}
+          <div className="md:col-span-2">
+            <label className="block font-bold text-[#172B4D] mb-1">ವಿವರಣೆ (Description)</label>
+            <textarea
+              rows={2}
+              value={uploadDescription}
+              placeholder="ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
+              onChange={(e) => setUploadDescription(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] text-sm focus:outline-hidden focus:ring-2 focus:ring-[#C62828]"
+            />
           </div>
         </div>
 
-        {/* Right Column: R2 Upload Destination & JSON Catalogue Output */}
-        <div className="lg:col-span-6 bg-white rounded-2xl border border-[#E2E8F0] shadow-xs p-5 sm:p-6 flex flex-col justify-between space-y-4">
-          <div className="border-b border-[#E2E8F0] pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-bold text-[#172B4D] flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-[#C62828]" />
-                  <span>R2 ಗಮ್ಯಸ್ಥಾನ & ಸ್ವಯಂಚಾಲಿತ ಕ್ಯಾಟಲಾಗ್</span>
-                </h3>
-                <p className="text-xs text-[#5A6A85] mt-0.5">
-                  ಫೈಲ್ ಅಪ್‌ಲೋಡ್ ಆದಾಗ ಈ JSON ಕ್ಯಾಟಲಾಗ್ ಸ್ವಯಂಚಾಲಿತವಾಗಿ R2 ಗೆ ರವಾನೆಯಾಗುತ್ತದೆ.
-                </p>
-              </div>
+        {/* 3. Action Buttons */}
+        <div className="pt-4 border-t border-[#E2E8F0] space-y-3">
+          {/* PRIMARY: Publish Newspaper */}
+          <button
+            type="button"
+            onClick={handleAutoUpload}
+            className="w-full py-4 px-6 rounded-xl text-white font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md bg-[#C62828] hover:bg-[#B71C1C] cursor-pointer hover:shadow-lg"
+          >
+            {hasResumeSession ? (
+              <>
+                <RotateCcw className="w-5 h-5" />
+                <span>ಪತ್ರಿಕೆ ಪ್ರಕಟಣೆ ಮುಂದುವರಿಸಿ (ಭಾಗ {resumablePartsCount + 1})</span>
+              </>
+            ) : (
+              <>
+                <CloudUpload className="w-5 h-5" />
+                <span>ಪತ್ರಿಕೆ ಪ್ರಕಟಗೊಳಿಸಿ</span>
+              </>
+            )}
+          </button>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleCopyJson}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold rounded-lg transition-colors cursor-pointer"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>{copiedCode ? "ಕಾಪಿಯಾಗಿದೆ!" : "ಕಾಪಿ"}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleDownloadJson}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-[#172B4D] text-xs font-bold rounded-lg transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>JSON ಡೌನ್‌ಲೋಡ್</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* R2 Upload Path Highlights */}
-          <div className="bg-neutral-900 rounded-xl p-3.5 text-xs font-mono space-y-2 text-neutral-300">
-            <div className="text-neutral-400 font-sans font-bold flex items-center gap-1.5">
-              <FolderTree className="w-4 h-4 text-amber-400" />
-              <span>R2 ಬಕೆಟ್‌ನಲ್ಲಿ PDF ಅಪ್‌ಲೋಡ್ ಮಾರ್ಗ (Target Path):</span>
-            </div>
-            <div className="p-2 bg-neutral-950 rounded-lg text-amber-300 break-all border border-neutral-800">
-              newspapers/{uploadYear}/{currentMonthFolder}/{uploadFileName}
-            </div>
-
-            <div className="text-neutral-400 font-sans font-bold flex items-center gap-1.5 pt-1">
-              <FileText className="w-4 h-4 text-sky-400" />
-              <span>ಸ್ವಯಂ ನವೀಕರಣಗೊಳ್ಳುವ ಕ್ಯಾಟಲಾಗ್ (Catalogue Path):</span>
-            </div>
-            <div className="p-2 bg-neutral-950 rounded-lg text-sky-300 break-all border border-neutral-800">
-              data/newspapers.json
-            </div>
-
-            <div className="text-neutral-400 font-sans font-bold pt-1">ನೇರ ಸಾರ್ವಜನಿಕ URL:</div>
-            <div className="p-2 bg-neutral-950 rounded-lg text-emerald-400 break-all border border-neutral-800">
-              {currentPdfUrl}
-            </div>
-          </div>
-
-          {/* Code Container */}
-          <div className="flex-1 bg-neutral-950 text-emerald-400 p-3.5 rounded-xl font-mono text-xs overflow-auto max-h-[260px] border border-neutral-800 shadow-inner">
-            <pre>{jsonCatalogueString}</pre>
-          </div>
-
-          {/* Quick Resumable Feature Notes */}
-          <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-[#172B4D] space-y-1.5">
-            <p className="font-bold flex items-center gap-1 text-[#172B4D]">
-              <HelpCircle className="w-4 h-4 text-[#C62828]" />
-              <span>ಸ್ವಯಂಚಾಲಿತ ಅಪ್‌ಲೋಡ್ & ದೃಢೀಕರಣ:</span>
-            </p>
-            <ul className="list-disc pl-4 space-y-1 text-[#5A6A85]">
-              <li>
-                <strong>ಫಾರ್ಮ್ ದೃಢೀಕರಣ (Validation):</strong> ಕಡ್ಡಾಯ ವಿವರಗಳನ್ನು ತಪ್ಪಾಗಿ ಅಥವಾ ಅಪೂರ್ಣವಾಗಿ ನಮೂದಿಸಿದರೆ ಸ್ಪಷ್ಟ ದೋಷ ಸಂದೇಶ ತೋರಿಸುತ್ತದೆ.
-              </li>
-              <li>
-                <strong>ಆಟೋ JSON ಅಪ್‌ಲೋಡ್:</strong> PDF ಅಪ್‌ಲೋಡ್ ಆದ ತಕ್ಷಣ <code>data/newspapers.json</code> ಫೈಲ್ ತಂತಾನೇ ನವೀಕರಣಗೊಂಡು R2 ಗೆ ಸೇರುತ್ತದೆ.
-              </li>
-              <li>
-                <strong>ಚಂಕ್ & ರೆಸ್ಯೂಮ್:</strong> ದೊಡ್ಡ PDF ಫೈಲ್‌ಗಳು 5MB ತುಂಡುಗಳಾಗಿ ಹೋಗುತ್ತವೆ. ನೆಟ್‌ವರ್ಕ್ ಸಮಸ್ಯೆ ಬಂದರೂ ಮೊದಲಿನಿಂದ ಪ್ರಾರಂಭವಾಗುವುದಿಲ್ಲ; ನಿಂತಿದ್ದಲ್ಲಿಂದಲೇ ಮುಂದುವರಿಯುತ್ತದೆ.
-              </li>
-            </ul>
-          </div>
+          {/* SECONDARY: Instant Local Preview */}
+          <button
+            type="button"
+            onClick={handleSaveToPreview}
+            className="w-full py-3 bg-[#172B4D] hover:bg-[#0F1C33] text-white font-bold rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer text-xs"
+          >
+            <Save className="w-4 h-4" />
+            <span>ಸ್ಥಳೀಯ ಮುನ್ನೋಟಕ್ಕೆ ಸೇರಿಸಿ & ವಾಚಕದಲ್ಲಿ ಪರೀಕ್ಷಿಸಿ</span>
+          </button>
         </div>
       </div>
+    )}
+
+      {/* Custom Form Clear Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={() => {
+          clearFormData();
+          setShowClearModal(false);
+        }}
+        title="ಫಾರ್ಮ್ ತೆರವುಗೊಳಿಸುವಿಕೆ (Clear Form)"
+        description="ನೀವು ಆಯ್ಕೆಮಾಡಿದ PDF ಫೈಲ್ ಮತ್ತು ನಮೂದಿಸಿದ ಎಲ್ಲಾ ವಿವರಗಳನ್ನು ತೆರವುಗೊಳಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?"
+        confirmText="ಹೌದು, ತೆರವುಗೊಳಿಸಿ"
+        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        variant="warning"
+        iconType="warning"
+      />
     </div>
   );
 }

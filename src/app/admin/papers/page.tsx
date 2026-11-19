@@ -16,6 +16,7 @@ import {
   Save,
   Plus,
 } from "lucide-react";
+import { ConfirmationModal } from "@/components/admin/ConfirmationModal";
 import {
   getStoredEditions,
   updateStoredEdition,
@@ -31,6 +32,9 @@ export default function AdminPapersPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const [editingEdition, setEditingEdition] = useState<Edition | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Edition | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
 
   const loadData = () => {
     Promise.resolve().then(() => {
@@ -71,12 +75,77 @@ export default function AdminPapersPage() {
   const handleTogglePublish = (id: string) => {
     const updated = togglePublishStoredEdition(id);
     setEditions(updated);
+
+    const target = updated.find((e) => e.id === id);
+    if (target) {
+      fetch("/api/r2/catalogue/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          newItem: {
+            id: target.id,
+            title: target.title,
+            language: target.language || "Kannada",
+            edition: target.edition || "State Edition",
+            month: target.issueNumber || 1,
+            year: target.editionYear,
+            fileName: target.fileName || `${target.id}.pdf`,
+            pdfUrl: target.pdfUrl || "",
+            publishedAt: target.publishedAt || new Date().toISOString().split("T")[0],
+            status: target.isPublished ? "published" : "draft",
+            totalPages: target.totalPages,
+            formattedFileSize: target.formattedFileSize,
+            description: target.description,
+          },
+        }),
+      }).catch(() => {});
+    }
   };
 
-  const handleDelete = (id: string, title: string) => {
-    if (confirm(`"${title}" ಪತ್ರಿಕೆಯನ್ನು ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಬೇಕೆ?`)) {
-      const updated = deleteStoredEdition(id);
+  const handleDeleteClick = (edition: Edition) => {
+    setDeleteTarget(edition);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setIsDeleting(true);
+    setDeleteNotice(null);
+
+    try {
+      const res = await fetch("/api/r2/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: deleteTarget.id,
+          fileName: deleteTarget.fileName,
+          pdfUrl: deleteTarget.pdfUrl,
+          year: deleteTarget.editionYear,
+          month: deleteTarget.issueNumber,
+          deleteFile: true,
+        }),
+      });
+
+      const data = await res.json();
+      const updated = deleteStoredEdition(deleteTarget.id);
       setEditions(updated);
+
+      if (data.success) {
+        setDeleteNotice(
+          `"${deleteTarget.title}" ಪತ್ರಿಕೆ ಮತ್ತು ಸಂಬಂಧಿತ PDF ಫೈಲ್ ಅನ್ನು ಡೇಟಾಬೇಸ್ ಹಾಗೂ R2 ನಿಂದ ಯಶಸ್ವಿಯಾಗಿ ಅಳಿಸಲಾಗಿದೆ.`
+        );
+      } else {
+        setDeleteNotice(
+          `ಸ್ಥಳೀಯ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ. (${data.message || "R2 ಸಿಂಕ್ ವಿಫಲ"})`
+        );
+      }
+    } catch {
+      const updated = deleteStoredEdition(deleteTarget.id);
+      setEditions(updated);
+      setDeleteNotice(`"${deleteTarget.title}" ಸ್ಥಳೀಯ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ.`);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -105,6 +174,30 @@ export default function AdminPapersPage() {
       pdfUrl: editingEdition.pdfUrl?.trim(),
     });
     setEditions(updated);
+
+    // Sync edited record to R2 catalogue
+    fetch("/api/r2/catalogue/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        newItem: {
+          id: editingEdition.id,
+          title: editingEdition.title.trim(),
+          language: editingEdition.language || "Kannada",
+          edition: editingEdition.edition || "State Edition",
+          month: editingEdition.issueNumber || 1,
+          year: editingEdition.editionYear,
+          fileName: editingEdition.fileName || `${editingEdition.id}.pdf`,
+          pdfUrl: editingEdition.pdfUrl?.trim() || "",
+          publishedAt: editingEdition.publishedAt || new Date().toISOString().split("T")[0],
+          status: editingEdition.isPublished ? "published" : "draft",
+          totalPages: editingEdition.totalPages,
+          formattedFileSize: editingEdition.formattedFileSize,
+          description: editingEdition.description?.trim(),
+        },
+      }),
+    }).catch(() => {});
+
     setEditingEdition(null);
   };
 
@@ -195,6 +288,23 @@ export default function AdminPapersPage() {
           </button>
         </div>
       </div>
+
+      {/* Delete Notice Banner */}
+      {deleteNotice && (
+        <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs sm:text-sm font-semibold text-emerald-800 shadow-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{deleteNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDeleteNotice(null)}
+            className="text-emerald-700 hover:text-emerald-900 p-1 rounded-md cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs overflow-hidden">
@@ -292,9 +402,10 @@ export default function AdminPapersPage() {
 
                         <button
                           type="button"
-                          onClick={() => handleDelete(edition.id, edition.title)}
-                          className="p-1.5 text-neutral-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                          title="ತೆಗೆದುಹಾಕಿ"
+                          disabled={isDeleting}
+                          onClick={() => handleDeleteClick(edition)}
+                          className="p-1.5 text-neutral-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                          title="ಡೇಟಾಬೇಸ್ ಮತ್ತು R2 ನಿಂದ ಶಾಶ್ವತವಾಗಿ ತೆಗೆದುಹಾಕಿ"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -473,6 +584,34 @@ export default function AdminPapersPage() {
           </div>
         </div>
       )}
+      {/* Custom Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => !isDeleting && setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="ಪತ್ರಿಕೆ ಶಾಶ್ವತ ಅಳಿಸುವಿಕೆ (Confirm Delete)"
+        description={
+          deleteTarget ? (
+            <div className="space-y-2">
+              <p>
+                <strong className="text-neutral-800">&ldquo;{deleteTarget.title}&rdquo;</strong> ಪತ್ರಿಕೆಯನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?
+              </p>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 space-y-1">
+                <p className="font-bold">⚠️ ಈ ಕ್ರಿಯೆಯನ್ನು ಹಿಂಪಡೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ:</p>
+                <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-red-700">
+                  <li>Cloudflare R2 ಬಕೆಟ್‌ನಿಂದ PDF ಫೈಲ್ ಅಳಿಸಿಹೋಗುತ್ತದೆ.</li>
+                  <li>ಆನ್‌ಲೈನ್ ಡೇಟಾಬೇಸ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್‌ನಿಂದ ವಿವರಗಳು ರದ್ದಾಗುತ್ತವೆ.</li>
+                </ul>
+              </div>
+            </div>
+          ) : ""
+        }
+        confirmText={isDeleting ? "ಅಳಿಸಲಾಗುತ್ತಿದೆ..." : "ಹೌದು, ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಿ"}
+        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        variant="danger"
+        iconType="trash"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

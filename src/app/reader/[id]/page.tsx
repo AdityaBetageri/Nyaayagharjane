@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 import ReaderView from "@/components/reader/ReaderView";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
@@ -13,6 +14,9 @@ interface ReaderPageProps {
 }
 
 async function getEdition(id: string): Promise<Edition> {
+  "use cache";
+  cacheLife("hours");
+
   try {
     const r2Result = await fetchR2Catalogue({ bypassCache: false, publishedOnly: false });
     if (r2Result.success && r2Result.data.length > 0) {

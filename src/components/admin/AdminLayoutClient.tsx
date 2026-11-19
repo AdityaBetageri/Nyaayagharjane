@@ -19,6 +19,7 @@ import {
   Settings,
 } from "lucide-react";
 import { getAdminSession, clearAdminSession, AdminUser } from "@/lib/editionsStore";
+import { ConfirmationModal } from "@/components/admin/ConfirmationModal";
 
 export default function AdminLayoutClient({
   children,
@@ -29,6 +30,7 @@ export default function AdminLayoutClient({
   const router = useRouter();
   const [session, setSession] = useState<AdminUser | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const isLoginPage = pathname === "/admin/login" || pathname.startsWith("/admin/login");
 
@@ -50,11 +52,14 @@ export default function AdminLayoutClient({
     return <>{children}</>;
   }
 
-  const handleLogout = () => {
-    if (confirm("ನೀವು ಖಂಡಿತವಾಗಿ ಲಾಗ್‌ಔಟ್ ಆಗಲು ಬಯಸುವಿರಾ? (Confirm logout?)")) {
-      clearAdminSession();
-      router.push("/admin/login");
-    }
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    clearAdminSession();
+    setShowLogoutModal(false);
+    router.push("/admin/login");
   };
 
   const navLinks = [
@@ -236,7 +241,7 @@ export default function AdminLayoutClient({
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-red-600/80 text-neutral-300 hover:text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -288,7 +293,7 @@ export default function AdminLayoutClient({
 
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-semibold transition-colors cursor-pointer"
               title="ಲಾಗ್‌ಔಟ್"
             >
@@ -303,6 +308,19 @@ export default function AdminLayoutClient({
           {children}
         </main>
       </div>
+
+      {/* Custom Logout Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="ಲಾಗ್‌ಔಟ್ ದೃಢೀಕರಣ (Confirm Logout)"
+        description="ನೀವು ಆಡಳಿತ ಮಂಡಳಿಯಿಂದ ಲಾಗ್ಔಟ್ ಆಗಲು ಬಯಸುವಿರಾ? ಮುಂದಿನ ಬಾರಿ ಲಾಗಿನ್ ಮಾಡಲು ನಿಮ್ಮ ಈಮೇಲ್ ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯವಿರುತ್ತದೆ."
+        confirmText="ಹೌದು, ಲಾಗ್‌ಔಟ್ ಆಗಿ"
+        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        variant="warning"
+        iconType="logout"
+      />
     </div>
   );
 }

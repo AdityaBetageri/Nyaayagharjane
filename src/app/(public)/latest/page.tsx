@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cacheLife } from "next/cache";
 import LatestEditionHero from "@/components/public/LatestEditionHero";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 import EditionCard from "@/components/shared/EditionCard";
@@ -31,6 +32,9 @@ export const metadata: Metadata = {
 };
 
 export default async function LatestEditionPage() {
+  "use cache";
+  cacheLife("hours");
+
   let edition: Edition = PLACEHOLDER_LATEST_EDITION;
   let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
 

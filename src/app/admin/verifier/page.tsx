@@ -9,11 +9,18 @@ import {
   AlertCircle,
   FolderTree,
   ExternalLink,
+  Database,
+  FileCheck,
+  UploadCloud,
+  Loader2,
 } from "lucide-react";
 import { getR2PublicUrl, testR2Connection } from "@/lib/r2Service";
 
 export default function AdminVerifierPage() {
   const [r2Url, setR2Url] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
   const [testResult, setTestResult] = useState<{
     tested: boolean;
     loading: boolean;
@@ -23,6 +30,20 @@ export default function AdminVerifierPage() {
     itemCount: number;
     durationMs: number;
     error?: string;
+    s3Status?: {
+      configured: boolean;
+      bucketName: string;
+      catalogueFound: boolean;
+      itemCount: number;
+      ok: boolean;
+      error: string | null;
+    };
+    pdfCheck?: {
+      ok: boolean;
+      status: number;
+      url: string;
+      error?: string;
+    } | null;
   }>({
     tested: false,
     loading: false,
@@ -49,6 +70,7 @@ export default function AdminVerifierPage() {
       itemCount: 0,
       durationMs: 0,
     });
+    setSyncMessage(null);
 
     const res = await testR2Connection(r2Url);
     setTestResult({
@@ -60,7 +82,43 @@ export default function AdminVerifierPage() {
       itemCount: res.itemCount,
       durationMs: res.durationMs,
       error: res.error,
+      s3Status: res.s3Status,
+      pdfCheck: res.pdfCheck,
     });
+  };
+
+  const handleSyncCatalogue = async () => {
+    setIsSyncing(true);
+    setSyncMessage(null);
+
+    try {
+      // 1. Fetch current local catalogue
+      const localRes = await fetch("/data/newspapers.json");
+      const localData = await localRes.json();
+
+      // 2. Push to R2 via update API
+      const pushRes = await fetch("/api/r2/catalogue/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullCatalogue: localData,
+        }),
+      });
+
+      const pushData = await pushRes.json();
+      if (pushData.success) {
+        setSyncMessage("ಕ್ಯಾಟಲಾಗ್ ಯಶಸ್ವಿಯಾಗಿ R2 ಬಕೆಟ್‌ಗೆ ಸಿಂಕ್ ಆಗಿದೆ! ಮರುಪರೀಕ್ಷಿಸಲಾಗುತ್ತಿದೆ...");
+        await handleRunR2Test();
+      } else {
+        setSyncMessage(`ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ: ${pushData.message || "R2 ದೋಷ"}`);
+      }
+    } catch (err) {
+      setSyncMessage(
+        `ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ: ${err instanceof Error ? err.message : "ದೋಷ ಸಂಭವಿಸಿದೆ"}`
+      );
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   return (
@@ -75,7 +133,7 @@ export default function AdminVerifierPage() {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-[#5A6A85] mt-1">
-            ನಿಮ್ಮ ಕಸ್ಟಮ್ ಡೊಮೈನ್ ಮತ್ತು <code>data/newspapers.json</code> ಸಾರ್ವಜನಿಕವಾಗಿ ಲಭ್ಯವಿದೆಯೇ ಎಂದು ಪರೀಕ್ಷಿಸಿ.
+            ನಿಮ್ಮ Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್, S3 ಬಕೆಟ್ ಮತ್ತು <code>data/newspapers.json</code> ಲಭ್ಯತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.
           </p>
         </div>
 
@@ -88,17 +146,17 @@ export default function AdminVerifierPage() {
         </Link>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-[#172B4D]">
-            Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ URL
+            Cloudflare R2 ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ ಅಥವಾ PDF ವಿಳಾಸ (Domain / PDF URL)
           </label>
           <div className="flex flex-col sm:flex-row gap-2.5">
             <input
               type="text"
               value={r2Url}
               onChange={(e) => setR2Url(e.target.value)}
-              placeholder="https://files.yourdomain.com"
+              placeholder="https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev"
               className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm bg-[#F8F9FA] border border-neutral-300 rounded-xl text-[#172B4D] font-mono focus:border-[#172B4D] transition-colors"
             />
             <button
@@ -112,70 +170,161 @@ export default function AdminVerifierPage() {
             </button>
           </div>
           <p className="text-[11px] text-[#5A6A85]">
-            ಇದು <code>.env.local</code> ನಲ್ಲಿರುವ <code>NEXT_PUBLIC_R2_PUBLIC_URL</code> ನ ಮೌಲ್ಯವಾಗಿದೆ.
+            ಕೇವಲ ಡೊಮೈನ್ ವಿಳಾಸ ಅಥವಾ ನಿರ್ದಿಷ್ಟ PDF ಫೈಲ್ ಲಿಂಕ್ (ಉದಾ: <code>.../newspaper.pdf</code>) ಎರಡನ್ನೂ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಗುರುತಿಸಿ ಪರೀಕ್ಷಿಸುತ್ತದೆ.
           </p>
         </div>
 
+        {/* Sync message alert */}
+        {syncMessage && (
+          <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-900 flex items-center gap-2">
+            <UploadCloud className="w-4 h-4 text-blue-600 shrink-0" />
+            <span>{syncMessage}</span>
+          </div>
+        )}
+
         {/* Test Results Display */}
         {testResult.tested && (
-          <div
-            className={`p-4 sm:p-5 rounded-2xl border space-y-3 ${
-              testResult.ok
-                ? "bg-emerald-50 border-emerald-300 text-emerald-950"
-                : "bg-red-50 border-red-300 text-red-950"
-            }`}
-          >
-            <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
-              {testResult.ok ? (
-                <>
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span>ಸಂಪರ್ಕ ಯಶಸ್ವಿಯಾಗಿದೆ (HTTP {testResult.status})</span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-                  <span>ಸಂಪರ್ಕ ವಿಫಲವಾಗಿದೆ ({testResult.error || "Connection Failed"})</span>
-                </>
-              )}
-            </div>
+          <div className="space-y-4">
+            {/* 1. S3 Storage Bucket Status Card */}
+            <div className="p-4 sm:p-5 rounded-2xl border bg-[#F8F9FA] border-[#E2E8F0] space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-[#172B4D]">
+                  <Database className="w-4 h-4 text-purple-600" />
+                  <span>R2 S3 API ಬಕೆಟ್ ಸ್ಥಿತಿ (Storage Bucket: {testResult.s3Status?.bucketName || "naresh"})</span>
+                </div>
+                {testResult.s3Status?.ok ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>ಬಕೆಟ್ ಸಂಪರ್ಕಿತ</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 text-amber-600" />
+                    <span>ಪರಿಶೀಲನೆ ಅಗತ್ಯ</span>
+                  </span>
+                )}
+              </div>
 
-            <div className="text-xs space-y-1.5 font-mono bg-white/70 p-3 rounded-xl border border-black/5">
-              <div className="break-all">
-                <span className="font-sans font-bold text-neutral-600">ಪರೀಕ್ಷಿತ ವಿಳಾಸ:</span>{" "}
-                <a
-                  href={testResult.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-blue-700 inline-flex items-center gap-1"
-                >
-                  {testResult.url}
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
+              <div className="text-xs space-y-1 text-[#5A6A85]">
+                <p>
+                  <strong>ಕ್ಯಾಟಲಾಗ್ ಫೈಲ್ (data/newspapers.json):</strong>{" "}
+                  {testResult.s3Status?.catalogueFound ? (
+                    <span className="text-emerald-700 font-bold">
+                      ಲಭ್ಯವಿದೆ ({testResult.s3Status.itemCount} ಪತ್ರಿಕೆಗಳು ದಾಖಲಾಗಿವೆ)
+                    </span>
+                  ) : (
+                    <span className="text-amber-700 font-bold">
+                      ಇನ್ನೂ R2 ಬಕೆಟ್‌ನಲ್ಲಿ ಕಂಡುಬಂದಿಲ್ಲ
+                    </span>
+                  )}
+                </p>
+                {testResult.s3Status?.error && (
+                  <p className="text-red-600 font-mono text-[11px]">{testResult.s3Status.error}</p>
+                )}
               </div>
-              <div>
-                <span className="font-sans font-bold text-neutral-600">ಪ್ರತಿಕ್ರಿಯೆ ಸಮಯ:</span>{" "}
-                {testResult.durationMs} ms
-              </div>
-              {testResult.ok && (
-                <div className="text-emerald-800 font-bold font-sans">
-                  ಕ್ಯಾಟಲಾಗ್‌ನಲ್ಲಿ ಕಂಡುಬಂದ ಪತ್ರಿಕೆಗಳು: {testResult.itemCount}
+
+              {/* Sync Button if needed */}
+              {(!testResult.s3Status?.catalogueFound || testResult.s3Status.itemCount === 0) && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    disabled={isSyncing}
+                    onClick={handleSyncCatalogue}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#172B4D] hover:bg-[#091E42] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isSyncing ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <UploadCloud className="w-3.5 h-3.5" />
+                    )}
+                    <span>ಸ್ಥಳೀಯ ಕ್ಯಾಟಲಾಗ್ ಅನ್ನು R2 ಗೆ ಈಗಲೇ ಸಿಂಕ್ ಮಾಡಿ (Sync Catalogue)</span>
+                  </button>
                 </div>
               )}
             </div>
 
-            {!testResult.ok && (
-              <div className="text-xs text-red-900 pt-2 border-t border-red-200">
-                <strong>ಪರಿಹಾರ ಕ್ರಮಗಳು:</strong>
-                <ul className="list-disc pl-5 mt-1 space-y-1 text-red-800">
-                  <li>Cloudflare Dashboard ನಲ್ಲಿ R2 ಬಕೆಟ್‌ಗೆ Custom Domain ಸಂಪರ್ಕಗೊಂಡಿದೆಯೇ ಪರಿಶೀಲಿಸಿ.</li>
-                  <li><code>data/newspapers.json</code> ಫೈಲ್ R2 ಬಕೆಟ್‌ನಲ್ಲಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆಯೇ ಮತ್ತು ಸಾರ್ವಜನಿಕವಾಗಿ ತೆರೆಯುತ್ತದೆಯೇ ನೋಡಿ.</li>
-                  <li>Cloudflare R2 CORS ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ <code>GET</code> ಮತ್ತು <code>HEAD</code> ಅನುಮತಿಸಲಾಗಿದೆಯೇ ಪರೀಕ್ಷಿಸಿ.</li>
-                </ul>
+            {/* 2. Public CDN / Custom Domain Status Card */}
+            <div
+              className={`p-4 sm:p-5 rounded-2xl border space-y-3 ${
+                testResult.ok
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-950"
+                  : "bg-red-50 border-red-300 text-red-950"
+              }`}
+            >
+              <div className="flex items-center gap-2 font-bold text-sm sm:text-base">
+                {testResult.ok ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <span>ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ ಸಂಪರ್ಕ ಯಶಸ್ವಿಯಾಗಿದೆ (HTTP {testResult.status})</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+                    <span>ಸಾರ್ವಜನಿಕ ಪ್ರವೇಶ ವಿಫಲವಾಗಿದೆ ({testResult.error || "Connection Failed"})</span>
+                  </>
+                )}
               </div>
-            )}
+
+              <div className="text-xs space-y-1.5 font-mono bg-white/70 p-3 rounded-xl border border-black/5">
+                <div className="break-all">
+                  <span className="font-sans font-bold text-neutral-600">ಪರೀಕ್ಷಿತ ಕ್ಯಾಟಲಾಗ್ ವಿಳಾಸ:</span>{" "}
+                  <a
+                    href={testResult.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-blue-700 inline-flex items-center gap-1"
+                  >
+                    {testResult.url}
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                  </a>
+                </div>
+                <div>
+                  <span className="font-sans font-bold text-neutral-600">ಪ್ರತಿಕ್ರಿಯೆ ಸಮಯ:</span>{" "}
+                  {testResult.durationMs} ms
+                </div>
+                {testResult.itemCount > 0 && (
+                  <div className="text-emerald-800 font-bold font-sans">
+                    ಸಾರ್ವಜನಿಕವಾಗಿ ದೊರೆತ ಪತ್ರಿಕೆಗಳು: {testResult.itemCount}
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Specific PDF check if applicable */}
+              {testResult.pdfCheck && (
+                <div className="p-3 bg-white/80 rounded-xl border border-black/5 text-xs font-mono space-y-1">
+                  <div className="flex items-center gap-1.5 font-sans font-bold text-[#172B4D]">
+                    <FileCheck className="w-4 h-4 text-blue-600" />
+                    <span>ನಿರ್ದಿಷ್ಟ PDF ಫೈಲ್ ತಪಾಸಣೆ:</span>
+                  </div>
+                  <div className="break-all">{testResult.pdfCheck.url}</div>
+                  <div className="font-sans font-semibold">
+                    ಸ್ಥಿತಿ:{" "}
+                    {testResult.pdfCheck.ok ? (
+                      <span className="text-emerald-700 font-bold">ಫೈಲ್ ತೆರೆಯುತ್ತದೆ (HTTP 200)</span>
+                    ) : (
+                      <span className="text-red-700 font-bold">
+                        ಫೈಲ್ ತೆರೆಯುತ್ತಿಲ್ಲ ({testResult.pdfCheck.error || "ಕಂಡುಬಂದಿಲ್ಲ"})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!testResult.ok && (
+                <div className="text-xs text-red-900 pt-2 border-t border-red-200">
+                  <strong>ಪರಿಹಾರ ಕ್ರಮಗಳು:</strong>
+                  <ul className="list-disc pl-5 mt-1 space-y-1 text-red-800">
+                    <li>Cloudflare Dashboard -&gt; R2 -&gt; {testResult.s3Status?.bucketName || "naresh"} -&gt; Settings -&gt; <strong>Public Access</strong> ಗೆ ಹೋಗಿ.</li>
+                    <li>ಅಲ್ಲಿ <strong>R2.dev subdomain</strong> ಸಕ್ರಿಯಗೊಳಿಸಿ (Allow Access) ಅಥವಾ Custom Domain ಸಂಪರ್ಕಿಸಿ.</li>
+                    <li><code>.env.local</code> ನಲ್ಲಿ ಸರಿಯಾದ ಡೊಮೈನ್ ವಿಳಾಸ (ಉದಾ: <code>https://pub-xxxx.r2.dev</code>) ನೀಡಲಾಗಿದೆಯೇ ಎಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.</li>
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
+
