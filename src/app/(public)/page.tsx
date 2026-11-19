@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen,
   ArrowRight,
@@ -57,12 +58,34 @@ export default function HomePage() {
             <span>ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
           </div>
 
+          {/* Logo Badge */}
+          <div className="flex justify-center">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-1 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl hover:scale-105 transition-transform duration-300">
+              <Image
+                src="/logo.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                width={968}
+                height={968}
+                priority
+                className="w-full h-full object-contain rounded-xl drop-shadow-md"
+              />
+            </div>
+          </div>
+
           {/* Newspaper Name & Tagline */}
-          <div className="space-y-2">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white font-serif">
-              ನ್ಯಾಯ ಘರ್ಜನೆ
-            </h1>
-            <p className="text-lg sm:text-xl font-bold text-white/95 pt-1">
+          <div className="space-y-3 flex flex-col items-center">
+            <h1 className="sr-only">ನ್ಯಾಯ ಘರ್ಜನೆ</h1>
+            <div className="flex justify-center w-full px-2">
+              <Image
+                src="/nyaayagharjane-title.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                width={918}
+                height={198}
+                priority
+                className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto max-w-full object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
+              />
+            </div>
+            <p className="text-base sm:text-lg lg:text-xl font-bold text-white/95 pt-1 tracking-wide">
               ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
             </p>
           </div>

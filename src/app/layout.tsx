@@ -93,6 +93,16 @@ export const metadata: Metadata = {
   },
   category: "news",
   classification: "Newspaper, Journalism, Media, Kannada News",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo-192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({

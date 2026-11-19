@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, BookOpen, ChevronRight } from "lucide-react";
 
@@ -43,15 +44,27 @@ export default function Header() {
         <div className="flex items-center justify-between gap-4 py-2.5 sm:py-3">
 
           {/* Logo / Brand — left-aligned */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            {/* Icon mark */}
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-[#172B4D] flex items-center justify-center shrink-0">
-              <span className="text-[#C62828] font-black text-sm sm:text-base leading-none select-none">ನ್ಯಾ</span>
+          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 shrink-0 group">
+            {/* Logo Mark */}
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 shrink-0">
+              <Image
+                src="/logo.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ ಲೋಗೋ"
+                width={968}
+                height={968}
+                priority
+                className="w-full h-full object-contain rounded-lg drop-shadow-xs group-hover:scale-105 transition-transform"
+              />
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-lg sm:text-xl lg:text-2xl font-black tracking-tight text-[#172B4D] group-hover:text-[#C62828] transition-colors">
-                ನ್ಯಾಯ ಘರ್ಜನೆ
-              </span>
+            <div className="flex items-center">
+              <Image
+                src="/nyaayagharjane-title.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                width={918}
+                height={198}
+                priority
+                className="h-6 sm:h-7 lg:h-8 w-auto object-contain"
+              />
             </div>
           </Link>
 

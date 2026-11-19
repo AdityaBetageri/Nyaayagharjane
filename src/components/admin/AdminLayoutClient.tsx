@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard,
   FileText,
@@ -103,6 +104,13 @@ export default function AdminLayoutClient({
         </button>
 
         <div className="flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+            width={968}
+            height={968}
+            className="w-7 h-7 object-contain rounded-md"
+          />
           <span className="font-serif font-black text-lg text-white">ನ್ಯಾಯ ಘರ್ಜನೆ</span>
           <span className="px-1.5 py-0.5 text-[10px] bg-red-600 rounded font-bold uppercase tracking-wider">
             ಆಡಳಿತ
@@ -129,19 +137,30 @@ export default function AdminLayoutClient({
         <div className="flex-1 overflow-y-auto min-h-0 p-5 sm:p-6 space-y-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Brand Logo */}
           <div className="border-b border-white/10 pb-5">
-            <Link href="/admin/dashboard" className="flex flex-col group">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-white font-serif tracking-tight">
-                  ನ್ಯಾಯ ಘರ್ಜನೆ
-                </span>
-                <span className="px-2 py-0.5 text-[9px] bg-[#C62828] text-white font-bold rounded">
-                  ಆಡಳಿತ
-                </span>
+            <Link href="/admin/dashboard" className="flex items-center gap-3 group">
+              <div className="relative w-10 h-10 shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                  width={968}
+                  height={968}
+                  className="w-full h-full object-contain rounded-lg drop-shadow-sm group-hover:scale-105 transition-transform"
+                />
               </div>
-              <p className="text-[11px] text-[#FF8A80] mt-1 flex items-center gap-1 font-medium">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>ಆಡಳಿತ ಮಂಡಳಿ ಪೋರ್ಟಲ್</span>
-              </p>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-black text-white font-serif tracking-tight">
+                    ನ್ಯಾಯ ಘರ್ಜನೆ
+                  </span>
+                  <span className="px-1.5 py-0.5 text-[9px] bg-[#C62828] text-white font-bold rounded">
+                    ಆಡಳಿತ
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#FF8A80] mt-0.5 flex items-center gap-1 font-medium">
+                  <ShieldCheck className="w-3 h-3" />
+                  <span>ಆಡಳಿತ ಮಂಡಳಿ ಪೋರ್ಟಲ್</span>
+                </p>
+              </div>
             </Link>
           </div>
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Scale,
   Users,
@@ -79,6 +80,28 @@ export default async function ReadPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* ── LEFT: Text Content ── */}
             <div className="space-y-6 order-2 lg:order-1">
+              {/* Brand Title Graphic & Logo */}
+              <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl p-0.5 bg-white/10 border border-white/20 shadow-md">
+                  <Image
+                    src="/logo.png"
+                    alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                    width={968}
+                    height={968}
+                    priority
+                    className="w-full h-full object-contain rounded-lg drop-shadow-xs"
+                  />
+                </div>
+                <Image
+                  src="/nyaayagharjane-title.png"
+                  alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                  width={918}
+                  height={198}
+                  priority
+                  className="h-10 sm:h-12 lg:h-14 w-auto object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+                />
+              </div>
+
               {/* Brand pill */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[#FF8A80] text-xs font-semibold">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -158,11 +181,15 @@ export default async function ReadPage() {
                   )}
 
                   {/* Masthead */}
-                  <div className="px-4 pt-4 pb-3 border-b-2 border-stone-300 text-center bg-white">
-                    <h3 className="text-2xl font-black text-[#172B4D] font-serif tracking-tight">
-                      ನ್ಯಾಯ ಘರ್ಜನೆ
-                    </h3>
-                    <div className="flex items-center justify-between text-[9px] text-stone-500 mt-2 pt-1.5 border-t border-stone-200">
+                  <div className="px-4 pt-3.5 pb-2.5 border-b-2 border-stone-300 text-center bg-white flex flex-col items-center">
+                    <Image
+                      src="/nyaayagharjane-title.png"
+                      alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                      width={918}
+                      height={198}
+                      className="h-8 sm:h-9 w-auto object-contain"
+                    />
+                    <div className="w-full flex items-center justify-between text-[9px] text-stone-500 mt-2 pt-1.5 border-t border-stone-200">
                       <span>ಸಂಪುಟ {latestEdition.volumeNumber ?? 1}</span>
                       <span className="font-semibold text-stone-700">{latestEdition.formattedDate}</span>
                       <span>ಸಂಚಿಕೆ {latestEdition.issueNumber ?? 1}</span>
@@ -245,7 +272,7 @@ export default async function ReadPage() {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight leading-snug">
-              ನ್ಯಾಯ ಘರ್ಜನೆ ಎಂದರೇನು?
+              <span className="text-[#C62828]">ನ್ಯಾಯ</span> <span className="text-[#D97706]">ಘರ್ಜನೆ</span> ಎಂದರೇನು?
             </h2>
 
             <div className="pl-4 border-l-4 border-[#C62828] py-1">

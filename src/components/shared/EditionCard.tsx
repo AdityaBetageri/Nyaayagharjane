@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { BookOpen, Download, Calendar, FileText, CheckCircle2 } from "lucide-react";
 import { Edition } from "@/types";
 
@@ -27,13 +28,17 @@ export default function EditionCard({ edition }: EditionCardProps) {
         )}
 
         {/* Newspaper Cover Mock Header */}
-        <div className="text-center pt-1">
-          <div className="border-b border-neutral-300 pb-2">
-            <h4 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight font-serif">
-              ನ್ಯಾಯ ಘರ್ಜನೆ
-            </h4>
+        <div className="text-center pt-1 flex flex-col items-center">
+          <div className="border-b border-neutral-300 pb-2 w-full flex justify-center">
+            <Image
+              src="/nyaayagharjane-title.png"
+              alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+              width={918}
+              height={198}
+              className="h-6 sm:h-7 w-auto object-contain"
+            />
           </div>
-          <div className="flex items-center justify-between text-[10px] text-neutral-500 py-1 border-b border-neutral-300">
+          <div className="w-full flex items-center justify-between text-[10px] text-neutral-500 py-1 border-b border-neutral-300">
             <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
             <span className="font-semibold text-neutral-700">{edition.formattedDate}</span>
             <span>ಸಂಚಿಕೆ {edition.issueNumber ?? 1}</span>

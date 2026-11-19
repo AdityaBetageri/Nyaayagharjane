@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Lock,
   Mail,
@@ -85,8 +86,15 @@ export default function AdminLoginPage() {
         <div className="bg-neutral-950/80 border border-neutral-800 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-md space-y-6">
           {/* Brand & Icon Header */}
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600/20 to-red-900/30 border border-red-500/30 flex items-center justify-center mx-auto text-[#FF8A80] shadow-inner">
-              <Lock className="w-6 h-6" />
+            <div className="w-16 h-16 rounded-2xl p-1 bg-white/10 border border-white/20 shadow-xl mx-auto">
+              <Image
+                src="/logo.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                width={968}
+                height={968}
+                priority
+                className="w-full h-full object-contain rounded-xl drop-shadow-md"
+              />
             </div>
 
             <div className="pt-2">

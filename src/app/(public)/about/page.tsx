@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Shield, BookOpen, HeartHandshake, Award } from "lucide-react";
 
 import type { Metadata } from "next";
@@ -45,9 +46,17 @@ export default function AboutPage() {
             <span>ಪತ್ರಿಕೆಯ ಪರಿಚಯ & ಇತಿಹಾಸ</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#172B4D] tracking-tight">
-            ನ್ಯಾಯ ಘರ್ಜನೆ
-          </h1>
+          <div className="pt-1">
+            <h1 className="sr-only">ನ್ಯಾಯ ಘರ್ಜನೆ</h1>
+            <Image
+              src="/nyaayagharjane-title.png"
+              alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+              width={918}
+              height={198}
+              priority
+              className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+            />
+          </div>
 
           <p className="text-lg sm:text-xl font-bold text-[#C62828]">
             ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ

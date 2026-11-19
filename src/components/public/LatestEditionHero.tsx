@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen,
   Download,
@@ -40,11 +41,15 @@ export default function LatestEditionHero({
             )}
 
             {/* Newspaper Front Page Masthead Simulation */}
-            <div className="text-center pt-2 border-b-2 border-stone-400 pb-2.5">
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#172B4D] tracking-tight font-serif pb-1">
-                ನ್ಯಾಯ ಘರ್ಜನೆ
-              </h3>
-              <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-stone-600 mt-2 pt-1 border-t border-stone-300">
+            <div className="text-center pt-2 border-b-2 border-stone-400 pb-2.5 flex flex-col items-center">
+              <Image
+                src="/nyaayagharjane-title.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                width={918}
+                height={198}
+                className="h-8 sm:h-10 lg:h-11 w-auto object-contain pb-1"
+              />
+              <div className="w-full flex items-center justify-between text-[10px] sm:text-[11px] text-stone-600 mt-2 pt-1 border-t border-stone-300">
                 <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
                 <span className="font-semibold text-stone-900">{edition.formattedDate}</span>
                 <span>ಸಂಚಿಕೆ {edition.issueNumber ?? 1}</span>

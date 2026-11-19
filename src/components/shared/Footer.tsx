@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone, MapPin, ShieldCheck } from "lucide-react";
 
 export default function Footer() {
@@ -9,10 +10,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Column */}
           <div className="space-y-4">
-            <div className="flex flex-col">
-              <span className="text-3xl font-black tracking-tight text-white font-serif leading-none">
-                ನ್ಯಾಯ ಘರ್ಜನೆ
-              </span>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/logo.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ ಲೋಗೋ"
+                width={968}
+                height={968}
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain rounded-lg drop-shadow-sm"
+              />
+              <Image
+                src="/nyaayagharjane-title.png"
+                alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                width={918}
+                height={198}
+                className="h-7 sm:h-8 w-auto object-contain brightness-110"
+              />
             </div>
             <p className="text-sm font-medium text-[#FF8A80] mt-2">
               ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ
