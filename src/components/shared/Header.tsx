@@ -28,13 +28,7 @@ export default function Header() {
           </span>
           <span className="text-neutral-300 sm:hidden">ಕರ್ನಾಟಕ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
           <div className="flex items-center gap-4">
-            <span className="hidden md:block text-neutral-400">ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
-            <Link
-              href="/admin/login"
-              className="text-neutral-400 hover:text-white transition-colors underline underline-offset-2"
-            >
-              ನಿರ್ವಾಹಕರ ವಿಭಾಗ
-            </Link>
+            <span className="text-neutral-400">ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
           </div>
         </div>
       </div>

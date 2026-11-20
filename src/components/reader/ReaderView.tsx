@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -26,6 +27,7 @@ interface ReaderViewProps {
 }
 
 export default function ReaderView({ edition: initialEdition }: ReaderViewProps) {
+  const router = useRouter();
   const [edition, setEdition] = useState<Edition>(initialEdition);
   const [currentPage, setCurrentPage] = useState(1);
   const [zoom, setZoom] = useState(100);
@@ -33,6 +35,33 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
   const [pdfLoadError, setPdfLoadError] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const readerContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleBack = () => {
+    if (typeof window !== "undefined") {
+      // 1. If opened via link and has referrer from our site (e.g. /archives, /read, /latest, /papers)
+      if (document.referrer && document.referrer.includes(window.location.host)) {
+        try {
+          const referrerUrl = new URL(document.referrer);
+          // Don't loop back to reader
+          if (!referrerUrl.pathname.startsWith("/reader")) {
+            router.push(referrerUrl.pathname + referrerUrl.search);
+            return;
+          }
+        } catch {
+          // Fall through
+        }
+      }
+
+      // 2. If navigated in same tab with history
+      if (window.history.length > 1) {
+        router.back();
+        return;
+      }
+
+      // 3. Fallback: navigate back to all papers / archives
+      router.push("/archives");
+    }
+  };
 
   // Sync with R2 or stored editions if available on client
   useEffect(() => {
@@ -116,13 +145,15 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
       <header className="h-14 bg-neutral-950 border-b border-neutral-800 px-3 sm:px-6 flex items-center justify-between shrink-0 z-30">
         {/* Left: Back & Title */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Link
-            href="/"
-            className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors shrink-0"
-            title="ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ"
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors shrink-0 cursor-pointer"
+            title="ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ (Go Back)"
+            aria-label="Go back to previous page"
           >
             <ArrowLeft className="w-5 h-5" />
-          </Link>
+          </button>
           <div className="h-4 w-px bg-neutral-800 hidden sm:block shrink-0" />
           <div className="flex flex-col min-w-0">
             <h1 className="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 truncate">

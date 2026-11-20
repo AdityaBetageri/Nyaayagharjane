@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { cacheLife } from "next/cache";
 import ReaderView from "@/components/reader/ReaderView";
+import { PageLoader } from "@/components/shared/PageLoader";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
 import { Edition } from "@/types";
@@ -104,16 +105,7 @@ async function ReaderContainer({ params }: ReaderPageProps) {
 
 export default function ReaderPage(props: ReaderPageProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-white text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-[#C62828] border-t-transparent rounded-full animate-spin" />
-            <span>ವಾಚಕ ಲೋಡ್ ಆಗುತ್ತಿದೆ...</span>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<PageLoader fullScreen theme="dark" />}>
       <ReaderContainer {...props} />
     </Suspense>
   );

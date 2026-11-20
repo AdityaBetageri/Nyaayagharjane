@@ -89,11 +89,6 @@ export default function Footer() {
                   ಸಂಪರ್ಕಿಸಿ
                 </Link>
               </li>
-              <li className="pt-2 border-t border-neutral-700/60">
-                <Link href="/admin/login" className="text-neutral-400 hover:text-white transition-colors text-xs flex items-center gap-1">
-                  <span>ನಿರ್ವಾಹಕರ ಪ್ರವೇಶ (Admin Login)</span>
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -151,7 +146,7 @@ export default function Footer() {
       <div className="border-t border-neutral-800 bg-[#0F1C33] text-neutral-400 text-xs py-4 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="w-full max-w-[1920px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
           <p>
-            © 2026 ನ್ಯಾಯ ಘರ್ಜನೆ. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.
+            © 2026 ನ್ಯಾಯ ಘರ್ಜನೆ. ಎಲ್ಲ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ. All Rights Reserved
           </p>
           <p className="text-[11px] text-neutral-400">
             ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ — ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ

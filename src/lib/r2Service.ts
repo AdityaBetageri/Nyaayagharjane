@@ -297,12 +297,9 @@ export async function fetchR2Catalogue(options?: {
     }
   }
 
-  let catalogueUrl = "";
-  if (r2BaseUrl) {
-    catalogueUrl = `${r2BaseUrl}/data/newspapers.json`;
-  } else if (isClient) {
-    catalogueUrl = "/api/r2/catalogue";
-  } else {
+  // On client browsers, route through same-origin /api/r2/catalogue to prevent CORS blocks on *.r2.dev
+  let catalogueUrl = isClient ? "/api/r2/catalogue" : r2BaseUrl ? `${r2BaseUrl}/data/newspapers.json` : "";
+  if (!catalogueUrl && !isClient) {
     // Server-side fallback when no public R2 domain is configured
     return {
       success: true,
@@ -318,7 +315,8 @@ export async function fetchR2Catalogue(options?: {
       headers: {
         Accept: "application/json",
       },
-      cache: shouldBypass ? "no-store" : "force-cache",
+      cache: shouldBypass ? "no-store" : "default",
+      signal: AbortSignal.timeout(3500),
     };
 
     if (!isClient && !shouldBypass) {
@@ -326,14 +324,19 @@ export async function fetchR2Catalogue(options?: {
       (fetchOptions as Record<string, unknown>).next = { revalidate: 60 };
     }
 
-    const res = await fetch(catalogueUrl, fetchOptions);
+    let res = await fetch(catalogueUrl, fetchOptions).catch(() => null);
 
-    if (!res.ok) {
+    // Fallback: If same-origin route failed and r2BaseUrl exists, try direct
+    if ((!res || !res.ok) && r2BaseUrl && catalogueUrl !== `${r2BaseUrl}/data/newspapers.json`) {
+      res = await fetch(`${r2BaseUrl}/data/newspapers.json`, fetchOptions).catch(() => null);
+    }
+
+    if (!res || !res.ok) {
       return {
         success: false,
         data: [],
         source: "fallback",
-        error: `R2 ಕ್ಯಾಟಲಾಗ್ ಲೋಡ್ ವಿಫಲವಾಗಿದೆ (HTTP ${res.status}: ${res.statusText})`,
+        error: "Couldn't fetch, please try again",
       };
     }
 
@@ -344,7 +347,7 @@ export async function fetchR2Catalogue(options?: {
         success: false,
         data: [],
         source: "fallback",
-        error: "R2 ಕ್ಯಾಟಲಾಗ್ JSON ಅಮಾನ್ಯ ರಚನೆ ಹೊಂದಿದೆ (Expected { newspapers: [...] }).",
+        error: "Couldn't fetch, please try again",
       };
     }
 
@@ -394,13 +397,12 @@ export async function fetchR2Catalogue(options?: {
       rawCatalogue: fullCatalogue,
       source: "r2",
     };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Network error";
+  } catch {
     return {
       success: false,
       data: [],
       source: "fallback",
-      error: `R2 ಸಂಪರ್ಕ ದೋಷ: ${message}`,
+      error: "Couldn't fetch, please try again",
     };
   }
 }

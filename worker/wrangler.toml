@@ -6,13 +6,13 @@ compatibility_flags = ["nodejs_compat"]
 # Cloudflare R2 Bucket Binding
 [[r2_buckets]]
 binding = "NEWSPAPERS_BUCKET"
-bucket_name = "enewspaper-storage"
+bucket_name = "naresh"
 
 # Public & Non-sensitive Environment Variables
 [vars]
-FIREBASE_PROJECT_ID = "nyaayagharjane"
+FIREBASE_PROJECT_ID = "nyaayagharjane-01"
 R2_ACCOUNT_ID = "7d2d91883c619d8cc915475b66b4a674"
-R2_BUCKET_NAME = "enewspaper-storage"
+R2_BUCKET_NAME = "naresh"
 R2_PUBLIC_DOMAIN = "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev"
 ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:3001,https://nyaayagharjane.com,https://www.nyaayagharjane.com"
 

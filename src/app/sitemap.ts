@@ -6,7 +6,7 @@ import { Edition } from "@/types";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
-  const currentDate = new Date().toISOString().split("T")[0];
+  const currentDate = "2026-11-20";
 
   // 1. Static Core Public Pages
   const staticRoutes: MetadataRoute.Sitemap = [

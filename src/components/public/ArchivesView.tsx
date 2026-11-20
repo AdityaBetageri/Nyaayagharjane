@@ -13,6 +13,7 @@ import {
 import { Edition } from "@/types";
 import EditionCard from "@/components/shared/EditionCard";
 import EmptyState from "@/components/shared/EmptyState";
+import { ThinArcLoader } from "@/components/shared/ThinArcLoader";
 import { getStoredEditions } from "@/lib/editionsStore";
 import {
   fetchR2Catalogue,
@@ -53,15 +54,16 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
         const stored = getStoredEditions().filter((e) => e.isPublished !== false);
         setEditions(stored.length > 0 ? stored : initialEditions);
         setDataSource("fallback");
-        if (res.error && getR2PublicUrl()) {
-          setErrorNotice(res.error);
+        if (stored.length === 0 && initialEditions.length === 0) {
+          setErrorNotice("Couldn't fetch, please try again");
         }
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ದೋಷ ಸಂಭವಿಸಿದೆ";
-      setErrorNotice(`ಕ್ಯಾಟಲಾಗ್ ಲೋಡ್ ವಿಫಲವಾಗಿದೆ: ${msg}`);
+    } catch {
       setEditions(initialEditions);
       setDataSource("fallback");
+      if (initialEditions.length === 0) {
+        setErrorNotice("Couldn't fetch, please try again");
+      }
     } finally {
       setLoading(false);
     }
@@ -81,16 +83,17 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
           const stored = getStoredEditions().filter((e) => e.isPublished !== false);
           setEditions(stored.length > 0 ? stored : initialEditions);
           setDataSource("fallback");
-          if (res.error && getR2PublicUrl()) {
-            setErrorNotice(res.error);
+          if (stored.length === 0 && initialEditions.length === 0) {
+            setErrorNotice("Couldn't fetch, please try again");
           }
         }
-      } catch (err: unknown) {
+      } catch {
         if (ignore) return;
-        const msg = err instanceof Error ? err.message : "ದೋಷ ಸಂಭವಿಸಿದೆ";
-        setErrorNotice(`ಕ್ಯಾಟಲಾಗ್ ಲೋಡ್ ವಿಫಲವಾಗಿದೆ: ${msg}`);
         setEditions(initialEditions);
         setDataSource("fallback");
+        if (initialEditions.length === 0) {
+          setErrorNotice("Couldn't fetch, please try again");
+        }
       } finally {
         if (!ignore) {
           setLoading(false);
@@ -169,33 +172,7 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
 
   return (
     <div className="space-y-6">
-      {/* Status Notice / Connection Indicator */}
-      {dataSource === "r2" && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between gap-2.5 text-xs text-emerald-900">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <p>
-              <strong className="font-bold">ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕ ಸಕ್ರಿಯವಾಗಿದೆ:</strong> ಪತ್ರಿಕೆಗಳ ಕ್ಯಾಟಲಾಗ್ ಮತ್ತು PDF ಫೈಲ್‌ಗಳು ಕ್ಲೌಡ್ ಸಂಗ್ರಹಣೆ ಮೂಲಕ ನೇರವಾಗಿ ವಿತರಣೆಯಾಗುತ್ತಿವೆ.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => loadCatalogue(true)}
-            disabled={loading}
-            className="p-1 rounded hover:bg-emerald-100 text-emerald-700 transition-colors shrink-0"
-            title="ಕ್ಯಾಟಲಾಗ್ ರಿಫ್ರೆಶ್ ಮಾಡಿ"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          </button>
-        </div>
-      )}
-
-      {errorNotice && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-xs text-red-800">
-          <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-          <span>{errorNotice}</span>
-        </div>
-      )}
+      
 
       {/* Filtering Bar */}
       <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-xs space-y-4">
@@ -314,23 +291,10 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
         <span className="text-[11px] text-neutral-400">ಇತ್ತೀಚಿನ ಸಂಚಿಕೆ ಮೊದಲು ಪ್ರದರ್ಶಿತವಾಗಿದೆ</span>
       </div>
 
-      {/* Loading Skeleton */}
+      {/* Loading State with Thin Arc Loader */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="bg-white rounded-lg border border-[#E2E8F0] p-4 space-y-4 animate-pulse"
-            >
-              <div className="aspect-[1/1.38] bg-neutral-200 rounded-md" />
-              <div className="h-4 bg-neutral-200 rounded w-3/4" />
-              <div className="h-3 bg-neutral-200 rounded w-1/2" />
-              <div className="grid grid-cols-2 gap-2 pt-2">
-                <div className="h-8 bg-neutral-200 rounded" />
-                <div className="h-8 bg-neutral-200 rounded" />
-              </div>
-            </div>
-          ))}
+        <div className="py-20 flex items-center justify-center bg-white rounded-lg border border-[#E2E8F0] shadow-xs">
+          <ThinArcLoader className="w-10 h-10" strokeWidth={1.15} />
         </div>
       ) : filteredEditions.length > 0 ? (
         /* Editions Grid */
