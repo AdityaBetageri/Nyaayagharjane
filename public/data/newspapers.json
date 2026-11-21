@@ -1,10 +1,25 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-11-20T17:11:01.842Z",
+  "lastUpdated": "2026-11-21T10:15:00.000Z",
   "newspapers": [
     {
-      "id": "news-2026-11",
-      "title": "ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ 2026",
+      "id": "news-2026-11-02",
+      "title": "ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ 2026 (ಬೆಂಗಳೂರು)",
+      "language": "Kannada",
+      "edition": "ರಾಜ್ಯ ಆವೃತ್ತಿ",
+      "month": 11,
+      "year": 2026,
+      "fileName": "ಬೆಂಗಳೂರು-ನಗರ_2026-11-20_01-ರಾಜ್ಯ.pdf",
+      "pdfUrl": "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev/newspapers/2026/11-november/ಬೆಂಗಳೂರು-ನಗರ_2026-11-20_01-ರಾಜ್ಯ.pdf",
+      "publishedAt": "2026-11-20",
+      "status": "published",
+      "totalPages": 1,
+      "formattedFileSize": "1.3 MB",
+      "description": "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
+    },
+    {
+      "id": "news-2026-11-01",
+      "title": "ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ 2026 (ಪ್ರಥಮ ಆವೃತ್ತಿ)",
       "language": "Kannada",
       "edition": "ರಾಜ್ಯ ಆವೃತ್ತಿ",
       "month": 11,
@@ -18,19 +33,19 @@
       "description": "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
     },
     {
-      "id": "2026-10",
-      "title": "ನ್ಯಾಯ ಘರ್ಜನೆ - ಅಕ್ಟೋಬರ್ ೨೦೨೬",
+      "id": "news-2026-11-03",
+      "title": "ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ 2026 (ವಿಶೇಷ ಸಂಚಿಕೆ)",
       "language": "Kannada",
-      "edition": "State Edition",
-      "month": 10,
+      "edition": "ರಾಜ್ಯ ಆವೃತ್ತಿ",
+      "month": 11,
       "year": 2026,
-      "fileName": "2026-10.pdf",
-      "pdfUrl": "",
-      "publishedAt": "2026-10-01",
+      "fileName": "Naresh_N_FlowCV_Resume.pdf",
+      "pdfUrl": "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev/newspapers/2026/11-november/Naresh_N_FlowCV_Resume.pdf",
+      "publishedAt": "2026-11-19",
       "status": "published",
-      "totalPages": 16,
-      "formattedFileSize": "೧೧.೮ MB",
-      "description": "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ."
+      "totalPages": 1,
+      "formattedFileSize": "95 KB",
+      "description": "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
     },
     {
       "id": "news-2026-10",
@@ -40,11 +55,11 @@
       "month": 10,
       "year": 2026,
       "fileName": "kannada-october.pdf",
-      "pdfUrl": "https://files.yourdomain.com/newspapers/2026/10-october/kannada-october.pdf",
+      "pdfUrl": "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev/newspapers/2026/11-november/bengaluru.PDF",
       "publishedAt": "2026-10-15",
       "status": "published",
       "totalPages": 16,
-      "formattedFileSize": "೧೧.೮ MB",
+      "formattedFileSize": "11.8 MB",
       "description": "ನ್ಯಾಯಘರ್ಜನೆ ಅಕ್ಟೋಬರ್ ೨೦೨೬ ಮಾಸಿಕ ಸಂಚಿಕೆ. ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾದ ಸಮಗ್ರ ವಿಶ್ಲೇಷಣೆ."
     }
   ]

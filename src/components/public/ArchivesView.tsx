@@ -174,64 +174,52 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
     <div className="space-y-6">
       
 
-      {/* Filtering Bar */}
-      <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#E2E8F0] shadow-xs space-y-4">
-        {/* Top Controls: Year & Search */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Year Tabs */}
-          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-            <span className="text-xs font-bold text-[#5A6A85] flex items-center gap-1 shrink-0 mr-1">
-              <Calendar className="w-3.5 h-3.5 text-[#C62828]" />
-              <span>ವರ್ಷ:</span>
-            </span>
-            <button
-              type="button"
-              onClick={() => setSelectedYear("all")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
-                selectedYear === "all"
-                  ? "bg-[#172B4D] text-white shadow-xs"
-                  : "bg-[#F8F9FA] text-[#172B4D] hover:bg-neutral-200 border border-[#E2E8F0]"
-              }`}
-            >
-              ಎಲ್ಲಾ ವರ್ಷಗಳು
-            </button>
-            {availableYears.map((year) => {
-              const isSelected = selectedYear === year;
-              return (
-                <button
-                  key={year}
-                  type="button"
-                  onClick={() => setSelectedYear(year)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
-                    isSelected
-                      ? "bg-[#172B4D] text-white shadow-xs"
-                      : "bg-[#F8F9FA] text-[#172B4D] hover:bg-neutral-200 border border-[#E2E8F0]"
-                  }`}
-                >
-                  {year}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Search Input */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ತಿಂಗಳು, ಶೀರ್ಷಿಕೆ ಅಥವಾ ಆವೃತ್ತಿ ಹುಡುಕಿ..."
-              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[#C62828] text-[#172B4D]"
-            />
-          </div>
+      {/* Filtering Bar - All controls in one container and single line */}
+      <div className="bg-white p-3 sm:p-4 rounded-xl border border-[#E2E8F0] shadow-xs flex flex-wrap lg:flex-nowrap items-center gap-2.5 sm:gap-3">
+        {/* Year Controls */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-xs font-bold text-[#5A6A85] flex items-center gap-1 shrink-0 mr-0.5">
+            <Calendar className="w-3.5 h-3.5 text-[#C62828]" />
+            <span>ವರ್ಷ:</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedYear("all")}
+            className={`cursor-pointer px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+              selectedYear === "all"
+                ? "bg-[#172B4D] text-white shadow-xs"
+                : "bg-[#F8F9FA] text-[#172B4D] hover:bg-neutral-200 border border-[#E2E8F0]"
+            }`}
+          >
+            ಎಲ್ಲಾ
+          </button>
+          {availableYears.map((year) => {
+            const isSelected = selectedYear === year;
+            return (
+              <button
+                key={year}
+                type="button"
+                onClick={() => setSelectedYear(year)}
+                className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                  isSelected
+                    ? "bg-[#172B4D] text-white shadow-xs"
+                    : "bg-[#F8F9FA] text-[#172B4D] hover:bg-neutral-200 border border-[#E2E8F0]"
+                }`}
+              >
+                {year}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Secondary Filters: Month & Edition Area */}
-        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-[#E2E8F0] text-xs">
-          <div className="flex items-center gap-1.5 text-[#5A6A85] font-semibold">
+        {/* Vertical divider */}
+        <div className="hidden sm:block h-6 w-px bg-[#E2E8F0] shrink-0" />
+
+        {/* Filter Group: Month & Edition */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 text-[#5A6A85] font-semibold text-xs shrink-0">
             <Filter className="w-3.5 h-3.5 text-[#C62828]" />
-            <span>ಫಿಲ್ಟರ್:</span>
+            <span className="hidden sm:inline">ಫಿಲ್ಟರ್:</span>
           </div>
 
           {/* Month Dropdown */}
@@ -240,7 +228,7 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
             onChange={(e) =>
               setSelectedMonth(e.target.value === "all" ? "all" : Number(e.target.value))
             }
-            className="px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#172B4D] focus:outline-hidden focus:ring-1 focus:ring-[#C62828]"
+            className="cursor-pointer px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#172B4D] focus:outline-hidden focus:ring-1 focus:ring-[#C62828]"
           >
             <option value="all">ಎಲ್ಲಾ ತಿಂಗಳುಗಳು</option>
             {Object.entries(KANNADA_MONTH_MAP).map(([num, name]) => (
@@ -255,7 +243,7 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
             <select
               value={selectedEditionArea}
               onChange={(e) => setSelectedEditionArea(e.target.value)}
-              className="px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#172B4D] focus:outline-hidden focus:ring-1 focus:ring-[#C62828]"
+              className="cursor-pointer px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#172B4D] focus:outline-hidden focus:ring-1 focus:ring-[#C62828]"
             >
               <option value="all">ಎಲ್ಲಾ ಆವೃತ್ತಿಗಳು</option>
               {availableEditions.map((ed) => (
@@ -265,19 +253,32 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
               ))}
             </select>
           )}
-
-          {/* Clear Filters Button */}
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-[#C62828] hover:bg-red-50 rounded font-semibold transition-colors ml-auto"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>ಫಿಲ್ಟರ್ ತೆರವುಗೊಳಿಸಿ</span>
-            </button>
-          )}
         </div>
+
+        {/* Search Input - Expands to fill available space on the same line */}
+        <div className="relative flex-1 min-w-[180px] sm:min-w-[220px]">
+          <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ತಿಂಗಳು, ಶೀರ್ಷಿಕೆ ಅಥವಾ ಆವೃತ್ತಿ ಹುಡುಕಿ..."
+            className="w-full pl-9 pr-4 py-1.5 text-xs sm:text-sm bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[#C62828] text-[#172B4D]"
+          />
+        </div>
+
+        {/* Clear Filters Button */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-[#C62828] hover:bg-red-50 rounded-lg font-semibold transition-colors shrink-0 whitespace-nowrap"
+            title="ಫಿಲ್ಟರ್ ತೆರವುಗೊಳಿಸಿ"
+          >
+            <X className="w-3.5 h-3.5" />
+            <span>ತೆರವುಗೊಳಿಸಿ</span>
+          </button>
+        )}
       </div>
 
       {/* Results Header */}
@@ -303,7 +304,11 @@ export default function ArchivesView({ initialEditions }: ArchivesViewProps) {
             <EditionCard
               key={edition.id}
               edition={edition}
-              isPlaceholder={!edition.pdfUrl || !edition.pdfUrl.startsWith("http")}
+              isPlaceholder={
+                !edition.pdfUrl ||
+                (!edition.pdfUrl.startsWith("http") && !edition.pdfUrl.startsWith("/")) ||
+                edition.pdfUrl.includes("files.yourdomain.com")
+              }
             />
           ))}
         </div>

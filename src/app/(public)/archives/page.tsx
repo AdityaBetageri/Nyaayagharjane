@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     canonical: "/archives",
   },
   openGraph: {
-    title: "ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು (ಆರ್ಕೈವ್) | ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
+    title: "ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು | ನ್ಯಾಯ ಘರ್ಜನೆ ಇ-ಪತ್ರಿಕೆ",
     description: "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆಯ ಹಿಂದಿನ ಎಲ್ಲಾ ವರ್ಷವಾರು ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹ.",
     url: "/archives",
     images: ["/opengraph-image"],
@@ -38,7 +38,7 @@ export default function ArchivesPage() {
           ಮುಖಪುಟ
         </Link>
         <span>/</span>
-        <span className="text-[#172B4D] font-semibold">ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು (ಆರ್ಕೈವ್)</span>
+        <span className="text-[#172B4D] font-semibold">ಹಿಂದಿನ ಸಂಚಿಕೆಗಳು </span>
       </div>
 
       {/* Page Title & Intro */}
@@ -46,7 +46,7 @@ export default function ArchivesPage() {
         <div className="flex items-center gap-2.5">
           <div className="w-2.5 h-7 bg-[#C62828] rounded-full"></div>
           <h1 className="text-2xl sm:text-3xl font-black text-[#172B4D] tracking-tight">
-            ಹಿಂದಿನ ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹಾಲಯ (ಆರ್ಕೈವ್)
+            ಹಿಂದಿನ ಸಂಚಿಕೆಗಳ ಸಂಗ್ರಹಾಲಯ
           </h1>
         </div>
         <p className="text-xs sm:text-sm text-[#5A6A85] mt-2 max-w-3xl leading-relaxed">

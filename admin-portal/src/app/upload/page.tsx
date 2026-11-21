@@ -254,8 +254,17 @@ export default function AdminUploadPage() {
   const hasResumeSession = Boolean(resumeSession && resumeSession.completedParts.length > 0);
   const resumablePartsCount = resumeSession ? resumeSession.completedParts.length : 0;
 
+  // Generate a distinct unique ID so multiple uploads in the same month don't overwrite each other
+  const cleanNameSlug = (uploadFileName || "edition")
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(0, 10)
+    .toLowerCase();
+  const dateDayPart = publishedDate ? publishedDate.replace(/[^0-9]/g, "").slice(6, 8) : "";
+  const uniqueUploadId = `news-${uploadYear}-${String(uploadMonth).padStart(2, "0")}${dateDayPart ? `-${dateDayPart}` : ""}${cleanNameSlug ? `-${cleanNameSlug}` : ""}`;
+
   const currentItemRecord: R2NewspaperItem = {
-    id: `news-${uploadYear}-${String(uploadMonth).padStart(2, "0")}`,
+    id: uniqueUploadId,
     title: uploadTitle.trim(),
     language: uploadLanguage.trim(),
     edition: uploadEditionArea.trim(),
@@ -266,7 +275,7 @@ export default function AdminUploadPage() {
     publishedAt: publishedDate,
     status: uploadStatus,
     totalPages: Number(uploadTotalPages) || 16,
-    formattedFileSize: uploadFileSize.trim() || "೧೨.೪ MB",
+    formattedFileSize: uploadFileSize.trim() || "12.4 MB",
     description: uploadDescription.trim() || "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ.",
   };
 

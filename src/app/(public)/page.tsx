@@ -60,14 +60,14 @@ export default function HomePage() {
 
           {/* Logo Badge */}
           <div className="flex justify-center">
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-1 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl hover:scale-105 transition-transform duration-300">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 hover:scale-105 transition-transform duration-300">
               <Image
                 src="/logo.png"
                 alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
                 width={968}
                 height={968}
                 priority
-                className="w-full h-full object-contain rounded-xl drop-shadow-md"
+                className="w-full h-full object-contain drop-shadow-md"
               />
             </div>
           </div>

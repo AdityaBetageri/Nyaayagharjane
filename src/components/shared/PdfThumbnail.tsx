@@ -9,11 +9,19 @@ interface PdfThumbnailProps {
   fallback?: React.ReactNode;
 }
 
+const THUMBNAIL_CACHE_NAME = "nyaayagharjane-pdf-thumbnails-v1";
+const memoryThumbnailCache = new Map<string, string>();
+
 function getPdfStreamUrl(url?: string): string {
   if (!url) return "";
   if (url.includes(".r2.dev/")) {
-    const key = url.split(".r2.dev/")[1];
-    return `/api/r2/file?key=${encodeURIComponent(key)}`;
+    const rawKey = url.split(".r2.dev/")[1];
+    try {
+      const decodedKey = decodeURIComponent(rawKey);
+      return `/api/r2/file?key=${encodeURIComponent(decodedKey)}`;
+    } catch {
+      return `/api/r2/file?key=${encodeURIComponent(rawKey)}`;
+    }
   }
   return url;
 }
@@ -51,6 +59,7 @@ export default function PdfThumbnail({
 }: PdfThumbnailProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [cachedImg, setCachedImg] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -61,55 +70,131 @@ export default function PdfThumbnail({
     }
 
     let isCancelled = false;
+    let currentRenderTask: any = null;
+
+    // 1. Check in-memory thumbnail cache
+    if (memoryThumbnailCache.has(pdfUrl)) {
+      setCachedImg(memoryThumbnailCache.get(pdfUrl)!);
+      setIsLoading(false);
+      setHasError(false);
+      return;
+    }
+
+    const cacheKey = `https://nyaayagharjane.local/thumbnail/${encodeURIComponent(pdfUrl)}`;
+
+    // 2. Check persistent browser Cache Storage
+    const checkBrowserCache = async () => {
+      if (typeof window !== "undefined" && "caches" in window) {
+        try {
+          const cache = await caches.open(THUMBNAIL_CACHE_NAME);
+          const cachedResponse = await cache.match(cacheKey);
+          if (cachedResponse) {
+            const blob = await cachedResponse.blob();
+            if (!isCancelled && blob && blob.size > 0) {
+              const objUrl = URL.createObjectURL(blob);
+              memoryThumbnailCache.set(pdfUrl, objUrl);
+              setCachedImg(objUrl);
+              setIsLoading(false);
+              setHasError(false);
+              return true;
+            }
+          }
+        } catch {
+          // Cache storage check non-fatal
+        }
+      }
+      return false;
+    };
+
     setIsLoading(true);
     setHasError(false);
 
-    const streamUrl = getPdfStreamUrl(pdfUrl);
+    checkBrowserCache().then((foundInCache) => {
+      if (foundInCache || isCancelled) return;
 
-    loadPdfJs()
-      .then((pdfjs) => {
-        if (isCancelled) return null;
-        return pdfjs.getDocument({
-          url: streamUrl,
-          cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
-          cMapPacked: true,
-        }).promise;
-      })
-      .then((doc) => {
-        if (isCancelled || !doc) return null;
-        return doc.getPage(1);
-      })
-      .then((page) => {
-        if (isCancelled || !page || !canvasRef.current) return;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+      const streamUrl = getPdfStreamUrl(pdfUrl);
 
-        // Render at crisp 1.5x scale
-        const viewport = page.getViewport({ scale: 1.5 });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+      loadPdfJs()
+        .then((pdfjs) => {
+          if (isCancelled) return null;
+          return pdfjs.getDocument({
+            url: streamUrl,
+            cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
+            cMapPacked: true,
+          }).promise;
+        })
+        .then((doc) => {
+          if (isCancelled || !doc) return null;
+          return doc.getPage(1);
+        })
+        .then((page) => {
+          if (isCancelled || !page || !canvasRef.current) return;
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return;
 
-        return page.render({
-          canvasContext: ctx,
-          viewport,
-        }).promise;
-      })
-      .then(() => {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.warn("PdfThumbnail error:", err);
-        if (!isCancelled) {
-          setIsLoading(false);
-          setHasError(true);
-        }
-      });
+          // Render at crisp 1.5x scale
+          const viewport = page.getViewport({ scale: 1.5 });
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          currentRenderTask = page.render({
+            canvasContext: ctx,
+            viewport,
+          });
+          return currentRenderTask.promise.then(() => {
+            if (isCancelled || !canvas) return;
+            // Store thumbnail in browser cache
+            try {
+              canvas.toBlob(async (blob) => {
+                if (isCancelled || !blob) return;
+                const objUrl = URL.createObjectURL(blob);
+                memoryThumbnailCache.set(pdfUrl, objUrl);
+                setCachedImg(objUrl);
+                if (typeof window !== "undefined" && "caches" in window) {
+                  try {
+                    const cache = await caches.open(THUMBNAIL_CACHE_NAME);
+                    await cache.put(
+                      cacheKey,
+                      new Response(blob, {
+                        headers: {
+                          "Content-Type": "image/jpeg",
+                          "Cache-Control": "public, max-age=31536000",
+                        },
+                      })
+                    );
+                  } catch {
+                    // Non-fatal cache store
+                  }
+                }
+              }, "image/jpeg", 0.85);
+            } catch {
+              // Canvas toBlob non-fatal
+            }
+          });
+        })
+        .then(() => {
+          if (!isCancelled) {
+            setIsLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (err?.name === "RenderingCancelledException") return;
+          console.warn("PdfThumbnail note:", err);
+          if (!isCancelled) {
+            setIsLoading(false);
+            setHasError(true);
+          }
+        });
+    });
 
     return () => {
       isCancelled = true;
+      if (currentRenderTask) {
+        try {
+          currentRenderTask.cancel();
+        } catch {}
+      }
     };
   }, [pdfUrl]);
 
@@ -125,12 +210,23 @@ export default function PdfThumbnail({
           <span className="text-[11px] font-medium">ಪತ್ರಿಕೆ ಮುನ್ನೋಟ...</span>
         </div>
       )}
-      <canvas
-        ref={canvasRef}
-        className={`w-full h-auto max-h-full object-contain block transition-opacity duration-200 ${
-          isLoading ? "opacity-0" : "opacity-100"
-        }`}
-      />
+      {cachedImg ? (
+        <img
+          src={cachedImg}
+          alt="Newspaper Preview"
+          className={`w-full h-auto max-h-full object-contain block transition-opacity duration-200 ${
+            isLoading ? "opacity-0" : "opacity-100"
+          }`}
+          loading="lazy"
+        />
+      ) : (
+        <canvas
+          ref={canvasRef}
+          className={`w-full h-auto max-h-full object-contain block transition-opacity duration-200 ${
+            isLoading ? "opacity-0" : "opacity-100"
+          }`}
+        />
+      )}
     </div>
   );
 }

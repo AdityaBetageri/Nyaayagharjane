@@ -17,9 +17,10 @@ import {
 import LatestEditionHero from "@/components/public/LatestEditionHero";
 import EditionCard from "@/components/shared/EditionCard";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
-import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { fetchR2Catalogue, r2ItemToEdition, formatSizeInEnglishNumbers } from "@/lib/r2Service";
 import { Edition } from "@/types";
 
+import { cacheLife } from "next/cache";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -47,22 +48,35 @@ export const metadata: Metadata = {
 };
 
 export default async function ReadPage() {
+  "use cache";
+  cacheLife("minutes");
+
   let latestEdition: Edition = PLACEHOLDER_LATEST_EDITION;
-  let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
+  let previousEditions: Edition[] = [];
 
   try {
     const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
     if (res.success && res.data.length > 0) {
       latestEdition = r2ItemToEdition(res.data[0]);
       if (res.data.length > 1) {
-        previousEditions = res.data.slice(1, 5).map(r2ItemToEdition);
+        previousEditions = res.data.slice(1).map(r2ItemToEdition);
+      } else {
+        previousEditions = [latestEdition];
       }
     }
   } catch {
     // Graceful fallback to placeholders
   }
 
-  const hasDirectPdf = !!latestEdition.pdfUrl && latestEdition.pdfUrl.startsWith("http");
+  if (previousEditions.length === 0) {
+    previousEditions = PLACEHOLDER_PREVIOUS_EDITIONS;
+  }
+
+  const hasDirectPdf = Boolean(
+    latestEdition.pdfUrl &&
+    (latestEdition.pdfUrl.startsWith("http") || latestEdition.pdfUrl.startsWith("/")) &&
+    !latestEdition.pdfUrl.includes("files.yourdomain.com")
+  );
 
   return (
     <div className="pb-16">
@@ -82,14 +96,14 @@ export default async function ReadPage() {
             <div className="space-y-6 order-2 lg:order-1">
               {/* Brand Title Graphic & Logo */}
               <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl p-0.5 bg-white/10 border border-white/20 shadow-md">
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0">
                   <Image
                     src="/logo.png"
                     alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
                     width={968}
                     height={968}
                     priority
-                    className="w-full h-full object-contain rounded-lg drop-shadow-xs"
+                    className="w-full h-full object-contain drop-shadow-xs"
                   />
                 </div>
                 <Image
@@ -170,16 +184,6 @@ export default async function ReadPage() {
 
                 {/* Cover card */}
                 <div className="relative bg-gradient-to-b from-stone-50 to-stone-100 rounded-xl border-2 border-stone-300 shadow-2xl overflow-hidden aspect-[1/1.41] flex flex-col">
-                  {/* Status badge */}
-                  {hasDirectPdf && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-700 text-white shadow-sm">
-                        <CheckCircle2 className="w-3 h-3" />
-                        ಪ್ರಕಟಿತ ಆವೃತ್ತಿ
-                      </span>
-                    </div>
-                  )}
-
                   {/* Masthead */}
                   <div className="px-4 pt-3.5 pb-2.5 border-b-2 border-stone-300 text-center bg-white flex flex-col items-center">
                     <Image
@@ -222,7 +226,7 @@ export default async function ReadPage() {
                   <div className="px-4 py-2 bg-[#172B4D] flex items-center justify-between text-[9px] text-white/80">
                     <span>{latestEdition.totalPages} ಪುಟಗಳು</span>
                     <span className="text-[#FF8A80] font-bold">ಡಿಜಿಟಲ್ ಇ-ಪತ್ರಿಕೆ</span>
-                    <span>{latestEdition.formattedFileSize ?? "೧೨.೪ MB"}</span>
+                    <span>{formatSizeInEnglishNumbers(latestEdition.formattedFileSize)}</span>
                   </div>
                 </div>
 
@@ -380,7 +384,11 @@ export default async function ReadPage() {
               <EditionCard
                 key={edition.id}
                 edition={edition}
-                isPlaceholder={!edition.pdfUrl || !edition.pdfUrl.startsWith("http")}
+                isPlaceholder={
+                  !edition.pdfUrl ||
+                  (!edition.pdfUrl.startsWith("http") && !edition.pdfUrl.startsWith("/")) ||
+                  edition.pdfUrl.includes("files.yourdomain.com")
+                }
               />
             ))}
           </div>

@@ -116,6 +116,14 @@ export default function RootLayout({
   return (
     <html lang="kn" className={`${notoSansKannada.variable} h-full antialiased`}>
       <head>
+        {/* Kannada Typography - Noto Sans Kannada & Noto Serif Kannada */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700;800&family=Noto+Serif+Kannada:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+
         {/* JSON-LD Structured Data: NewsMediaOrganization & WebSite */}
         <script
           type="application/ld+json"

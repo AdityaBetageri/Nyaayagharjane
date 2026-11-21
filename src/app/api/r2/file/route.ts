@@ -32,8 +32,14 @@ export async function GET(req: NextRequest) {
       (key.toLowerCase().endsWith(".pdf") ? "application/pdf" : "application/octet-stream");
     responseHeaders.set("Content-Type", contentType);
 
-    const fileName = key.split("/").pop() || "document.pdf";
-    responseHeaders.set("Content-Disposition", `inline; filename="${fileName}"`);
+    const rawFileName = key.split("/").pop() || "document.pdf";
+    // Encode filename for RFC 5987 compliance so non-ASCII Kannada characters don't crash HTTP headers
+    const safeAsciiName = rawFileName.replace(/[^\x20-\x7E]/g, "_");
+    const encodedUtf8Name = encodeURIComponent(rawFileName);
+    responseHeaders.set(
+      "Content-Disposition",
+      `inline; filename="${safeAsciiName}"; filename*=UTF-8''${encodedUtf8Name}`
+    );
 
     const contentLength = r2Res.headers.get("content-length");
     if (contentLength) responseHeaders.set("Content-Length", contentLength);

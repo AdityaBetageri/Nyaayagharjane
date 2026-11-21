@@ -197,7 +197,41 @@ let memoryCache: {
   timestamp: 0,
 };
 
-const CACHE_TTL_MS = 60 * 1000; // 60 seconds client cache
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds client cache
+export const CATALOGUE_STORAGE_KEY = "nyaayagharjane_catalogue_cache_v2";
+
+function getBrowserCachedCatalogue(): R2Catalogue | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CATALOGUE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.newspapers) && parsed.newspapers.length > 0) {
+      return parsed as R2Catalogue;
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+  return null;
+}
+
+function saveBrowserCachedCatalogue(catalogue: R2Catalogue): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CATALOGUE_STORAGE_KEY, JSON.stringify(catalogue));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+export function formatSizeInEnglishNumbers(sizeStr?: string): string {
+  if (!sizeStr) return "12.4 MB";
+  const kannadaToEnglishMap: Record<string, string> = {
+    "೦": "0", "೧": "1", "೨": "2", "೩": "3", "೪": "4",
+    "೫": "5", "೬": "6", "೭": "7", "೮": "8", "೯": "9",
+  };
+  return sizeStr.replace(/[೦-೯]/g, (ch) => kannadaToEnglishMap[ch] || ch);
+}
 
 /**
  * Converts an R2NewspaperItem to the frontend's Edition model for UI compatibility.
@@ -228,7 +262,7 @@ export function r2ItemToEdition(item: R2NewspaperItem): Edition {
     issueNumber: item.month,
     pdfUrl: safePdfUrl,
     totalPages: item.totalPages || 16,
-    formattedFileSize: item.formattedFileSize || "೧೨.೪ MB",
+    formattedFileSize: formatSizeInEnglishNumbers(item.formattedFileSize || "12.4 MB"),
     isPublished: item.status === "published",
     publishedAt: item.publishedAt,
     description: item.description ? sanitizeString(item.description) : undefined,
@@ -276,10 +310,20 @@ export async function fetchR2Catalogue(options?: {
   const publishedOnly = options?.publishedOnly ?? true;
   const isClient = typeof window !== "undefined";
 
-  // Check in-memory cache first if on client and not bypassing
-  if (isClient && !options?.bypassCache && memoryCache.catalogue) {
+  // Check in-memory cache or browser localStorage cache first if on client and not bypassing
+  if (isClient && !options?.bypassCache) {
+    if (!memoryCache.catalogue) {
+      const stored = getBrowserCachedCatalogue();
+      if (stored) {
+        memoryCache = {
+          catalogue: stored,
+          timestamp: performance.now(),
+        };
+      }
+    }
+
     const elapsed = performance.now() - memoryCache.timestamp;
-    if (elapsed < CACHE_TTL_MS) {
+    if (memoryCache.catalogue && elapsed < CACHE_TTL_MS) {
       let items = memoryCache.catalogue.newspapers;
       if (publishedOnly) {
         items = items.filter((n) => n.status === "published");
@@ -372,12 +416,13 @@ export async function fetchR2Catalogue(options?: {
       version: json.version || "1.0",
     };
 
-    // Store in client-side memory cache
+    // Store in client-side memory cache and localStorage
     if (isClient) {
       memoryCache = {
         catalogue: fullCatalogue,
         timestamp: performance.now(),
       };
+      saveBrowserCachedCatalogue(fullCatalogue);
     }
 
     let resultItems = validItems;

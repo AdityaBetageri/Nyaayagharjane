@@ -33,6 +33,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="kn" className={notoSansKannada.variable}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700;800&family=Noto+Serif+Kannada:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="antialiased font-sans bg-[#F1F3F5] text-neutral-900 min-h-screen">
         <AdminLayoutClient>{children}</AdminLayoutClient>
       </body>

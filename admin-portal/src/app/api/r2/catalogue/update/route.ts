@@ -60,9 +60,19 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Merge: replace existing item with same id, or prepend
-      const filtered = existingList.filter((item) => item.id !== newItem.id);
-      const mergedList = [newItem, ...filtered];
+      // Never replace or delete previous uploads — preserve all newspapers in database
+      const existingIndex = existingList.findIndex(
+        (item) => item.id === newItem.id || (item.fileName === newItem.fileName && item.year === newItem.year && item.month === newItem.month)
+      );
+
+      let mergedList: R2NewspaperItem[];
+      if (existingIndex >= 0) {
+        // If the exact same file is re-uploaded, update its metadata
+        mergedList = existingList.map((item, idx) => (idx === existingIndex ? newItem : item));
+      } else {
+        // Prepend new newspaper to list, preserving all previous papers
+        mergedList = [newItem, ...existingList];
+      }
 
       updatedCatalogue = {
         version: "1.0",

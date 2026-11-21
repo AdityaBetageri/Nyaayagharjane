@@ -32,14 +32,11 @@ export const metadata: Metadata = {
 };
 
 export default async function LatestEditionPage() {
-  "use cache";
-  cacheLife("hours");
-
   let edition: Edition = PLACEHOLDER_LATEST_EDITION;
   let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
 
   try {
-    const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
+    const res = await fetchR2Catalogue({ bypassCache: true, publishedOnly: true });
     if (res.success && res.data.length > 0) {
       edition = r2ItemToEdition(res.data[0]);
       if (res.data.length > 1) {
@@ -81,13 +78,10 @@ export default async function LatestEditionPage() {
 
       {/* What's Inside This Edition Summary */}
       <section className="bg-white border border-[#E2E8F0] rounded-xl p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+        <div className="border-b border-[#E2E8F0] pb-3">
           <h2 className="text-base sm:text-lg font-bold text-[#172B4D]">
             ಈ ಸಂಚಿಕೆಯ ಪ್ರಮುಖ ಮುಖ್ಯಾಂಶಗಳು
           </h2>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded border bg-emerald-100 text-emerald-800 border-emerald-300">
-            ಪ್ರಕಟಿತ ಆವೃತ್ತಿ
-          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -153,7 +147,11 @@ export default async function LatestEditionPage() {
             <EditionCard
               key={prevEdition.id}
               edition={prevEdition}
-              isPlaceholder={!prevEdition.pdfUrl || !prevEdition.pdfUrl.startsWith("http")}
+              isPlaceholder={
+                !prevEdition.pdfUrl ||
+                (!prevEdition.pdfUrl.startsWith("http") && !prevEdition.pdfUrl.startsWith("/")) ||
+                prevEdition.pdfUrl.includes("files.yourdomain.com")
+              }
             />
           ))}
         </div>

@@ -15,11 +15,8 @@ interface ReaderPageProps {
 }
 
 async function getEdition(id: string): Promise<Edition> {
-  "use cache";
-  cacheLife("hours");
-
   try {
-    const r2Result = await fetchR2Catalogue({ bypassCache: false, publishedOnly: false });
+    const r2Result = await fetchR2Catalogue({ bypassCache: true, publishedOnly: false });
     if (r2Result.success && r2Result.data.length > 0) {
       const foundR2 = r2Result.data.find((item) => item.id === id);
       if (foundR2) {
