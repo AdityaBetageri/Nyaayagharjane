@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -12,37 +12,101 @@ import {
   RotateCcw,
   Maximize2,
   Minimize2,
-  Download,
-  ExternalLink,
-  BookOpen,
+  Scissors,
+  X,
   AlertCircle,
-  RefreshCw,
 } from "lucide-react";
 import { Edition } from "@/types";
 import { getStoredEditions } from "@/lib/editionsStore";
 import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { EPAPER_PAGES_ARTICLES, EpaperArticle } from "./articleData";
+import ArticleClipModal from "./ArticleClipModal";
+import {
+  captureElementAsClip,
+  captureRegionAsClip,
+  createBrandedClip,
+} from "./cropHelper";
+import { ThinArcLoader } from "@/components/shared/ThinArcLoader";
+
+/* Light green accent for clip tool drag box */
+const GREEN_DRAG = "#22C55E";
+const GREEN_DRAG_BG = "rgba(34,197,94,0.25)";
 
 interface ReaderViewProps {
   edition: Edition;
+}
+
+/** Proxy R2 URL through Next.js API to guarantee zero CORS issues */
+function getPdfStreamUrl(url?: string): string {
+  if (!url) return "";
+  if (url.includes(".r2.dev/")) {
+    const key = url.split(".r2.dev/")[1];
+    return `/api/r2/file?key=${encodeURIComponent(key)}`;
+  }
+  return url;
+}
+
+/** Dynamically load PDF.js from official cdnjs */
+let pdfjsPromise: Promise<any> | null = null;
+function loadPdfJs(): Promise<any> {
+  if (typeof window === "undefined") return Promise.reject(new Error("Window not available"));
+  if ((window as any).pdfjsLib) return Promise.resolve((window as any).pdfjsLib);
+  if (pdfjsPromise) return pdfjsPromise;
+
+  pdfjsPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    script.async = true;
+    script.onload = () => {
+      const pdfjs = (window as any).pdfjsLib;
+      if (pdfjs) {
+        pdfjs.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        resolve(pdfjs);
+      } else {
+        reject(new Error("pdfjsLib not available on window"));
+      }
+    };
+    script.onerror = () => reject(new Error("Failed to load PDF.js from CDN"));
+    document.head.appendChild(script);
+  });
+  return pdfjsPromise;
 }
 
 export default function ReaderView({ edition: initialEdition }: ReaderViewProps) {
   const router = useRouter();
   const [edition, setEdition] = useState<Edition>(initialEdition);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(initialEdition.totalPages || 4);
   const [zoom, setZoom] = useState(100);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [pdfLoadError, setPdfLoadError] = useState(false);
-  const [iframeKey, setIframeKey] = useState(0);
-  const readerContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleBack = () => {
+  // PDF.js State (Real database newspaper)
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [isPdfLoading, setIsPdfLoading] = useState(false);
+  const [pdfLoadError, setPdfLoadError] = useState(false);
+  const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Clipping & Article Modal State
+  const [clippedImageUrl, setClippedImageUrl] = useState<string | null>(null);
+  const [activeArticleTitle, setActiveArticleTitle] = useState<string>("");
+  const [isClipToolActive, setIsClipToolActive] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  // Drag selection state for custom crop tool
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [dragCurrent, setDragCurrent] = useState<{ x: number; y: number } | null>(null);
+
+  const readerContainerRef = useRef<HTMLDivElement>(null);
+  const pageContainerRef = useRef<HTMLDivElement>(null);
+
+  /* ── Navigation ── */
+  const handleBack = useCallback(() => {
     if (typeof window !== "undefined") {
-      // 1. If opened via link and has referrer from our site (e.g. /archives, /read, /latest, /papers)
       if (document.referrer && document.referrer.includes(window.location.host)) {
         try {
           const referrerUrl = new URL(document.referrer);
-          // Don't loop back to reader
           if (!referrerUrl.pathname.startsWith("/reader")) {
             router.push(referrerUrl.pathname + referrerUrl.search);
             return;
@@ -52,37 +116,36 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
         }
       }
 
-      // 2. If navigated in same tab with history
       if (window.history.length > 1) {
         router.back();
         return;
       }
 
-      // 3. Fallback: navigate back to all papers / archives
       router.push("/archives");
     }
-  };
+  }, [router]);
 
-  // Sync with R2 or stored editions if available on client
+  /* ── Sync with R2 or stored editions ── */
   useEffect(() => {
     let isMounted = true;
 
-    // Check R2 catalogue first
     fetchR2Catalogue({ bypassCache: false, publishedOnly: false }).then((res) => {
       if (!isMounted) return;
       if (res.success && res.data.length > 0) {
         const found = res.data.find((item) => item.id === initialEdition.id);
         if (found) {
-          setEdition(r2ItemToEdition(found));
+          const converted = r2ItemToEdition(found);
+          setEdition(converted);
+          if (converted.totalPages) setTotalPages(converted.totalPages);
           return;
         }
       }
 
-      // Check local storage fallback
       const stored = getStoredEditions();
       const foundStored = stored.find((e) => e.id === initialEdition.id);
       if (foundStored) {
         setEdition(foundStored);
+        if (foundStored.totalPages) setTotalPages(foundStored.totalPages);
       }
     });
 
@@ -91,12 +154,81 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
     };
   }, [initialEdition.id]);
 
-  const totalPages = edition.totalPages || 16;
-  const hasDirectPdf = !!edition.pdfUrl && edition.pdfUrl.startsWith("http");
+  /* ── Load Real PDF from Database / R2 via PDF.js ── */
+  useEffect(() => {
+    const rawPdfUrl = edition.pdfUrl;
+    if (!rawPdfUrl) return;
 
-  // Handle keyboard navigation for page turn and zoom
+    let isCancelled = false;
+    setIsPdfLoading(true);
+    setPdfLoadError(false);
+
+    const streamUrl = getPdfStreamUrl(rawPdfUrl);
+
+    loadPdfJs()
+      .then((pdfjs) => {
+        if (isCancelled) return null;
+        return pdfjs.getDocument({
+          url: streamUrl,
+          cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/",
+          cMapPacked: true,
+        }).promise;
+      })
+      .then((doc) => {
+        if (isCancelled || !doc) return;
+        setPdfDoc(doc);
+        if (doc.numPages) {
+          setTotalPages(doc.numPages);
+        }
+        setIsPdfLoading(false);
+      })
+      .catch((err) => {
+        console.warn("PDF.js loading note:", err);
+        if (!isCancelled) {
+          setIsPdfLoading(false);
+          setPdfLoadError(true);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [edition.pdfUrl]);
+
+  /* ── Render Current Page of Real PDF onto Canvas ── */
+  useEffect(() => {
+    if (!pdfDoc || !pdfCanvasRef.current) return;
+    let isCancelled = false;
+
+    pdfDoc.getPage(currentPage).then((page: any) => {
+      if (isCancelled || !pdfCanvasRef.current) return;
+      const canvas = pdfCanvasRef.current;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      // Ultra-HD scale (2.0) for crisp Kannada font rendering
+      const viewport = page.getViewport({ scale: 2.0 });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const renderTask = page.render({
+        canvasContext: ctx,
+        viewport,
+      });
+
+      renderTask.promise.catch(() => {});
+    }).catch(() => {});
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [pdfDoc, currentPage]);
+
+  /* ── Keyboard navigation ── */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (clippedImageUrl) return;
+
       if (e.key === "ArrowRight") {
         setCurrentPage((p) => Math.min(totalPages, p + 1));
       } else if (e.key === "ArrowLeft") {
@@ -105,15 +237,17 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
         setZoom((z) => Math.min(200, z + 25));
       } else if (e.key === "-") {
         setZoom((z) => Math.max(50, z - 25));
+      } else if (e.key === "Escape" && isClipToolActive) {
+        setIsClipToolActive(false);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [totalPages]);
+  }, [totalPages, clippedImageUrl, isClipToolActive]);
 
-  // Fullscreen toggle
-  const toggleFullscreen = () => {
+  /* ── Fullscreen toggle ── */
+  const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       readerContainerRef.current?.requestFullscreen().catch(() => {});
       setIsFullscreen(true);
@@ -121,7 +255,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
       document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -131,60 +265,188 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, []);
 
-  const handleRetryPdf = () => {
-    setPdfLoadError(false);
-    setIframeKey((prev) => prev + 1);
+  /* ─────────────────────────────────────────────────
+     CLICK ON ARTICLE (Demo Mode Fallback)
+     ───────────────────────────────────────────────── */
+  const handleArticleClick = async (
+    e: React.MouseEvent<HTMLDivElement>,
+    art: EpaperArticle
+  ) => {
+    if (isClipToolActive) return;
+
+    const el = e.currentTarget;
+    setIsCapturing(true);
+    setActiveArticleTitle(art.title);
+
+    try {
+      const brandedClipUrl = await captureElementAsClip(el, edition, currentPage);
+      if (brandedClipUrl) {
+        setClippedImageUrl(brandedClipUrl);
+      }
+    } finally {
+      setIsCapturing(false);
+    }
   };
+
+  /* ─────────────────────────────────────────────────
+     DRAG-TO-CROP (Real PDF & Demo Paper)
+     ───────────────────────────────────────────────── */
+  const getEventPos = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (!pageContainerRef.current) return null;
+    const rect = pageContainerRef.current.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const x = (clientX - rect.left) / (zoom / 100);
+    const y = (clientY - rect.top) / (zoom / 100);
+    return { x, y };
+  };
+
+  const handleDragStart = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    // Only drag-select when the clip tool is active
+    if (!isClipToolActive) return;
+    const pos = getEventPos(e);
+    if (!pos) return;
+    setIsDragging(true);
+    setDragStart(pos);
+    setDragCurrent(pos);
+  };
+
+  const handleDragMove = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (!isDragging || !pageContainerRef.current) return;
+    const pos = getEventPos(e);
+    if (!pos) return;
+
+    const unscaledWidth = pageContainerRef.current.offsetWidth;
+    const unscaledHeight = pageContainerRef.current.offsetHeight;
+    const x = Math.max(0, Math.min(unscaledWidth, pos.x));
+    const y = Math.max(0, Math.min(unscaledHeight, pos.y));
+    setDragCurrent({ x, y });
+  };
+
+  const handleDragEnd = async () => {
+    if (!isDragging || !dragStart || !dragCurrent || !pageContainerRef.current) {
+      setIsDragging(false);
+      return;
+    }
+
+    const x = Math.min(dragStart.x, dragCurrent.x);
+    const y = Math.min(dragStart.y, dragCurrent.y);
+    const width = Math.abs(dragCurrent.x - dragStart.x);
+    const height = Math.abs(dragCurrent.y - dragStart.y);
+
+    setIsDragging(false);
+    setDragStart(null);
+    setDragCurrent(null);
+    setIsClipToolActive(false);
+
+    // Minimum 40×40px selection
+    if (width >= 40 && height >= 40) {
+      setIsCapturing(true);
+      setActiveArticleTitle(`ಪತ್ರಿಕಾ ತುಣುಕು (ಪುಟ ${currentPage})`);
+
+      try {
+        let brandedClipUrl: string | null = null;
+        const pdfCanvas = pdfCanvasRef.current;
+
+        // A) LIVE CLIP DIRECTLY FROM REAL NEWSPAPER PDF CANVAS
+        if (pdfCanvas && pdfDoc) {
+          const scaleX = pdfCanvas.width / pdfCanvas.offsetWidth;
+          const scaleY = pdfCanvas.height / pdfCanvas.offsetHeight;
+
+          const cropCanvas = document.createElement("canvas");
+          cropCanvas.width = Math.round(width * scaleX);
+          cropCanvas.height = Math.round(height * scaleY);
+          const cropCtx = cropCanvas.getContext("2d");
+
+          if (cropCtx) {
+            cropCtx.drawImage(
+              pdfCanvas,
+              Math.round(x * scaleX),
+              Math.round(y * scaleY),
+              cropCanvas.width,
+              cropCanvas.height,
+              0,
+              0,
+              cropCanvas.width,
+              cropCanvas.height
+            );
+            brandedClipUrl = createBrandedClip(cropCanvas, edition, currentPage);
+          }
+        } else if (pageContainerRef.current) {
+          // B) Fallback to DOM capture
+          brandedClipUrl = await captureRegionAsClip(
+            pageContainerRef.current,
+            { x, y, width, height },
+            edition,
+            currentPage
+          );
+        }
+
+        if (brandedClipUrl) {
+          setClippedImageUrl(brandedClipUrl);
+        }
+      } finally {
+        setIsCapturing(false);
+      }
+    }
+  };
+
+  const hasRealPdf = !!pdfDoc && !pdfLoadError;
+  const pageArticles = EPAPER_PAGES_ARTICLES[currentPage] || EPAPER_PAGES_ARTICLES[1] || [];
 
   return (
     <div
       ref={readerContainerRef}
       className="flex flex-col h-screen w-screen overflow-hidden bg-neutral-900 text-white select-none"
     >
-      {/* 1. READER TOP TOOLBAR */}
-      <header className="h-14 bg-neutral-950 border-b border-neutral-800 px-3 sm:px-6 flex items-center justify-between shrink-0 z-30">
-        {/* Left: Back & Title */}
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+      {/* ════════════════════════════════════════════════
+          1. COMPACT TOP TOOLBAR — icon-driven, minimal text
+          ════════════════════════════════════════════════ */}
+      <header className="h-12 sm:h-14 bg-neutral-950 border-b border-neutral-800 px-2 sm:px-4 flex items-center justify-between shrink-0 z-30 shadow-md">
+        {/* Left: Back + Title */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
           <button
             type="button"
             onClick={handleBack}
             className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors shrink-0 cursor-pointer"
-            title="ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ (Go Back)"
-            aria-label="Go back to previous page"
+            aria-label="ಹಿಂದಕ್ಕೆ"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="h-4 w-px bg-neutral-800 hidden sm:block shrink-0" />
+          <div className="hidden sm:block h-4 w-px bg-neutral-800 shrink-0" />
           <div className="flex flex-col min-w-0">
             <h1 className="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 truncate">
               <span className="truncate">{edition.title}</span>
-              {hasDirectPdf && (
-                <span className="shrink-0 px-1.5 py-0.5 text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-700 rounded font-bold">
-                  PDF
-                </span>
-              )}
+              <span className="shrink-0 px-1.5 py-0.5 text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800 rounded font-bold">
+                {hasRealPdf ? "ಮೂಲ ಪತ್ರಿಕೆ" : "ಇ-ಪತ್ರಿಕೆ"}
+              </span>
             </h1>
-            <p className="text-[10px] text-neutral-400 hidden sm:block truncate">
+            <p className="text-[10px] text-neutral-500 hidden sm:block truncate">
               {edition.formattedDate} • {edition.edition || "ರಾಜ್ಯ ಆವೃತ್ತಿ"}
             </p>
           </div>
         </div>
 
-        {/* Center: Page Controls (When not in iframe native controls or for simulated pages) */}
-        {!hasDirectPdf && (
-          <div className="flex items-center gap-1 sm:gap-2 bg-neutral-900 border border-neutral-800 px-2 sm:px-3 py-1 rounded-lg shrink-0">
+        {/* Center: Page Navigation */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 bg-neutral-900 border border-neutral-800 px-2 sm:px-3 py-1 rounded-lg shrink-0">
             <button
               type="button"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-              title="ಹಿಂದಿನ ಪುಟ (Arrow Left)"
+              className="p-0.5 sm:p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+              aria-label="ಹಿಂದಿನ ಪುಟ"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-1 text-xs font-semibold px-1 text-neutral-200">
-              <span className="hidden xs:inline">ಪುಟ</span>
               <span className="font-mono text-white bg-neutral-800 px-1.5 py-0.5 rounded text-[11px]">
                 {currentPage}
               </span>
@@ -196,228 +458,289 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-              title="ಮುಂದಿನ ಪುಟ (Arrow Right)"
+              className="p-0.5 sm:p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+              aria-label="ಮುಂದಿನ ಪುಟ"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-        )}
+        </div>
 
-        {/* Right: Zoom & Actions */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          {/* Zoom controls for simulated view */}
-          {!hasDirectPdf && (
-            <div className="hidden md:flex items-center gap-1 bg-neutral-900 border border-neutral-800 p-0.5 rounded-lg">
-              <button
-                type="button"
-                disabled={zoom <= 50}
-                onClick={() => setZoom((z) => Math.max(50, z - 25))}
-                className="p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 transition-colors"
-                title="ಜೂಮ್ ಕಡಿಮೆ (-)"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
+        {/* Right: Clip, Zoom, Fullscreen */}
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          {/* Clip Tool Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsClipToolActive(!isClipToolActive)}
+            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 ${
+              isClipToolActive
+                ? "bg-emerald-600 text-white ring-2 ring-emerald-400 shadow-lg"
+                : "bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white"
+            }`}
+            title="✂️ ಯಾವುದೇ ಭಾಗವನ್ನು ಡ್ರ್ಯಾಗ್ ಮಾಡಿ ಕತ್ತರಿಸಿ"
+          >
+            <Scissors className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {isClipToolActive ? "ಸಕ್ರಿಯ" : "Clip"}
+            </span>
+          </button>
 
-              <span className="text-[11px] font-mono px-1.5 text-neutral-300">
-                {zoom}%
-              </span>
-
-              <button
-                type="button"
-                disabled={zoom >= 200}
-                onClick={() => setZoom((z) => Math.min(200, z + 25))}
-                className="p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 transition-colors"
-                title="ಜೂಮ್ ಹೆಚ್ಚು (+)"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setZoom(100)}
-                className="p-1 rounded hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
-                title="ರೀಸೆಟ್ (100%)"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* Open in New Tab Button (When PDF URL is present) */}
-          {hasDirectPdf && (
-            <a
-              href={edition.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white text-xs font-medium transition-colors"
-              title="ಹೊಸ ಟ್ಯಾಬ್‌ನಲ್ಲಿ ತೆರೆಯಿರಿ"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">ಹೊಸ ಟ್ಯಾಬ್</span>
-            </a>
-          )}
-
-          {/* Direct Download PDF Button */}
-          {hasDirectPdf ? (
-            <a
-              href={edition.pdfUrl}
-              download={edition.fileName || `${edition.id}.pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-semibold shadow-xs transition-colors"
-              title="ಪಿಡಿಎಫ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">ಡೌನ್‌ಲೋಡ್</span>
-            </a>
-          ) : (
+          {/* Zoom controls */}
+          <div className="hidden md:flex items-center gap-0.5 bg-neutral-900 border border-neutral-800 p-0.5 rounded-lg">
             <button
               type="button"
-              onClick={() => {
-                alert(
-                  `"${edition.title}" ಪತ್ರಿಕೆಯು ಡೆವಲಪ್‌ಮೆಂಟ್ ಪ್ರಿವ್ಯೂ ಆಗಿದೆ. ನೈಜ PDF ಲಿಂಕ್ ಅಪ್‌ಲೋಡ್ ಆದ ನಂತರ ನೇರ ಡೌನ್‌ಲೋಡ್ ಲಭ್ಯವಾಗಲಿದೆ.`
-                );
-              }}
-              className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
-              title="ಪಿಡಿಎಫ್ ಡೌನ್‌ಲೋಡ್ (ಮಾದರಿ)"
+              disabled={zoom <= 60}
+              onClick={() => setZoom((z) => Math.max(60, z - 20))}
+              className="p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 transition-colors cursor-pointer"
+              aria-label="Zoom out"
             >
-              <Download className="w-4 h-4" />
+              <ZoomOut className="w-4 h-4" />
             </button>
-          )}
 
-          {/* Fullscreen Toggle */}
+            <span className="text-[11px] font-mono px-1 text-neutral-400">
+              {zoom}%
+            </span>
+
+            <button
+              type="button"
+              disabled={zoom >= 180}
+              onClick={() => setZoom((z) => Math.min(180, z + 20))}
+              className="p-1 rounded hover:bg-neutral-800 text-neutral-300 disabled:opacity-30 transition-colors cursor-pointer"
+              aria-label="Zoom in"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setZoom(100)}
+              className="p-1 rounded hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              aria-label="Reset zoom"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Fullscreen */}
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
-            title={isFullscreen ? "ಪೂರ್ಣ ಪರದೆ ಮುಕ್ತಾಯ" : "ಪೂರ್ಣ ಪರದೆ (Fullscreen)"}
+            className="p-1.5 rounded-md hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors cursor-pointer"
+            aria-label={isFullscreen ? "ಪೂರ್ಣ ಪರದೆ ಮುಕ್ತಾಯ" : "ಪೂರ್ಣ ಪರದೆ"}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
         </div>
       </header>
 
-      {/* 2. MAIN DISPLAY CANVAS / R2 PDF VIEWER */}
-      <main className="flex-1 overflow-hidden bg-neutral-900 relative flex flex-col items-center justify-center">
-        {hasDirectPdf ? (
-          /* ========================================================
-             A. DIRECT CLOUDFLARE R2 PDF VIEWER
-             ======================================================== */
-          <div className="w-full h-full relative flex flex-col bg-neutral-950">
-            {pdfLoadError ? (
-              /* PDF Load Failure Error Display */
-              <div className="m-auto max-w-md p-6 bg-neutral-900 border border-neutral-800 rounded-xl text-center space-y-4 shadow-xl">
-                <div className="w-12 h-12 rounded-full bg-red-950 text-red-400 border border-red-800 flex items-center justify-center mx-auto">
-                  <AlertCircle className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-neutral-100">
-                    ಪಿಡಿಎಫ್ ಫೈಲ್ ಲೋಡ್ ಆಗುತ್ತಿಲ್ಲ
-                  </h3>
-                  <p className="text-xs text-neutral-400 leading-relaxed">
-                    ಡೇಟಾಬೇಸ್ ಸಾರ್ವಜನಿಕ ಡೊಮೈನ್ (Public Domain) ಅಥವಾ ಫೈಲ್ ವಿಳಾಸವನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ.
-                  </p>
-                </div>
-                <div className="bg-neutral-950 p-2.5 rounded-md text-[11px] font-mono text-neutral-400 break-all border border-neutral-800">
-                  {edition.pdfUrl}
-                </div>
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={handleRetryPdf}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-semibold rounded-md transition-colors"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ</span>
-                  </button>
-                  <a
-                    href={edition.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-semibold rounded-md transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>ನೇರ ಲಿಂಕ್ ಮೂಲಕ ತೆರೆಯಿರಿ</span>
-                  </a>
-                </div>
-              </div>
-            ) : (
-              /* Direct R2 PDF iframe (Direct stream from Cloudflare R2 custom domain) */
-              <iframe
-                key={iframeKey}
-                src={`${edition.pdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
-                title={edition.title}
-                className="w-full h-full border-none"
-                loading="lazy"
-                onError={() => setPdfLoadError(true)}
+      {/* ── Clip Mode Helper Bar ── */}
+      {isClipToolActive && (
+        <div className="bg-emerald-600 text-white px-4 py-1.5 text-xs font-semibold flex items-center justify-between shrink-0 z-20">
+          <div className="flex items-center gap-2 mx-auto">
+            <Scissors className="w-3.5 h-3.5" />
+            <span>ಪತ್ರಿಕೆಯ ಯಾವುದೇ ಭಾಗವನ್ನು ಡ್ರ್ಯಾಗ್ ಮಾಡಿ ಕತ್ತರಿಸಿ (Drag any region to crop)</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsClipToolActive(false)}
+            className="p-0.5 rounded hover:bg-white/20 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* ── Capturing Loading Overlay ── */}
+      {isCapturing && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center">
+          <div className="bg-white text-neutral-900 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 font-bold text-sm border border-neutral-200">
+            <ThinArcLoader className="w-5 h-5 text-emerald-600" strokeWidth={1.5} />
+            <span>ಪತ್ರಿಕಾ ತುಣುಕು ರಚಿಸಲಾಗುತ್ತಿದೆ...</span>
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════
+          2. MAIN CANVAS: REAL NEWSPAPER FROM DATABASE (PDF)
+          ════════════════════════════════════════════════ */}
+      <main className="flex-1 overflow-auto bg-[#1A1F2C] relative flex flex-col items-center p-3 sm:p-6 lg:p-8 [scrollbar-width:thin]">
+        {/* PDF Loading Indicator */}
+        {isPdfLoading && (
+          <div className="m-auto flex flex-col items-center gap-3 text-neutral-300">
+            <ThinArcLoader className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
+            <p className="text-xs font-semibold tracking-wide">
+              ಮೂಲ ಪತ್ರಿಕೆಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...
+            </p>
+          </div>
+        )}
+
+        {/* Real Newspaper PDF Canvas / Fallback Broadsheet */}
+        {!isPdfLoading && (
+          <div
+            ref={pageContainerRef}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            style={{
+              transform: `scale(${zoom / 100})`,
+              transformOrigin: "top center",
+              transition: isDragging ? "none" : "transform 0.15s ease-out",
+            }}
+            className={`relative w-full max-w-4xl bg-[#FDFBF7] text-neutral-900 shadow-2xl rounded-sm border-2 border-neutral-300 my-4 sm:my-8 ${
+              isClipToolActive ? "cursor-crosshair select-none" : "cursor-default"
+            } ${hasRealPdf ? "p-0 overflow-hidden" : "p-5 sm:p-8 lg:p-10 flex flex-col justify-between"}`}
+          >
+            {/* Live Drag Selection Box (Green dashed outline) */}
+            {isDragging && dragStart && dragCurrent && (
+              <div
+                style={{
+                  left: `${Math.min(dragStart.x, dragCurrent.x)}px`,
+                  top: `${Math.min(dragStart.y, dragCurrent.y)}px`,
+                  width: `${Math.abs(dragCurrent.x - dragStart.x)}px`,
+                  height: `${Math.abs(dragCurrent.y - dragStart.y)}px`,
+                  borderColor: GREEN_DRAG,
+                  backgroundColor: GREEN_DRAG_BG,
+                }}
+                className="absolute z-50 pointer-events-none border-2 border-dashed shadow-lg"
               />
             )}
-          </div>
-        ) : (
-          /* ========================================================
-             B. SIMULATED DEMO CANVAS (When no real PDF is attached)
-             ======================================================== */
-          <div className="flex-1 overflow-auto w-full p-3 sm:p-6 lg:p-8 flex items-center justify-center">
-            <div
-              style={{
-                transform: `scale(${zoom / 100})`,
-                transformOrigin: "center center",
-                transition: "transform 0.15s ease-out",
-              }}
-              className="relative w-full max-w-2xl aspect-[1/1.414] bg-white text-neutral-900 shadow-2xl rounded-sm p-5 sm:p-8 lg:p-10 flex flex-col justify-between border border-neutral-300 my-auto"
-            >
-              {/* Header of Simulated Page */}
-              <div className="border-b-2 border-neutral-900 pb-2.5 text-center">
-                <div className="flex items-baseline justify-between text-[10px] sm:text-[11px] font-bold text-neutral-600 pb-1">
-                  <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
-                  <span className="text-[#C62828] hidden xs:inline">ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
-                  <span>{edition.formattedDate}</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#172B4D] font-serif">
-                  ನ್ಯಾಯ ಘರ್ಜನೆ
-                </h2>
-                <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-neutral-500 pt-1 border-t border-neutral-300 mt-1">
-                  <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
-                  <span className="font-bold text-[#C62828]">
-                    ಪುಟ: {currentPage} / {totalPages} (ಮಾದರಿ)
-                  </span>
-                  <span>ಸಂಚಿಕೆ {edition.issueNumber ?? 1}</span>
-                </div>
+
+            {/* A. REAL PDF RENDERING: Canvas directly from Database */}
+            {hasRealPdf ? (
+              <div className="relative w-full flex justify-center bg-neutral-100">
+                <canvas
+                  ref={pdfCanvasRef}
+                  className="w-full h-auto block select-none shadow-sm"
+                />
               </div>
+            ) : (
+              /* B. FALLBACK INTERACTIVE BROADSHEET (If no PDF available) */
+              <>
+                {/* ── TOP MASTHEAD ── */}
+                <div className="border-b-4 border-neutral-950 pb-3 text-center space-y-2">
+                  <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold text-neutral-600 border-b border-neutral-400 pb-1">
+                    <span>ಕರ್ನಾಟಕದ ಪ್ರಮುಖ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ</span>
+                    <span className="text-emerald-700">ಸತ್ಯದ ಧ್ವನಿ • ನ್ಯಾಯದ ಘರ್ಜನೆ</span>
+                    <span>{edition.formattedDate}</span>
+                  </div>
 
-              {/* Body Simulation Area */}
-              <div className="my-auto py-6 sm:py-8 text-center space-y-4">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-50 text-[#C62828] flex items-center justify-center mx-auto shadow-xs">
-                  <BookOpen className="w-7 h-7 sm:w-8 sm:h-8" />
+                  <div className="flex items-center justify-center gap-3 py-3">
+                    <div className="relative w-10 h-10 sm:w-12 sm:h-12 shrink-0">
+                      <Image
+                        src="/logo.png"
+                        alt="ನ್ಯಾಯ ಘರ್ಜನೆ"
+                        width={968}
+                        height={968}
+                        className="w-full h-full object-contain rounded-md"
+                      />
+                    </div>
+                    <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#172B4D] font-serif">
+                      ನ್ಯಾಯ ಘರ್ಜನೆ
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs text-neutral-600 pt-2 mt-1 border-t-2 border-neutral-950 font-semibold">
+                    <span>ಸಂಪುಟ {edition.volumeNumber ?? 1}</span>
+                    <span className="px-2 py-0.5 bg-emerald-600 text-white rounded font-bold text-[10px] tracking-wide">
+                      ಪುಟ {currentPage} / {totalPages}
+                    </span>
+                    <span>ಸಂಚಿಕೆ {edition.issueNumber ?? 1} • {edition.edition || "ರಾಜ್ಯ ಆವೃತ್ತಿ"}</span>
+                  </div>
                 </div>
 
-                <div className="space-y-2 max-w-md mx-auto px-2">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-neutral-100 text-[#172B4D] border border-neutral-300">
-                    <BookOpen className="w-3.5 h-3.5 text-[#C62828] shrink-0" />
-                    <span>ಡಿಜಿಟಲ್ ವಾಚಕ</span>
-                  </span>
+                {/* ── ARTICLES GRID ── */}
+                <div className="py-6 space-y-6">
+                  {pageArticles
+                    .filter((art) => art.colSpan === "full")
+                    .map((art) => (
+                      <div
+                        key={art.id}
+                        onClick={(e) => handleArticleClick(e, art)}
+                        className="group relative p-5 sm:p-7 rounded bg-white/70 shadow-xs cursor-pointer transition-shadow hover:shadow-md"
+                      >
+                        <div className="dashed-hover-overlay pointer-events-none absolute inset-0 rounded border-2 border-dashed border-transparent group-hover:border-emerald-600 group-hover:bg-emerald-500/15 transition-all duration-150 z-10" />
+                        <div className="space-y-2">
+                          <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                            ● {art.category}
+                          </span>
+                          <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#172B4D] font-serif leading-tight">
+                            {art.title}
+                          </h3>
+                          {art.subtitle && (
+                            <p className="text-xs sm:text-sm font-semibold text-[#5A6A85]">
+                              {art.subtitle}
+                            </p>
+                          )}
+                          <p className="text-xs sm:text-sm text-neutral-700 leading-relaxed pt-1 line-clamp-3">
+                            {art.excerpt}
+                          </p>
+                        </div>
+                        {art.author && (
+                          <p className="text-[10px] font-bold text-neutral-500 mt-3 pt-2 border-t border-neutral-200">
+                            — ವರದಿ: {art.author}
+                          </p>
+                        )}
+                      </div>
+                    ))}
 
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-[#172B4D]">
-                    ಪುಟ {currentPage} — {edition.title}
-                  </h3>
-
-                  <p className="text-xs text-[#5A6A85] leading-relaxed">
-                    ನ್ಯಾಯ ಘರ್ಜನೆ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಅಧಿಕೃತ ಡಿಜಿಟಲ್ PDF ಆವೃತ್ತಿ.
-                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    {pageArticles
+                      .filter((art) => art.colSpan !== "full")
+                      .map((art) => (
+                        <div
+                          key={art.id}
+                          onClick={(e) => handleArticleClick(e, art)}
+                          className="group relative p-5 rounded bg-white/70 shadow-xs cursor-pointer flex flex-col justify-between transition-shadow hover:shadow-md"
+                        >
+                          <div className="dashed-hover-overlay pointer-events-none absolute inset-0 rounded border-2 border-dashed border-transparent group-hover:border-emerald-600 group-hover:bg-emerald-500/15 transition-all duration-150 z-10" />
+                          <div className="space-y-2">
+                            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                              ● {art.category}
+                            </span>
+                            <h4 className="text-base sm:text-lg font-bold text-[#172B4D] font-serif leading-snug">
+                              {art.title}
+                            </h4>
+                            <p className="text-xs text-neutral-700 leading-relaxed line-clamp-4">
+                              {art.excerpt}
+                            </p>
+                          </div>
+                          {art.author && (
+                            <p className="text-[10px] font-bold text-neutral-500 mt-4 pt-2 border-t border-neutral-200">
+                              — {art.author}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Footer */}
-              <div className="border-t border-neutral-300 pt-2 flex items-center justify-between text-[10px] text-neutral-500">
-                <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಡಿಜಿಟಲ್ ಇ-ಪತ್ರಿಕೆ</span>
-                <span>ಪುಟ {currentPage}</span>
-                <span>ಮುದ್ರಣ & ಪ್ರಕಟಣೆ: ಬೆಂಗಳೂರು</span>
-              </div>
-            </div>
+                {/* ── FOOTER ── */}
+                <div className="border-t-2 border-neutral-900 pt-3 flex items-center justify-between text-[10px] sm:text-xs text-neutral-600 font-semibold">
+                  <span>ನ್ಯಾಯ ಘರ್ಜನೆ ಡಿಜಿಟಲ್ ಇ-ಪತ್ರಿಕೆ</span>
+                  <span>www.nyaayagharjane.com</span>
+                  <span>ಪುಟ {currentPage}</span>
+                </div>
+              </>
+            )}
           </div>
         )}
       </main>
+
+      {/* ════════════════════════════════════════════════
+          3. ARTICLE CLIP MODAL
+          ════════════════════════════════════════════════ */}
+      {clippedImageUrl && (
+        <ArticleClipModal
+          clippedImageUrl={clippedImageUrl}
+          articleTitle={activeArticleTitle}
+          edition={edition}
+          currentPage={currentPage}
+          onClose={() => setClippedImageUrl(null)}
+        />
+      )}
     </div>
   );
 }

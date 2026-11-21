@@ -1,25 +1,40 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-11-19T10:37:10.539Z",
+  "lastUpdated": "2026-11-20T17:11:01.842Z",
   "newspapers": [
     {
       "id": "news-2026-11",
-      "title": "ನ್ಯಾಯ ಘರ್ಜನೆ - ನವೆಂಬರ್ ೨೦೨೬",
+      "title": "ನ್ಯಾಯಘರ್ಜನೆ - ನವೆಂಬರ್ 2026",
       "language": "Kannada",
       "edition": "ರಾಜ್ಯ ಆವೃತ್ತಿ",
       "month": 11,
       "year": 2026,
-      "fileName": "Complete-NodeJS-Notes.pdf",
-      "pdfUrl": "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev/newspapers/2026/11-november/Complete-NodeJS-Notes.pdf",
+      "fileName": "bengaluru.PDF",
+      "pdfUrl": "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev/newspapers/2026/11-november/bengaluru.PDF",
       "publishedAt": "2026-11-16",
       "status": "published",
+      "totalPages": 1,
+      "formattedFileSize": "5.2 MB",
+      "description": "ನ್ಯಾಯಘರ್ಜನೆ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ಸತ್ಯದ ಧ್ವನಿ, ನ್ಯಾಯದ ಘರ್ಜನೆ."
+    },
+    {
+      "id": "2026-10",
+      "title": "ನ್ಯಾಯ ಘರ್ಜನೆ - ಅಕ್ಟೋಬರ್ ೨೦೨೬",
+      "language": "Kannada",
+      "edition": "State Edition",
+      "month": 10,
+      "year": 2026,
+      "fileName": "2026-10.pdf",
+      "pdfUrl": "",
+      "publishedAt": "2026-10-01",
+      "status": "published",
       "totalPages": 16,
-      "formattedFileSize": "14.5 MB",
-      "description": "ನ್ಯಾಯ ಘರ್ಜನೆ ನವೆಂಬರ್ ೨೦೨೬ ರ ಅಧಿಕೃತ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ. ರಾಜ್ಯದ ಪ್ರಮುಖ ವಿದ್ಯಮಾನಗಳು, ಕಾನೂನು ಮತ್ತು ಜನಪರ ವರದಿಗಳು."
+      "formattedFileSize": "೧೧.೮ MB",
+      "description": "ನ್ಯಾಯ ಘರ್ಜನೆ ಕನ್ನಡ ಮಾಸಿಕ ಇ-ಪತ್ರಿಕೆ."
     },
     {
       "id": "news-2026-10",
-      "title": "ನ್ಯಾಯ ಘರ್ಜನೆ - ಅಕ್ಟೋಬರ್ ೨೦೨೬",
+      "title": "ನ್ಯಾಯಘರ್ಜನೆ - ಅಕ್ಟೋಬರ್ ೨೦೨೬",
       "language": "Kannada",
       "edition": "ರಾಜ್ಯ ಆವೃತ್ತಿ",
       "month": 10,
@@ -30,22 +45,7 @@
       "status": "published",
       "totalPages": 16,
       "formattedFileSize": "೧೧.೮ MB",
-      "description": "ನ್ಯಾಯ ಘರ್ಜನೆ ಅಕ್ಟೋಬರ್ ೨೦೨೬ ಮಾಸಿಕ ಸಂಚಿಕೆ. ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾದ ಸಮಗ್ರ ವಿಶ್ಲೇಷಣೆ."
-    },
-    {
-      "id": "news-2026-09",
-      "title": "ನ್ಯಾಯ ಘರ್ಜನೆ - ಸೆಪ್ಟೆಂಬರ್ ೨೦೨೬",
-      "language": "Kannada",
-      "edition": "ದಕ್ಷಿಣ ಕನ್ನಡ",
-      "month": 9,
-      "year": 2026,
-      "fileName": "kannada-september.pdf",
-      "pdfUrl": "https://files.yourdomain.com/newspapers/2026/09-september/kannada-september.pdf",
-      "publishedAt": "2026-09-15",
-      "status": "published",
-      "totalPages": 16,
-      "formattedFileSize": "೧೨.೧ MB",
-      "description": "ನ್ಯಾಯ ಘರ್ಜನೆ ಸೆಪ್ಟೆಂಬರ್ ೨೦೨೬ ಮಾಸಿಕ ಸಂಚಿಕೆ."
+      "description": "ನ್ಯಾಯಘರ್ಜನೆ ಅಕ್ಟೋಬರ್ ೨೦೨೬ ಮಾಸಿಕ ಸಂಚಿಕೆ. ಸತ್ಯ ಮತ್ತು ನ್ಯಾಯದ ಪರವಾದ ಸಮಗ್ರ ವಿಶ್ಲೇಷಣೆ."
     }
   ]
 }
