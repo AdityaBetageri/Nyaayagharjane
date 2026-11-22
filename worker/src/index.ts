@@ -10,6 +10,14 @@ import {
   addUploadedNewspaperToCatalogue,
   deleteNewspaperFromR2,
 } from "./catalogue";
+import {
+  handleRegisterOptions,
+  handleRegisterVerify,
+  handleAuthenticateOptions,
+  handleAuthenticateVerify,
+  handleListCredentials,
+  handleDeleteCredential,
+} from "./webauthnHandlers";
 
 // Max allowed file size: 100 MB
 const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
@@ -283,6 +291,81 @@ export default {
           request,
           env
         );
+      }
+
+      // ─── WEBAUTHN / PASSKEY ENDPOINTS ───────────────────────────────
+
+      // 8. WebAuthn Register Options
+      if (pathname === "/api/webauthn/register/options" && request.method === "POST") {
+        const auth = await authenticateAdmin(request, env);
+        if (!auth.success) {
+          return jsonResponse({ error: auth.error }, auth.statusCode, request, env);
+        }
+        const body = await request.json().catch(() => ({}));
+        const result = await handleRegisterOptions(body as any, auth.user, env);
+        // Merge CORS headers
+        const data = await result.json();
+        return jsonResponse(data, result.status, request, env);
+      }
+
+      // 9. WebAuthn Register Verify
+      if (pathname === "/api/webauthn/register/verify" && request.method === "POST") {
+        const auth = await authenticateAdmin(request, env);
+        if (!auth.success) {
+          return jsonResponse({ error: auth.error }, auth.statusCode, request, env);
+        }
+        const body = await request.json().catch(() => ({}));
+        const result = await handleRegisterVerify(body as any, auth.user, env);
+        const data = await result.json();
+        return jsonResponse(data, result.status, request, env);
+      }
+
+      // 10. WebAuthn Authenticate Options
+      if (pathname === "/api/webauthn/authenticate/options" && request.method === "POST") {
+        const auth = await authenticateAdmin(request, env);
+        if (!auth.success) {
+          return jsonResponse({ error: auth.error }, auth.statusCode, request, env);
+        }
+        const body = await request.json().catch(() => ({}));
+        const result = await handleAuthenticateOptions(body as any, auth.user, env);
+        const data = await result.json();
+        return jsonResponse(data, result.status, request, env);
+      }
+
+      // 11. WebAuthn Authenticate Verify
+      if (pathname === "/api/webauthn/authenticate/verify" && request.method === "POST") {
+        const auth = await authenticateAdmin(request, env);
+        if (!auth.success) {
+          return jsonResponse({ error: auth.error }, auth.statusCode, request, env);
+        }
+        const body = await request.json().catch(() => ({}));
+        const result = await handleAuthenticateVerify(body as any, auth.user, env);
+        const data = await result.json();
+        return jsonResponse(data, result.status, request, env);
+      }
+
+      // 12. WebAuthn List Credentials
+      if (pathname === "/api/webauthn/credentials" && request.method === "GET") {
+        const auth = await authenticateAdmin(request, env);
+        if (!auth.success) {
+          return jsonResponse({ error: auth.error }, auth.statusCode, request, env);
+        }
+        const uid = new URL(request.url).searchParams.get("uid") || auth.user.uid;
+        const result = await handleListCredentials(uid, auth.user, env);
+        const data = await result.json();
+        return jsonResponse(data, result.status, request, env);
+      }
+
+      // 13. WebAuthn Delete Credential
+      if (pathname === "/api/webauthn/credentials/delete" && request.method === "POST") {
+        const auth = await authenticateAdmin(request, env);
+        if (!auth.success) {
+          return jsonResponse({ error: auth.error }, auth.statusCode, request, env);
+        }
+        const body = await request.json().catch(() => ({}));
+        const result = await handleDeleteCredential(body as any, auth.user, env);
+        const data = await result.json();
+        return jsonResponse(data, result.status, request, env);
       }
 
       // 404 Not Found

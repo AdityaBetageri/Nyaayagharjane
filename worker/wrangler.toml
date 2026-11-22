@@ -1,3 +1,5 @@
+
+
 name = "nyaayagharjane-worker"
 main = "src/index.ts"
 compatibility_date = "2024-04-01"
@@ -14,9 +16,13 @@ FIREBASE_PROJECT_ID = "nyaayagharjane-01"
 R2_ACCOUNT_ID = "7d2d91883c619d8cc915475b66b4a674"
 R2_BUCKET_NAME = "naresh"
 R2_PUBLIC_DOMAIN = "https://pub-1439f7533d534e39b71b9b0112823a12.r2.dev"
-ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:3001,https://nyaayagharjane.com,https://www.nyaayagharjane.com"
+ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:3001,http://localhost:3002,https://nyaayagharjane.com,https://www.nyaayagharjane.com,https://admin.nyaayagharjane.com"
+WEBAUTHN_RP_ID = "localhost"
+WEBAUTHN_RP_NAME = "Nyaayagharjane Admin"
+WEBAUTHN_ORIGIN = "http://localhost:3002"
 
 # Sensitive Secrets (Configure using `wrangler secret put <KEY>`):
 # - R2_ACCESS_KEY_ID       (Cloudflare R2 S3 Access Key ID)
 # - R2_SECRET_ACCESS_KEY   (Cloudflare R2 S3 Secret Access Key)
 # - ADMIN_UIDS             (Comma-separated list of authorized Firebase user UIDs)
+# - CHALLENGE_SECRET       (Random 32+ char string for signing WebAuthn challenge tokens)

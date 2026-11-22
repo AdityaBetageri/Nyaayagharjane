@@ -3,6 +3,51 @@ import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib
 
 const EDITIONS_STORAGE_KEY = "nyaayagharjane_editions_v1";
 const ADMIN_AUTH_KEY = "nyaayagharjane_admin_session";
+const BIOMETRIC_VERIFIED_KEY = "admin_biometric_verified";
+
+/**
+ * Checks whether biometric/passkey verification was completed in this browser session.
+ * Stored in sessionStorage so closing the browser/tab resets it, requiring step 2 on next launch.
+ */
+export function isBiometricVerified(uid?: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (uid && sessionStorage.getItem(`${BIOMETRIC_VERIFIED_KEY}_${uid}`) === "true") {
+      return true;
+    }
+    return sessionStorage.getItem(BIOMETRIC_VERIFIED_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Marks biometric verification as completed for the current browser session.
+ */
+export function setBiometricVerified(uid?: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(BIOMETRIC_VERIFIED_KEY, "true");
+    if (uid) {
+      sessionStorage.setItem(`${BIOMETRIC_VERIFIED_KEY}_${uid}`, "true");
+    }
+  } catch (err) {
+    console.error("Failed to set biometric verification:", err);
+  }
+}
+
+/**
+ * Clears biometric verification state.
+ */
+export function clearBiometricVerified(uid?: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(BIOMETRIC_VERIFIED_KEY);
+    if (uid) {
+      sessionStorage.removeItem(`${BIOMETRIC_VERIFIED_KEY}_${uid}`);
+    }
+  } catch {}
+}
 
 export const INITIAL_EDITIONS: Edition[] = [
   PLACEHOLDER_LATEST_EDITION,
@@ -152,9 +197,15 @@ export function clearAdminSession(): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(ADMIN_AUTH_KEY);
+    clearBiometricVerified();
     if (typeof document !== "undefined") {
       document.cookie = "nyaayagharjane_admin=; path=/; max-age=0; SameSite=Lax";
     }
+    // Clear temporary session tokens
+    sessionStorage.removeItem("admin_firebase_id_token");
+    sessionStorage.removeItem("admin_firebase_uid");
+    sessionStorage.removeItem("admin_pending_email");
+    sessionStorage.removeItem("admin_pending_name");
   } catch (err) {
     console.error("Failed to clear admin session:", err);
   }

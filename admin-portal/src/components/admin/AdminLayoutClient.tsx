@@ -10,7 +10,15 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
-import { getAdminSession, clearAdminSession, AdminUser } from "@/lib/editionsStore";
+import {
+  getAdminSession,
+  clearAdminSession,
+  isBiometricVerified,
+  setAdminSession,
+  AdminUser,
+} from "@/lib/editionsStore";
+import { onAdminAuthStateChanged, signOutAdmin } from "@/lib/firebase";
+import { ThinArcLoader } from "@/components/shared/ThinArcLoader";
 import { ConfirmationModal } from "@/components/admin/ConfirmationModal";
 import { DatabaseStatusIndicator } from "@/components/admin/DatabaseStatusIndicator";
 
@@ -72,32 +80,81 @@ export default function AdminLayoutClient({
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  const profileSettingsRef = useRef<Cog6ToothIconHandle>(null);
+  const logoutIconRef = useRef<LogoutIconHandle>(null);
+
   const isLoginPage = pathname === "/login" || pathname.startsWith("/login") || pathname === "/admin/login" || pathname.startsWith("/admin/login");
+  const isPasskeyPage = pathname === "/passkey" || pathname.startsWith("/passkey");
   const isSettingsPage = pathname === "/settings" || pathname.startsWith("/settings") || pathname === "/admin/settings" || pathname.startsWith("/admin/settings");
 
+  const [isAuthLoading, setIsAuthLoading] = useState(!isLoginPage && !isPasskeyPage);
+
   useEffect(() => {
-    if (isLoginPage) return;
+    if (isLoginPage || isPasskeyPage) {
+      setIsAuthLoading(false);
+      return;
+    }
 
-    Promise.resolve().then(() => {
-      const currentSession = getAdminSession();
-      if (!currentSession) {
-        router.push("/login");
-      } else {
-        setSession(currentSession);
+    const unsub = onAdminAuthStateChanged((user) => {
+      if (!user) {
+        // Step 1: Not authenticated in Firebase
+        clearAdminSession();
+        router.replace("/login");
+        return;
       }
-    });
-  }, [pathname, isLoginPage, router]);
 
-  // If on login page, render children directly without admin layout
-  if (isLoginPage) {
+      // Step 2: User exists in Firebase, but check if passkey was verified in this session
+      if (!isBiometricVerified(user.uid)) {
+        // Direct to Step 2 passkey verification gate immediately
+        router.replace("/passkey");
+        return;
+      }
+
+      // Both Step 1 & Step 2 verified!
+      const current = getAdminSession();
+      if (current) {
+        setSession(current);
+      } else {
+        const newSession: AdminUser = {
+          email: user.email || "admin@nyaayagharjane.com",
+          name: user.displayName || "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ",
+          role: "Super Admin",
+          loggedInAt: new Date().toISOString(),
+        };
+        setAdminSession(newSession);
+        setSession(newSession);
+      }
+      setIsAuthLoading(false);
+    });
+
+    return () => unsub();
+  }, [pathname, isLoginPage, isPasskeyPage, router]);
+
+  // If on login or passkey page, render children directly without admin layout
+  if (isLoginPage || isPasskeyPage) {
     return <>{children}</>;
+  }
+
+  // Prevent dashboard content flashing while verifying session
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#F1F3F5] flex flex-col items-center justify-center gap-3">
+        <ThinArcLoader className="w-8 h-8 text-[#C62828]" strokeWidth={1.5} />
+        <span className="text-xs text-neutral-500 font-medium">
+          ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ (Verifying session)...
+        </span>
+      </div>
+    );
   }
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    try {
+      await signOutAdmin();
+    } catch {}
     clearAdminSession();
     setShowLogoutModal(false);
     router.push("/login");
@@ -135,9 +192,6 @@ export default function AdminLayoutClient({
       icon: Cog6ToothIcon,
     },
   ];
-
-  const profileSettingsRef = useRef<Cog6ToothIconHandle>(null);
-  const logoutIconRef = useRef<LogoutIconHandle>(null);
 
   return (
     <div className="min-h-screen bg-[#F1F3F5] text-neutral-900 flex flex-col lg:flex-row antialiased">

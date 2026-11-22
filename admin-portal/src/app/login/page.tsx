@@ -14,8 +14,8 @@ import {
   AlertCircle,
   LogIn,
 } from "lucide-react";
-import { getAdminSession, setAdminSession } from "@/lib/editionsStore";
-import { isFirebaseConfigured, signInAdmin } from "@/lib/firebase";
+import { getAdminSession, isBiometricVerified } from "@/lib/editionsStore";
+import { isFirebaseConfigured, signInAdmin, onAdminAuthStateChanged } from "@/lib/firebase";
 import { ThinArcLoader } from "@/components/shared/ThinArcLoader";
 
 export default function AdminLoginPage() {
@@ -26,12 +26,18 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // If already logged in, redirect directly to dashboard
+  // If already authenticated with Firebase, redirect directly to dashboard or passkey gate
   useEffect(() => {
-    const session = getAdminSession();
-    if (session) {
-      router.replace("/dashboard");
-    }
+    const unsub = onAdminAuthStateChanged((user) => {
+      if (user) {
+        if (isBiometricVerified(user.uid)) {
+          router.replace("/dashboard");
+        } else {
+          router.replace("/passkey");
+        }
+      }
+    });
+    return () => unsub();
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -96,16 +102,16 @@ export default function AdminLoginPage() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("admin_firebase_id_token", idToken);
         sessionStorage.setItem("admin_firebase_uid", user.uid);
+        // Store pending session data for passkey page to use after verification
+        sessionStorage.setItem("admin_pending_email", user.email || userEmail);
+        sessionStorage.setItem(
+          "admin_pending_name",
+          user.displayName || "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ"
+        );
       }
 
-      setAdminSession({
-        email: user.email || userEmail,
-        name: user.displayName || "ಹರೀಶ್ ಕಮ್ಮನಕೋಟೆ",
-        role: "Super Admin",
-        loggedInAt: new Date().toISOString(),
-      });
-
-      router.push("/dashboard");
+      // Do NOT create full admin session here — passkey page does that after verification
+      router.push("/passkey");
       return;
     } catch {
       setError("Unauthorized access: Account not found.");

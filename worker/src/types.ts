@@ -11,6 +11,12 @@ export interface Env {
   R2_BUCKET_NAME: string;
   R2_PUBLIC_DOMAIN: string;
   ALLOWED_ORIGINS?: string;
+
+  // WebAuthn secrets
+  CHALLENGE_SECRET: string; // HMAC key for signing challenge tokens
+  WEBAUTHN_RP_ID: string; // e.g. "localhost" or "admin.nyaayagharjane.com"
+  WEBAUTHN_RP_NAME: string; // e.g. "Nyaayagharjane Admin"
+  WEBAUTHN_ORIGIN: string; // e.g. "http://localhost:3002" or "https://admin.nyaayagharjane.com"
 }
 
 export interface NewspaperItem {
@@ -74,3 +80,45 @@ export interface AuthFailure {
 }
 
 export type AuthResult = AuthSuccess | AuthFailure;
+
+// ─── WebAuthn / Passkey types ────────────────────────────────────────────────
+
+export interface StoredPasskeyCredential {
+  credentialId: string; // Base64URL encoded
+  publicKey: string; // Base64URL encoded COSE public key
+  counter: number;
+  transports?: string[];
+  deviceName: string;
+  createdAt: string; // ISO 8601
+  lastUsedAt: string; // ISO 8601
+}
+
+export interface PasskeyStore {
+  uid: string;
+  credentials: StoredPasskeyCredential[];
+}
+
+export interface WebAuthnRegisterOptionsBody {
+  uid: string;
+}
+
+export interface WebAuthnRegisterVerifyBody {
+  uid: string;
+  challengeToken: string;
+  response: unknown; // RegistrationResponseJSON from @simplewebauthn/types
+}
+
+export interface WebAuthnAuthenticateOptionsBody {
+  uid: string;
+}
+
+export interface WebAuthnAuthenticateVerifyBody {
+  uid: string;
+  challengeToken: string;
+  response: unknown; // AuthenticationResponseJSON from @simplewebauthn/types
+}
+
+export interface WebAuthnDeleteBody {
+  uid: string;
+  credentialId: string;
+}

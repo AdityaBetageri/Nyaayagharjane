@@ -24,6 +24,9 @@ import {
   ArrowLeft,
   Globe,
   Sparkles,
+  Fingerprint,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { KeyIcon, KeyIconHandle } from "@/components/icons/KeyIcon";
 import { SquarePenIcon, SquarePenIconHandle } from "@/components/icons/SquarePenIcon";
@@ -45,6 +48,12 @@ import {
   SiteContactSettings,
   DEFAULT_SITE_SETTINGS,
 } from "@/lib/siteSettings";
+import {
+  listPasskeys,
+  registerPasskey,
+  deletePasskeyCredential,
+  PasskeyCredentialInfo,
+} from "@/lib/passkeyClient";
 
 type SettingsView = "root" | "website" | "security" | "sessions";
 
@@ -74,6 +83,61 @@ export default function AdminSettingsPage() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
+  // 3. Passkey State
+  const [passkeys, setPasskeys] = useState<PasskeyCredentialInfo[]>([]);
+  const [isLoadingPasskeys, setIsLoadingPasskeys] = useState(false);
+  const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+  const [passkeySuccess, setPasskeySuccess] = useState<string | null>(null);
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [deletingCredId, setDeletingCredId] = useState<string | null>(null);
+
+  const loadPasskeys = async () => {
+    setIsLoadingPasskeys(true);
+    try {
+      const list = await listPasskeys();
+      setPasskeys(list);
+    } catch (err: unknown) {
+      console.warn("Could not load passkeys:", err);
+    } finally {
+      setIsLoadingPasskeys(false);
+    }
+  };
+
+  const handleRegisterNewPasskey = async () => {
+    setPasskeyError(null);
+    setPasskeySuccess(null);
+    setIsRegisteringPasskey(true);
+    try {
+      const res = await registerPasskey();
+      setPasskeySuccess(`ಹೊಸ ಪಾಸ್‌ಕೀ ಸಾಧನ "${res.deviceName}" ಅನ್ನು ಯಶಸ್ವಿಯಾಗಿ ನೋಂದಾಯಿಸಲಾಗಿದೆ.`);
+      await loadPasskeys();
+      setTimeout(() => setPasskeySuccess(null), 5000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "ಪಾಸ್‌ಕೀ ನೋಂದಣಿ ವಿಫಲವಾಗಿದೆ.";
+      setPasskeyError(msg);
+    } finally {
+      setIsRegisteringPasskey(false);
+    }
+  };
+
+  const handleDeletePasskey = async (credentialId: string) => {
+    if (!confirm("ಈ ಪಾಸ್‌ಕೀ ಸಾಧನವನ್ನು ಖಾತೆಯಿಂದ ತೆಗೆದುಹಾಕಲು ಖಚಿತವಾಗಿದ್ದೀರಾ?")) return;
+    setDeletingCredId(credentialId);
+    setPasskeyError(null);
+    setPasskeySuccess(null);
+    try {
+      await deletePasskeyCredential(credentialId);
+      setPasskeySuccess("ಪಾಸ್‌ಕೀ ಸಾಧನವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ತೆಗೆದುಹಾಕಲಾಗಿದೆ.");
+      await loadPasskeys();
+      setTimeout(() => setPasskeySuccess(null), 4000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "ಸಾಧನ ತೆಗೆದುಹಾಕಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.";
+      setPasskeyError(msg);
+    } finally {
+      setDeletingCredId(null);
+    }
+  };
+
   useEffect(() => {
     Promise.resolve().then(() => {
       const current = getAdminSession();
@@ -86,6 +150,8 @@ export default function AdminSettingsPage() {
     fetchSiteSettings().then((remote: SiteContactSettings | null) => {
       if (remote) setContactSettings(remote);
     });
+
+    loadPasskeys();
   }, []);
 
   // Save Website Info
@@ -171,7 +237,10 @@ export default function AdminSettingsPage() {
   };
 
   // Sign out
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    try {
+      await signOutAdmin();
+    } catch {}
     clearAdminSession();
     setShowLogoutModal(false);
     router.push("/login");
@@ -769,6 +838,117 @@ export default function AdminSettingsPage() {
                     </div>
                   </form>
                 )}
+              </div>
+
+              {/* Passkeys & Biometric Security Section */}
+              <div className="pt-6 border-t border-[#E2E8F0] space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-lg bg-red-50 text-[#C9252B] border border-red-200 flex items-center justify-center shrink-0 shadow-2xs">
+                      <Fingerprint className="w-5 h-5 text-[#C9252B]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[#172C4F]">
+                        ಪಾಸ್‌ಕೀ ಮತ್ತು ಬಯೋಮೆಟ್ರಿಕ್ ಸಾಧನಗಳು (Passkeys & Biometric Devices)
+                      </h3>
+                      <p className="text-xs text-neutral-500 mt-0.5 font-medium">
+                        Windows Hello, Android Fingerprint, Touch ID ಮತ್ತು Face ID ಸಾಧನಗಳು.
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleRegisterNewPasskey}
+                    disabled={isRegisteringPasskey}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#C9252B] hover:bg-[#B71C1C] disabled:bg-neutral-300 text-white rounded-lg text-xs sm:text-sm font-bold transition-colors cursor-pointer shadow-xs shrink-0"
+                  >
+                    {isRegisteringPasskey ? (
+                      <>
+                        <ThinArcLoader className="w-4 h-4" strokeWidth={1.25} />
+                        <span>ನೋಂದಾಯಿಸಲಾಗುತ್ತಿದೆ...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        <span>ಹೊಸ ಸಾಧನ ನೋಂದಾಯಿಸಿ (Enroll New Device)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {passkeySuccess && (
+                  <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-lg text-xs sm:text-sm text-emerald-950 font-semibold flex items-center gap-2.5">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <span>{passkeySuccess}</span>
+                  </div>
+                )}
+
+                {passkeyError && (
+                  <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-xs sm:text-sm text-red-950 font-semibold flex items-center gap-2.5">
+                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+                    <span>{passkeyError}</span>
+                  </div>
+                )}
+
+                {/* Enrolled Passkeys List */}
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
+                    ನೋಂದಾಯಿತ ಸಾಧನಗಳ ಪಟ್ಟಿ (Enrolled Devices)
+                  </h4>
+
+                  {isLoadingPasskeys ? (
+                    <div className="p-6 text-center text-xs text-neutral-500">
+                      <ThinArcLoader className="w-5 h-5 mx-auto mb-2" strokeWidth={1.25} />
+                      ಸಾಧನಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...
+                    </div>
+                  ) : passkeys.length === 0 ? (
+                    <div className="p-5 text-center bg-[#FAFAFA] border border-[#E2E8F0] rounded-lg text-xs text-neutral-500">
+                      ಯಾವುದೇ ಪಾಸ್‌ಕೀ ಸಾಧನ ನೋಂದಾಯಿಸಲಾಗಿಲ್ಲ. ಹೊಸ ಸಾಧನವನ್ನು ನೋಂದಾಯಿಸಲು ಮೇಲಿನ ಬಟನ್ ಬಳಸಿ.
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg bg-white overflow-hidden">
+                      {passkeys.map((p) => (
+                        <div
+                          key={p.credentialId}
+                          className="p-4 flex items-center justify-between gap-4 hover:bg-[#FAFAFA] transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-lg bg-neutral-100 flex items-center justify-center text-neutral-700 shrink-0">
+                              {p.transports?.includes("internal") ? (
+                                <Monitor className="w-4 h-4 text-blue-600" />
+                              ) : (
+                                <Fingerprint className="w-4 h-4 text-purple-600" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs sm:text-sm font-bold text-[#172C4F] truncate">
+                                {p.deviceName}
+                              </p>
+                              <p className="text-[11px] text-neutral-400">
+                                ನೋಂದಾಯಿಸಿದ ದಿನಾಂಕ: {new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} • ಕೊನೆಯ ಬಳಕೆ: {new Date(p.lastUsedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePasskey(p.credentialId)}
+                            disabled={deletingCredId === p.credentialId}
+                            className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer shrink-0"
+                            title="ಸಾಧನ ತೆಗೆದುಹಾಕಿ (Revoke Device)"
+                          >
+                            {deletingCredId === p.credentialId ? (
+                              <ThinArcLoader className="w-4 h-4" strokeWidth={1.25} />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
