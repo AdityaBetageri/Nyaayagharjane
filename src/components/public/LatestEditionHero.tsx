@@ -161,13 +161,7 @@ export default function LatestEditionHero({
               </span>
               <p className="text-xs sm:text-sm font-bold text-[#172B4D]">{edition.totalPages} ಪುಟಗಳು</p>
             </div>
-            <div className="bg-[#F8F9FA] p-3 rounded-lg border border-[#E2E8F0] col-span-2 sm:col-span-1">
-              <span className="text-[11px] sm:text-xs text-[#5A6A85] flex items-center gap-1.5 mb-1">
-                <HardDrive className="w-3.5 h-3.5 text-[#C62828]" />
-                ಫೈಲ್ ಗಾತ್ರ
-              </span>
-              <p className="text-xs sm:text-sm font-bold text-[#172B4D] font-sans">{formatSizeInEnglishNumbers(edition.formattedFileSize)}</p>
-            </div>
+            
           </div>
 
           {/* Action CTAs */}

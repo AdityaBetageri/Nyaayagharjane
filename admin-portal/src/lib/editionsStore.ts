@@ -49,32 +49,28 @@ export function clearBiometricVerified(uid?: string): void {
   } catch {}
 }
 
-export const INITIAL_EDITIONS: Edition[] = [
-  PLACEHOLDER_LATEST_EDITION,
-  ...PLACEHOLDER_PREVIOUS_EDITIONS,
-];
+export const INITIAL_EDITIONS: Edition[] = [];
 
 /**
  * Retrieve all editions from localStorage or default fallback
  */
 export function getStoredEditions(): Edition[] {
   if (typeof window === "undefined") {
-    return INITIAL_EDITIONS;
+    return [];
   }
 
   try {
     const raw = localStorage.getItem(EDITIONS_STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(EDITIONS_STORAGE_KEY, JSON.stringify(INITIAL_EDITIONS));
-      return INITIAL_EDITIONS;
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
-    return INITIAL_EDITIONS;
+    return [];
   } catch {
-    return INITIAL_EDITIONS;
+    return [];
   }
 }
 

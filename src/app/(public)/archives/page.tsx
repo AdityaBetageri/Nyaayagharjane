@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ArchivesView from "@/components/public/ArchivesView";
-import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
+import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { Edition } from "@/types";
 
 import type { Metadata } from "next";
 
@@ -26,9 +27,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ArchivesPage() {
-  // Combine all placeholder editions with latest edition first
-  const allEditions = [PLACEHOLDER_LATEST_EDITION, ...PLACEHOLDER_PREVIOUS_EDITIONS];
+export default async function ArchivesPage() {
+  let allEditions: Edition[] = [];
+
+  try {
+    const res = await fetchR2Catalogue({ publishedOnly: true });
+    if (res.success && res.data.length > 0) {
+      allEditions = res.data.map(r2ItemToEdition);
+    }
+  } catch {
+    // Graceful fallback
+  }
 
   return (
     <div className="space-y-8 py-6 sm:py-8 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">

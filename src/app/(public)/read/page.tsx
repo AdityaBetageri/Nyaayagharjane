@@ -20,7 +20,6 @@ import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib
 import { fetchR2Catalogue, r2ItemToEdition, formatSizeInEnglishNumbers } from "@/lib/r2Service";
 import { Edition } from "@/types";
 
-import { cacheLife } from "next/cache";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -48,28 +47,19 @@ export const metadata: Metadata = {
 };
 
 export default async function ReadPage() {
-  "use cache";
-  cacheLife("minutes");
-
   let latestEdition: Edition = PLACEHOLDER_LATEST_EDITION;
   let previousEditions: Edition[] = [];
 
   try {
-    const res = await fetchR2Catalogue({ bypassCache: false, publishedOnly: true });
+    const res = await fetchR2Catalogue({ publishedOnly: true });
     if (res.success && res.data.length > 0) {
       latestEdition = r2ItemToEdition(res.data[0]);
       if (res.data.length > 1) {
         previousEditions = res.data.slice(1).map(r2ItemToEdition);
-      } else {
-        previousEditions = [latestEdition];
       }
     }
   } catch {
-    // Graceful fallback to placeholders
-  }
-
-  if (previousEditions.length === 0) {
-    previousEditions = PLACEHOLDER_PREVIOUS_EDITIONS;
+    // Graceful fallback
   }
 
   const hasDirectPdf = Boolean(
@@ -354,46 +344,48 @@ export default async function ReadPage() {
       {/* ═══════════════════════════════════════════════════════
           SECTION 5 — PREVIOUS EDITIONS PREVIEW
           ═══════════════════════════════════════════════════════ */}
-      <section className="bg-[#F8F9FA] border-t border-[#E2E8F0] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {/* Heading row */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-7 bg-[#172B4D] rounded-full shrink-0" />
-                <h2 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight">
-                  ಹಿಂದಿನ ಸಂಚಿಕೆಗಳ ನೆನಪು
-                </h2>
+      {previousEditions.length > 0 && (
+        <section className="bg-[#F8F9FA] border-t border-[#E2E8F0] py-12 sm:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            {/* Heading row */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-1 h-7 bg-[#172B4D] rounded-full shrink-0" />
+                  <h2 className="text-xl sm:text-2xl font-black text-[#172B4D] tracking-tight">
+                    ಹಿಂದಿನ ಸಂಚಿಕೆಗಳ ನೆನಪು
+                  </h2>
+                </div>
+                <p className="text-sm text-[#5A6A85] mt-1 ml-3.5">
+                  ನ್ಯಾಯ ಘರ್ಜನೆಯ ಹಿಂದಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ವೀಕ್ಷಿಸಿ.
+                </p>
               </div>
-              <p className="text-sm text-[#5A6A85] mt-1 ml-3.5">
-                ನ್ಯಾಯ ಘರ್ಜನೆಯ ಹಿಂದಿನ ಪ್ರಕಟಿತ ಸಂಚಿಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ವೀಕ್ಷಿಸಿ.
-              </p>
+              <Link
+                href="/archives"
+                className="inline-flex items-center gap-2 px-5 py-2 bg-[#172B4D] hover:bg-[#0F1C33] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors shrink-0"
+              >
+                ಎಲ್ಲಾ ಸಂಚಿಕೆಗಳನ್ನು ನೋಡಿ
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-            <Link
-              href="/archives"
-              className="inline-flex items-center gap-2 px-5 py-2 bg-[#172B4D] hover:bg-[#0F1C33] text-white text-sm font-semibold rounded-lg shadow-sm transition-colors shrink-0"
-            >
-              ಎಲ್ಲಾ ಸಂಚಿಕೆಗಳನ್ನು ನೋಡಿ
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
 
-          {/* Edition cards grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {previousEditions.map((edition) => (
-              <EditionCard
-                key={edition.id}
-                edition={edition}
-                isPlaceholder={
-                  !edition.pdfUrl ||
-                  (!edition.pdfUrl.startsWith("http") && !edition.pdfUrl.startsWith("/")) ||
-                  edition.pdfUrl.includes("files.yourdomain.com")
-                }
-              />
-            ))}
+            {/* Edition cards grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {previousEditions.map((edition) => (
+                <EditionCard
+                  key={edition.id}
+                  edition={edition}
+                  isPlaceholder={
+                    !edition.pdfUrl ||
+                    (!edition.pdfUrl.startsWith("http") && !edition.pdfUrl.startsWith("/")) ||
+                    edition.pdfUrl.includes("files.yourdomain.com")
+                  }
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════
           SECTION 6 — FINAL CTA

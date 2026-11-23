@@ -245,7 +245,7 @@ export default function AdminLoginPage() {
               {isLoading ? (
                 <>
                   <ThinArcLoader className="w-4 h-4" strokeWidth={1.25} />
-                  <span>ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...</span>
+                  <span>Verifying...</span>
                 </>
               ) : (
                 <>

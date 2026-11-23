@@ -79,7 +79,7 @@ export default function AdminUploadPage() {
   const [lastUploadedId, setLastUploadedId] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const [showClearModal, setShowClearModal] = useState<boolean>(false);
-  const [publishedDate] = useState("2026-11-16");
+  const [publishedDate] = useState(() => new Date().toISOString().split("T")[0]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isPausedRef = useRef(false);
@@ -272,7 +272,7 @@ export default function AdminUploadPage() {
     year: uploadYear,
     fileName: (uploadFileName || "newspaper.pdf").trim(),
     pdfUrl: currentPdfUrl,
-    publishedAt: publishedDate,
+    publishedAt: new Date().toISOString(),
     status: uploadStatus,
     totalPages: Number(uploadTotalPages) || 16,
     formattedFileSize: uploadFileSize.trim() || "12.4 MB",
@@ -326,7 +326,7 @@ export default function AdminUploadPage() {
           totalParts: 1,
           uploadedBytes: 0,
           totalBytes: selectedFile.size,
-          statusMessage: "ಸರ್ವರ್‌ನಿಂದ ಸುರಕ್ಷಿತ ಪ್ರಿಸೈನ್ಡ್ ಲಿಂಕ್ ಪಡೆಯಲಾಗುತ್ತಿದೆ...",
+          statusMessage: "Acquiring secure upload link...",
           error: null,
         });
 
@@ -349,7 +349,7 @@ export default function AdminUploadPage() {
           totalParts: 1,
           uploadedBytes: 0,
           totalBytes: selectedFile.size,
-          statusMessage: "PDF ಫೈಲ್ ಅನ್ನು ನೇರವಾಗಿ ಕ್ಲೌಡ್ ಸಂಗ್ರಹಣೆಗೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
+          statusMessage: "Uploading PDF directly to cloud storage...",
           error: null,
         });
 
@@ -365,7 +365,7 @@ export default function AdminUploadPage() {
               totalParts: 1,
               uploadedBytes: Math.round((percent / 100) * selectedFile.size),
               totalBytes: selectedFile.size,
-              statusMessage: `ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತಿದೆ (${percent}%)...`,
+              statusMessage: `Uploading (${percent}%)...`,
               error: null,
             });
           }
@@ -379,7 +379,7 @@ export default function AdminUploadPage() {
           totalParts: 1,
           uploadedBytes: selectedFile.size,
           totalBytes: selectedFile.size,
-          statusMessage: "ಕ್ಯಾಟಲಾಗ್ ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ ಮತ್ತು ಫೈಲ್ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...",
+          statusMessage: "Updating catalogue and verifying publication...",
           error: null,
         });
 
@@ -408,7 +408,7 @@ export default function AdminUploadPage() {
           totalParts: 1,
           uploadedBytes: selectedFile.size,
           totalBytes: selectedFile.size,
-          statusMessage: "ಅಪ್‌ಲೋಡ್ ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ!",
+          statusMessage: "Upload completed successfully!",
           error: null,
         });
 
@@ -417,7 +417,7 @@ export default function AdminUploadPage() {
         addStoredEdition(newEd);
         setLastUploadedId(newEd.id);
         setSuccessNotice(
-          `"${newEd.title}" ಪತ್ರಿಕೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿ ಪ್ರಕಟಗೊಂಡಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
+          `"${newEd.title}" uploaded and published successfully! Click "View in Reader" below to preview.`
         );
         setSessionKeyVersion((v) => v + 1);
 
@@ -425,7 +425,7 @@ export default function AdminUploadPage() {
         return;
       } catch (err: unknown) {
         console.error("Worker presigned upload error:", err);
-        const msg = err instanceof Error ? err.message : "ಅಪ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ.";
+        const msg = err instanceof Error ? err.message : "Upload failed.";
         setUploadError(msg);
         setIsUploading(false);
         return;
@@ -453,19 +453,19 @@ export default function AdminUploadPage() {
         addStoredEdition(newEd);
         setLastUploadedId(newEd.id);
         setSuccessNotice(
-          `"${newEd.title}" ಪತ್ರಿಕೆ ಡೇಟಾಬೇಸ್‌ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ! ಕೆಳಗಿನ "ವಾಚಕದಲ್ಲಿ ನೋಡಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ತಕ್ಷಣವೇ ಓದಿ.`
+          `"${newEd.title}" uploaded successfully to database! Click "View in Reader" below to preview.`
         );
         setSessionKeyVersion((v) => v + 1);
         clearFormData();
       }
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") {
-        setUploadError("ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ (Upload cancelled).");
+        setUploadError("Upload cancelled.");
       } else {
         const msg =
           err instanceof Error
             ? err.message
-            : "ಅಪ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ. ನೆಟ್‌ವರ್ಕ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.";
+            : "Upload failed. Please check network and try again.";
         setUploadError(msg);
       }
       setSessionKeyVersion((v) => v + 1);
@@ -483,7 +483,7 @@ export default function AdminUploadPage() {
     }
     setIsUploading(false);
     setUploadProgress(null);
-    setUploadError("ಅಪ್‌ಲೋಡ್ ಅನ್ನು ಯಶಸ್ವಿಯಾಗಿ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ (Upload was cancelled).");
+    setUploadError("Upload was cancelled.");
     setSessionKeyVersion((v) => v + 1);
   };
 
@@ -969,10 +969,10 @@ export default function AdminUploadPage() {
           clearFormData();
           setShowClearModal(false);
         }}
-        title="ಫಾರ್ಮ್ ತೆರವುಗೊಳಿಸುವಿಕೆ (Clear Form)"
-        description="ನೀವು ಆಯ್ಕೆಮಾಡಿದ PDF ಫೈಲ್ ಮತ್ತು ನಮೂದಿಸಿದ ಎಲ್ಲಾ ವಿವರಗಳನ್ನು ತೆರವುಗೊಳಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?"
-        confirmText="ಹೌದು, ತೆರವುಗೊಳಿಸಿ"
-        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        title="Clear Upload Form"
+        description="Are you sure you want to clear the selected PDF file and all filled form fields?"
+        confirmText="Yes, Clear Form"
+        cancelText="Cancel"
         variant="warning"
         iconType="warning"
       />

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { cacheLife } from "next/cache";
 import LatestEditionHero from "@/components/public/LatestEditionHero";
 import { PLACEHOLDER_LATEST_EDITION, PLACEHOLDER_PREVIOUS_EDITIONS } from "@/lib/constants";
 import EditionCard from "@/components/shared/EditionCard";
@@ -33,14 +32,14 @@ export const metadata: Metadata = {
 
 export default async function LatestEditionPage() {
   let edition: Edition = PLACEHOLDER_LATEST_EDITION;
-  let previousEditions: Edition[] = PLACEHOLDER_PREVIOUS_EDITIONS;
+  let previousEditions: Edition[] = [];
 
   try {
-    const res = await fetchR2Catalogue({ bypassCache: true, publishedOnly: true });
+    const res = await fetchR2Catalogue({ publishedOnly: true });
     if (res.success && res.data.length > 0) {
       edition = r2ItemToEdition(res.data[0]);
       if (res.data.length > 1) {
-        previousEditions = res.data.slice(1, 5).map(r2ItemToEdition);
+        previousEditions = res.data.slice(1).map(r2ItemToEdition);
       }
     }
   } catch {
@@ -124,38 +123,40 @@ export default async function LatestEditionPage() {
       </section>
 
       {/* Previous Editions Showcase */}
-      <section className="space-y-6 pt-4">
-        <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#172B4D]">
-              ಹಿಂದಿನ ಇತರ ಸಂಚಿಕೆಗಳು
-            </h2>
-            <p className="text-xs text-[#5A6A85] mt-1">
-              ನ್ಯಾಯ ಘರ್ಜನೆಯ ಈ ಹಿಂದಿನ ಆವೃತ್ತಿಗಳನ್ನು ಸಹ ನೀವು ಇಲ್ಲಿ ವೀಕ್ಷಿಸಬಹುದು.
-            </p>
+      {previousEditions.length > 0 && (
+        <section className="space-y-6 pt-4">
+          <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-[#172B4D]">
+                ಹಿಂದಿನ ಇತರ ಸಂಚಿಕೆಗಳು
+              </h2>
+              <p className="text-xs text-[#5A6A85] mt-1">
+                ನ್ಯಾಯ ಘರ್ಜನೆಯ ಈ ಹಿಂದಿನ ಆವೃತ್ತಿಗಳನ್ನು ಸಹ ನೀವು ಇಲ್ಲಿ ವೀಕ್ಷಿಸಬಹುದು.
+              </p>
+            </div>
+            <Link
+              href="/archives"
+              className="text-xs sm:text-sm font-bold text-[#C62828] hover:underline"
+            >
+              ಎಲ್ಲವನ್ನೂ ನೋಡಿ &rarr;
+            </Link>
           </div>
-          <Link
-            href="/archives"
-            className="text-xs sm:text-sm font-bold text-[#C62828] hover:underline"
-          >
-            ಎಲ್ಲವನ್ನೂ ನೋಡಿ &rarr;
-          </Link>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {previousEditions.map((prevEdition) => (
-            <EditionCard
-              key={prevEdition.id}
-              edition={prevEdition}
-              isPlaceholder={
-                !prevEdition.pdfUrl ||
-                (!prevEdition.pdfUrl.startsWith("http") && !prevEdition.pdfUrl.startsWith("/")) ||
-                prevEdition.pdfUrl.includes("files.yourdomain.com")
-              }
-            />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {previousEditions.map((prevEdition) => (
+              <EditionCard
+                key={prevEdition.id}
+                edition={prevEdition}
+                isPlaceholder={
+                  !prevEdition.pdfUrl ||
+                  (!prevEdition.pdfUrl.startsWith("http") && !prevEdition.pdfUrl.startsWith("/")) ||
+                  prevEdition.pdfUrl.includes("files.yourdomain.com")
+                }
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

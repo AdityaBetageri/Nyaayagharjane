@@ -95,13 +95,11 @@ export const metadata: Metadata = {
   classification: "Newspaper, Journalism, Media, Kannada News",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/logo-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/logo-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
+      { url: "/logo.png?v=2", type: "image/png" },
     ],
-    apple: [
-      { url: "/logo-192.png", sizes: "192x192", type: "image/png" },
-    ],
+    shortcut: "/favicon.ico?v=2",
+    apple: "/logo.png?v=2",
   },
 };
 
@@ -134,7 +132,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
         />
         {/* Favicon & Theme */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="icon" type="image/png" href="/logo.png?v=2" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+        <link rel="apple-touch-icon" href="/logo.png?v=2" />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-neutral-50 text-neutral-900 antialiased">
         {children}

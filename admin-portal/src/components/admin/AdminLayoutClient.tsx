@@ -141,7 +141,7 @@ export default function AdminLayoutClient({
       <div className="min-h-screen bg-[#F1F3F5] flex flex-col items-center justify-center gap-3">
         <ThinArcLoader className="w-8 h-8 text-[#C62828]" strokeWidth={1.5} />
         <span className="text-xs text-neutral-500 font-medium">
-          ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ (Verifying session)...
+          Verifying session...
         </span>
       </div>
     );
@@ -374,10 +374,10 @@ export default function AdminLayoutClient({
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleConfirmLogout}
-        title="ಲಾಗ್‌ಔಟ್ ದೃಢೀಕರಣ (Confirm Logout)"
-        description="ನೀವು ಆಡಳಿತ ಮಂಡಳಿಯಿಂದ ಲಾಗ್ಔಟ್ ಆಗಲು ಬಯಸುವಿರಾ? ಮುಂದಿನ ಬಾರಿ ಲಾಗಿನ್ ಮಾಡಲು ನಿಮ್ಮ ಈಮೇಲ್ ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯವಿರುತ್ತದೆ."
-        confirmText="ಹೌದು, ಲಾಗ್‌ಔಟ್ ಆಗಿ"
-        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        title="Sign Out Confirmation"
+        description="Are you sure you want to sign out of the admin panel? You will need to sign in again to access the dashboard."
+        confirmText="Sign Out"
+        cancelText="Cancel"
         variant="warning"
         iconType="logout"
       />

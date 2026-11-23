@@ -197,10 +197,10 @@ let memoryCache: {
   timestamp: 0,
 };
 
-const CACHE_TTL_MS = 30 * 1000; // 30 seconds client cache
+const CACHE_TTL_MS = 20 * 1000; // 20 seconds client cache
 export const CATALOGUE_STORAGE_KEY = "nyaayagharjane_catalogue_cache_v2";
 
-function getBrowserCachedCatalogue(): R2Catalogue | null {
+export function getBrowserCachedCatalogue(): R2Catalogue | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(CATALOGUE_STORAGE_KEY);
@@ -215,7 +215,7 @@ function getBrowserCachedCatalogue(): R2Catalogue | null {
   return null;
 }
 
-function saveBrowserCachedCatalogue(catalogue: R2Catalogue): void {
+export function saveBrowserCachedCatalogue(catalogue: R2Catalogue): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(CATALOGUE_STORAGE_KEY, JSON.stringify(catalogue));
@@ -310,7 +310,7 @@ export async function fetchR2Catalogue(options?: {
   const publishedOnly = options?.publishedOnly ?? true;
   const isClient = typeof window !== "undefined";
 
-  // Check in-memory cache or browser localStorage cache first if on client and not bypassing
+  // On client browsers, route through in-memory cache
   if (isClient && !options?.bypassCache) {
     if (!memoryCache.catalogue) {
       const stored = getBrowserCachedCatalogue();
@@ -359,13 +359,13 @@ export async function fetchR2Catalogue(options?: {
       headers: {
         Accept: "application/json",
       },
-      cache: shouldBypass ? "no-store" : "default",
       signal: AbortSignal.timeout(4000),
     };
 
-    if (!isClient && !shouldBypass) {
-      // Revalidate in background every 60 seconds
-      (fetchOptions as Record<string, unknown>).next = { revalidate: 60 };
+    if (shouldBypass) {
+      fetchOptions.cache = "no-store";
+    } else if (!isClient) {
+      (fetchOptions as Record<string, unknown>).next = { revalidate: 30 };
     }
 
     let res = await fetch(catalogueUrl, fetchOptions).catch(() => null);
@@ -376,11 +376,26 @@ export async function fetchR2Catalogue(options?: {
     }
 
     if (!res || !res.ok) {
+      if (isClient) {
+        const fallbackCached = memoryCache.catalogue || getBrowserCachedCatalogue();
+        if (fallbackCached && fallbackCached.newspapers.length > 0) {
+          let items = fallbackCached.newspapers;
+          if (publishedOnly) items = items.filter((n) => n.status === "published");
+          items = sortNewspapers(items);
+          if (options?.filters) items = filterNewspapers(items, options.filters);
+          return {
+            success: true,
+            data: items,
+            rawCatalogue: fallbackCached,
+            source: "cache",
+          };
+        }
+      }
       return {
         success: false,
         data: [],
         source: "fallback",
-        error: res ? `R2 ಕ್ಯಾಟಲಾಗ್ ಲೋಡ್ ವಿಫಲವಾಗಿದೆ (HTTP ${res.status}: ${res.statusText})` : "R2 ಸಂಪರ್ಕ ದೋಷ",
+        error: "Couldn't fetch, please try again",
       };
     }
 
@@ -391,7 +406,7 @@ export async function fetchR2Catalogue(options?: {
         success: false,
         data: [],
         source: "fallback",
-        error: "R2 ಕ್ಯಾಟಲಾಗ್ JSON ಅಮಾನ್ಯ ರಚನೆ ಹೊಂದಿದೆ (Expected { newspapers: [...] }).",
+        error: "Couldn't fetch, please try again",
       };
     }
 
@@ -416,7 +431,7 @@ export async function fetchR2Catalogue(options?: {
       version: json.version || "1.0",
     };
 
-    // Store in client-side memory cache and localStorage
+    // Store in browser cache on client
     if (isClient) {
       memoryCache = {
         catalogue: fullCatalogue,
@@ -442,13 +457,12 @@ export async function fetchR2Catalogue(options?: {
       rawCatalogue: fullCatalogue,
       source: "r2",
     };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Network error";
+  } catch {
     return {
       success: false,
       data: [],
       source: "fallback",
-      error: `R2 ಸಂಪರ್ಕ ದೋಷ: ${message}`,
+      error: "Couldn't fetch, please try again",
     };
   }
 }
@@ -458,16 +472,21 @@ export async function fetchR2Catalogue(options?: {
  */
 export function sortNewspapers(items: R2NewspaperItem[]): R2NewspaperItem[] {
   return [...items].sort((a, b) => {
-    // 1. By publication date descending (ISO strings compare cleanly)
-    if (a.publishedAt && b.publishedAt && a.publishedAt !== b.publishedAt) {
-      return b.publishedAt.localeCompare(a.publishedAt);
+    // 1. By publication / upload timestamp descending
+    const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+    const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+    if (!isNaN(dateA) && !isNaN(dateB) && dateA !== dateB) {
+      return dateB - dateA;
     }
     // 2. By year descending
     if (b.year !== a.year) {
       return b.year - a.year;
     }
     // 3. By month descending
-    return b.month - a.month;
+    if (b.month !== a.month) {
+      return b.month - a.month;
+    }
+    return 0; // Preserves catalogue order (newly uploaded item at index 0)
   });
 }
 

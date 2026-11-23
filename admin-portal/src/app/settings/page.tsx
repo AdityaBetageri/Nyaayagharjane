@@ -90,6 +90,7 @@ export default function AdminSettingsPage() {
   const [passkeySuccess, setPasskeySuccess] = useState<string | null>(null);
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [deletingCredId, setDeletingCredId] = useState<string | null>(null);
+  const [passkeyToDelete, setPasskeyToDelete] = useState<PasskeyCredentialInfo | null>(null);
 
   const loadPasskeys = async () => {
     setIsLoadingPasskeys(true);
@@ -109,30 +110,33 @@ export default function AdminSettingsPage() {
     setIsRegisteringPasskey(true);
     try {
       const res = await registerPasskey();
-      setPasskeySuccess(`ಹೊಸ ಪಾಸ್‌ಕೀ ಸಾಧನ "${res.deviceName}" ಅನ್ನು ಯಶಸ್ವಿಯಾಗಿ ನೋಂದಾಯಿಸಲಾಗಿದೆ.`);
+      setPasskeySuccess(`Passkey device "${res.deviceName}" registered successfully.`);
       await loadPasskeys();
       setTimeout(() => setPasskeySuccess(null), 5000);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ಪಾಸ್‌ಕೀ ನೋಂದಣಿ ವಿಫಲವಾಗಿದೆ.";
+      const msg = err instanceof Error ? err.message : "Passkey registration failed.";
       setPasskeyError(msg);
     } finally {
       setIsRegisteringPasskey(false);
     }
   };
 
-  const handleDeletePasskey = async (credentialId: string) => {
-    if (!confirm("ಈ ಪಾಸ್‌ಕೀ ಸಾಧನವನ್ನು ಖಾತೆಯಿಂದ ತೆಗೆದುಹಾಕಲು ಖಚಿತವಾಗಿದ್ದೀರಾ?")) return;
-    setDeletingCredId(credentialId);
+  const handleConfirmDeletePasskey = async () => {
+    if (!passkeyToDelete) return;
+    const target = passkeyToDelete;
+    setDeletingCredId(target.credentialId);
     setPasskeyError(null);
     setPasskeySuccess(null);
     try {
-      await deletePasskeyCredential(credentialId);
-      setPasskeySuccess("ಪಾಸ್‌ಕೀ ಸಾಧನವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ತೆಗೆದುಹಾಕಲಾಗಿದೆ.");
+      await deletePasskeyCredential(target.credentialId);
+      setPasskeySuccess(`Passkey device "${target.deviceName}" removed successfully.`);
+      setPasskeyToDelete(null);
       await loadPasskeys();
       setTimeout(() => setPasskeySuccess(null), 4000);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ಸಾಧನ ತೆಗೆದುಹಾಕಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.";
+      const msg = err instanceof Error ? err.message : "Failed to remove passkey device.";
       setPasskeyError(msg);
+      setPasskeyToDelete(null);
     } finally {
       setDeletingCredId(null);
     }
@@ -849,10 +853,10 @@ export default function AdminSettingsPage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-[#172C4F]">
-                        ಪಾಸ್‌ಕೀ ಮತ್ತು ಬಯೋಮೆಟ್ರಿಕ್ ಸಾಧನಗಳು (Passkeys & Biometric Devices)
+                        Passkeys & Biometric Security
                       </h3>
                       <p className="text-xs text-neutral-500 mt-0.5 font-medium">
-                        Windows Hello, Android Fingerprint, Touch ID ಮತ್ತು Face ID ಸಾಧನಗಳು.
+                        Windows Hello, Android Fingerprint, Touch ID, and Face ID credentials.
                       </p>
                     </div>
                   </div>
@@ -866,12 +870,12 @@ export default function AdminSettingsPage() {
                     {isRegisteringPasskey ? (
                       <>
                         <ThinArcLoader className="w-4 h-4" strokeWidth={1.25} />
-                        <span>ನೋಂದಾಯಿಸಲಾಗುತ್ತಿದೆ...</span>
+                        <span>Enrolling...</span>
                       </>
                     ) : (
                       <>
                         <Plus className="w-4 h-4" />
-                        <span>ಹೊಸ ಸಾಧನ ನೋಂದಾಯಿಸಿ (Enroll New Device)</span>
+                        <span>Enroll New Device</span>
                       </>
                     )}
                   </button>
@@ -894,17 +898,17 @@ export default function AdminSettingsPage() {
                 {/* Enrolled Passkeys List */}
                 <div className="space-y-2 pt-2">
                   <h4 className="text-xs font-bold text-neutral-600 uppercase tracking-wider">
-                    ನೋಂದಾಯಿತ ಸಾಧನಗಳ ಪಟ್ಟಿ (Enrolled Devices)
+                    Enrolled Devices
                   </h4>
 
                   {isLoadingPasskeys ? (
                     <div className="p-6 text-center text-xs text-neutral-500">
                       <ThinArcLoader className="w-5 h-5 mx-auto mb-2" strokeWidth={1.25} />
-                      ಸಾಧನಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...
+                      Loading devices...
                     </div>
                   ) : passkeys.length === 0 ? (
                     <div className="p-5 text-center bg-[#FAFAFA] border border-[#E2E8F0] rounded-lg text-xs text-neutral-500">
-                      ಯಾವುದೇ ಪಾಸ್‌ಕೀ ಸಾಧನ ನೋಂದಾಯಿಸಲಾಗಿಲ್ಲ. ಹೊಸ ಸಾಧನವನ್ನು ನೋಂದಾಯಿಸಲು ಮೇಲಿನ ಬಟನ್ ಬಳಸಿ.
+                      No passkey devices registered. Use the button above to register this device.
                     </div>
                   ) : (
                     <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg bg-white overflow-hidden">
@@ -926,17 +930,17 @@ export default function AdminSettingsPage() {
                                 {p.deviceName}
                               </p>
                               <p className="text-[11px] text-neutral-400">
-                                ನೋಂದಾಯಿಸಿದ ದಿನಾಂಕ: {new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} • ಕೊನೆಯ ಬಳಕೆ: {new Date(p.lastUsedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                Enrolled: {new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} • Last used: {new Date(p.lastUsedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                               </p>
                             </div>
                           </div>
 
                           <button
                             type="button"
-                            onClick={() => handleDeletePasskey(p.credentialId)}
+                            onClick={() => setPasskeyToDelete(p)}
                             disabled={deletingCredId === p.credentialId}
                             className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer shrink-0"
-                            title="ಸಾಧನ ತೆಗೆದುಹಾಕಿ (Revoke Device)"
+                            title="Remove Passkey Device"
                           >
                             {deletingCredId === p.credentialId ? (
                               <ThinArcLoader className="w-4 h-4" strokeWidth={1.25} />
@@ -1032,6 +1036,34 @@ export default function AdminSettingsPage() {
         variant="danger"
         iconType="logout"
         isLoading={isRevoking}
+      />
+
+      {/* Delete Passkey Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(passkeyToDelete)}
+        onClose={() => !deletingCredId && setPasskeyToDelete(null)}
+        onConfirm={handleConfirmDeletePasskey}
+        title="Delete Passkey Device"
+        description={
+          passkeyToDelete ? (
+            <div className="space-y-3">
+              <p className="text-neutral-700">
+                Are you sure you want to remove <strong className="text-neutral-900 font-bold">&ldquo;{passkeyToDelete.deviceName}&rdquo;</strong> from your administrator account?
+              </p>
+              <div className="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-900 space-y-1.5">
+                <p className="font-semibold text-red-800">Security Warning</p>
+                <p className="text-red-700 leading-relaxed">
+                  You will no longer be able to use biometric sign-in with this device. You will need to re-enroll it to sign in with passkeys.
+                </p>
+              </div>
+            </div>
+          ) : ""
+        }
+        confirmText={deletingCredId ? "Deleting..." : "Delete Device"}
+        cancelText="Cancel"
+        variant="danger"
+        iconType="trash"
+        isLoading={Boolean(deletingCredId)}
       />
 
       {/* Logout Confirmation Modal */}

@@ -30,7 +30,7 @@ export default function FileUploadProgressBar({
   fileName,
   fileSize,
   progress,
-  statusMessage = "ಪತ್ರಿಕೆ ಪ್ರಕಟಗೊಳ್ಳುತ್ತಿದೆ...",
+  statusMessage = "Publishing edition...",
   currentPart,
   totalParts,
   uploadedBytes,
@@ -58,10 +58,10 @@ export default function FileUploadProgressBar({
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-black text-[#172B4D]">
-              {isFailed ? "ಅಪ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ" : "ಪತ್ರಿಕೆ ಪ್ರಕಟಗೊಳ್ಳುತ್ತಿದೆ..."}
+              {isFailed ? "Upload Failed" : "Publishing edition..."}
             </h2>
             <p className="text-xs text-[#5A6A85] mt-0.5">
-              ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಮುಚ್ಚಬೇಡಿ. ಫೈಲ್ ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ನೇರವಾಗಿ ಕ್ಲೌಡ್‌ಗೆ ಪ್ರಕಟಗೊಳ್ಳುತ್ತಿದೆ.
+              Please do not close this window. Uploading file and updating catalogue directly to cloud.
             </p>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function FileUploadProgressBar({
 
               {totalParts && totalParts > 1 ? (
                 <span className="font-mono text-neutral-500">
-                  ಭಾಗ {currentPart ?? 1} / {totalParts} ({uploadedReadable} / {readableSize})
+                  Part {currentPart ?? 1} / {totalParts} ({uploadedReadable} / {readableSize})
                 </span>
               ) : null}
             </div>
@@ -154,9 +154,9 @@ export default function FileUploadProgressBar({
       <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-lg flex items-center gap-3 text-xs text-emerald-950">
         <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
         <div>
-          <p className="font-bold text-emerald-900">ಸ್ವಯಂಚಾಲಿತ ಚಂಕ್ ಅಪ್‌ಲೋಡ್ ಸಕ್ರಿಯವಾಗಿದೆ</p>
+          <p className="font-bold text-emerald-900">Direct Cloud Upload Active</p>
           <p className="text-emerald-800 text-[11px] mt-0.5">
-            ನೆಟ್‌ವರ್ಕ್ ಕಡಿತಗೊಂಡರೂ ಅಪ್‌ಲೋಡ್ ಮೊದಲಿನಿಂದ ಪ್ರಾರಂಭವಾಗುವುದಿಲ್ಲ; ನಿಂತಿದ್ದಲ್ಲಿಂದಲೇ ಮುಂದುವರಿಯುತ್ತದೆ.
+            Automatic chunking & resume enabled: If network interrupts, upload resumes without data loss.
           </p>
         </div>
       </div>

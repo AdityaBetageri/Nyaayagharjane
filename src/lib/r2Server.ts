@@ -1,4 +1,9 @@
 import crypto from "crypto";
+import dns from "node:dns";
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {}
 
 export interface R2ServerConfig {
   accountId: string;
@@ -437,6 +442,7 @@ export async function r2PutObject(
     method: "PUT",
     headers,
     body: payload as unknown as BodyInit,
+    signal: AbortSignal.timeout(6000),
   });
 
   if (!res.ok) {
@@ -499,6 +505,7 @@ export async function r2GetObject(key: string): Promise<string | null> {
       method: "GET",
       headers,
       cache: "no-store",
+      signal: AbortSignal.timeout(5000),
     });
 
     if (res.status === 404) return null;

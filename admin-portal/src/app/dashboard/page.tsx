@@ -19,6 +19,7 @@ import {
   fetchR2Catalogue,
   getR2PublicUrl,
   r2ItemToEdition,
+  getBrowserCachedCatalogue,
 } from "@/lib/r2Service";
 import { ThinArcLoader } from "@/components/shared/ThinArcLoader";
 import {
@@ -56,10 +57,18 @@ export default function AdminDashboardOverviewPage() {
     setIsReloading(true);
     try {
       setR2Url(getR2PublicUrl());
-      setEditions(getStoredEditions());
 
+      // 1. Immediately populate from browser cache memory for instant render
+      const cached = getBrowserCachedCatalogue();
+      if (cached && cached.newspapers.length > 0) {
+        setEditions(cached.newspapers.map(r2ItemToEdition));
+      } else {
+        setEditions(getStoredEditions());
+      }
+
+      // 2. Refresh from database (R2) in background
       const res = await fetchR2Catalogue({ bypassCache: true, publishedOnly: false });
-      if (res.success && res.data.length > 0) {
+      if (res.success) {
         setIsR2Loaded(true);
         setEditions(res.data.map(r2ItemToEdition));
       }
@@ -224,7 +233,7 @@ export default function AdminDashboardOverviewPage() {
             </div>
           </div>
           <div className="truncate text-xs font-mono font-bold text-[#172B4D]">
-            {isR2Loaded ? "Cloudflare R2 (ಸಂಪರ್ಕಿತ)" : r2Url ? "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ..." : "ಕಾನ್ಫಿಗರ್ ಆಗಿಲ್ಲ"}
+            {isR2Loaded ? "Cloudflare R2 (Connected)" : r2Url ? "Checking..." : "Not configured"}
           </div>
           <p className="text-[11px] text-emerald-700 font-medium truncate flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />

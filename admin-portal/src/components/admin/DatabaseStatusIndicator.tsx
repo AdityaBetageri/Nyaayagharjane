@@ -114,10 +114,10 @@ export function DatabaseStatusIndicator({
           disabled={isBusy}
           title={
             isBusy
-              ? "ಡೇಟಾಬೇಸ್ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ..."
+              ? "Checking database..."
               : isConnected
-              ? `ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ (${status?.latencyMs || 0}ms)`
-              : "ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ. ಮರುಪರಿಶೀಲಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ."
+              ? `Database connected (${status?.latencyMs || 0}ms)`
+              : "Database disconnected. Click to re-check."
           }
           className="relative p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer flex items-center justify-center"
           aria-label="Database connection status"
@@ -299,12 +299,12 @@ export function DatabaseStatusIndicator({
               {isRefreshing ? (
                 <>
                   <ThinArcLoader className="w-3 h-3" strokeWidth={1.25} />
-                  <span>ಮರುಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...</span>
+                  <span>Re-checking...</span>
                 </>
               ) : (
                 <>
                   <RefreshCw className="w-3 h-3" />
-                  <span>ಈಗ ಮರುಪರಿಶೀಲಿಸಿ</span>
+                  <span>Re-check now</span>
                 </>
               )}
             </button>

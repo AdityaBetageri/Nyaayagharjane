@@ -207,7 +207,7 @@ export default function PdfThumbnail({
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-neutral-100/90 z-10 text-neutral-500">
           <ThinArcLoader className="w-6 h-6 text-emerald-600" strokeWidth={1.5} />
-          <span className="text-[11px] font-medium">ಪತ್ರಿಕೆ ಮುನ್ನೋಟ...</span>
+          <span className="text-[11px] font-medium">Loading preview...</span>
         </div>
       )}
       {cachedImg ? (

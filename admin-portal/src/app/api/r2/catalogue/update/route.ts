@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getR2ServerConfig, r2GetObject, r2PutObject } from "@/lib/r2Server";
 import { R2Catalogue, R2NewspaperItem } from "@/types/r2";
-import fs from "fs";
-import path from "path";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     if (!newItem && !fullCatalogue) {
       return NextResponse.json(
-        { success: false, message: "ಅಮಾನ್ಯವಾದ ಕ್ಯಾಟಲಾಗ್ ವಿವರಗಳು (No item or catalogue provided)." },
+        { success: false, message: "No item or catalogue provided." },
         { status: 400 }
       );
     }
@@ -28,7 +26,7 @@ export async function POST(req: NextRequest) {
         lastUpdated: new Date().toISOString(),
       };
     } else if (newItem) {
-      // 1. Try to fetch existing catalogue from R2
+      // 1. Fetch existing catalogue directly from Cloudflare R2
       let existingList: R2NewspaperItem[] = [];
       if (config) {
         const r2Content = await r2GetObject("data/newspapers.json");
@@ -44,48 +42,33 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // If R2 had no catalogue yet, check local public/data/newspapers.json
-      if (existingList.length === 0) {
-        try {
-          const localPath = path.join(process.cwd(), "public", "data", "newspapers.json");
-          if (fs.existsSync(localPath)) {
-            const localContent = fs.readFileSync(localPath, "utf-8");
-            const parsed = JSON.parse(localContent);
-            if (Array.isArray(parsed.newspapers)) {
-              existingList = parsed.newspapers;
-            }
-          }
-        } catch {
-          // Ignore local read error
-        }
-      }
+      // Ensure newItem has valid ISO publishedAt timestamp so it ranks newest
+      const currentIso = new Date().toISOString();
+      const updatedNewItem: R2NewspaperItem = {
+        ...newItem,
+        publishedAt: newItem.publishedAt ? (newItem.publishedAt.includes("T") ? newItem.publishedAt : `${newItem.publishedAt}T${currentIso.split("T")[1]}`) : currentIso,
+      };
 
-      // Never replace or delete previous uploads — preserve all newspapers in database
-      const existingIndex = existingList.findIndex(
-        (item) => item.id === newItem.id || (item.fileName === newItem.fileName && item.year === newItem.year && item.month === newItem.month)
+      // Filter out previous version of this item if re-uploaded
+      const cleanExisting = existingList.filter(
+        (item) => item.id !== updatedNewItem.id && item.fileName !== updatedNewItem.fileName
       );
 
-      let mergedList: R2NewspaperItem[];
-      if (existingIndex >= 0) {
-        // If the exact same file is re-uploaded, update its metadata
-        mergedList = existingList.map((item, idx) => (idx === existingIndex ? newItem : item));
-      } else {
-        // Prepend new newspaper to list, preserving all previous papers
-        mergedList = [newItem, ...existingList];
-      }
+      // Prepend newest uploaded newspaper at index 0 (topmost)
+      const mergedList = [updatedNewItem, ...cleanExisting];
 
       updatedCatalogue = {
         version: "1.0",
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: currentIso,
         newspapers: mergedList,
       };
     } else {
-      return NextResponse.json({ success: false, message: "ಅಮಾನ್ಯವಾದ ವಿನಂತಿ" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Invalid request" }, { status: 400 });
     }
 
     const jsonString = JSON.stringify(updatedCatalogue, null, 2);
 
-    // Write to R2 if configured
+    // Save directly to Cloudflare R2
     let r2Saved = false;
     let r2Error: string | null = null;
     if (config) {
@@ -93,19 +76,8 @@ export async function POST(req: NextRequest) {
         await r2PutObject("data/newspapers.json", jsonString, "application/json");
         r2Saved = true;
       } catch (err: unknown) {
-        r2Error = err instanceof Error ? err.message : "R2 ಗೆ ಕ್ಯಾಟಲಾಗ್ ಸೇರಿಸಲು ವಿಫಲವಾಗಿದೆ";
+        r2Error = err instanceof Error ? err.message : "Failed to save catalogue to R2";
       }
-    }
-
-    // Also update local file in public/data/newspapers.json so fallback/dev is always updated
-    try {
-      const localDir = path.join(process.cwd(), "public", "data");
-      if (!fs.existsSync(localDir)) {
-        fs.mkdirSync(localDir, { recursive: true });
-      }
-      fs.writeFileSync(path.join(localDir, "newspapers.json"), jsonString, "utf-8");
-    } catch {
-      // Local write non-fatal
     }
 
     return NextResponse.json({
@@ -114,11 +86,11 @@ export async function POST(req: NextRequest) {
       r2Error,
       catalogue: updatedCatalogue,
       message: r2Saved
-        ? "newspapers.json ಕ್ಯಾಟಲಾಗ್ Cloudflare R2 ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ!"
-        : "ಸ್ಥಳೀಯವಾಗಿ ಕ್ಯಾಟಲಾಗ್ ಅಪ್‌ಡೇಟ್ ಆಗಿದೆ (R2 ರುಜುವಾತುಗಳು ಇರದ ಕಾರಣ ಸ್ಥಳೀಯವಾಗಿ ಮಾತ್ರ ಉಳಿಸಲಾಗಿದೆ).",
+        ? "Catalogue updated successfully in Cloudflare R2."
+        : "Catalogue updated in memory (R2 credentials missing).",
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "ಕ್ಯಾಟಲಾಗ್ ಅಪ್‌ಡೇಟ್ ವಿಫಲವಾಗಿದೆ";
+    const message = err instanceof Error ? err.message : "Failed to update catalogue";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }

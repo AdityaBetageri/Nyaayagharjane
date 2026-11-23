@@ -625,7 +625,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center">
           <div className="bg-white text-neutral-900 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 font-bold text-sm border border-neutral-200">
             <ThinArcLoader className="w-5 h-5 text-emerald-600" strokeWidth={1.5} />
-            <span>ಪತ್ರಿಕಾ ತುಣುಕು ರಚಿಸಲಾಗುತ್ತಿದೆ...</span>
+            <span>Generating clipping...</span>
           </div>
         </div>
       )}
@@ -642,7 +642,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
           <div className="m-auto flex flex-col items-center gap-3 text-neutral-300 py-24">
             <ThinArcLoader className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
             <p className="text-xs font-semibold tracking-wide">
-              ಮೂಲ ಪತ್ರಿಕೆಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...
+              Loading newspaper...
             </p>
           </div>
         )}
@@ -739,7 +739,7 @@ export default function ReaderView({ edition: initialEdition }: ReaderViewProps)
                   onClick={() => window.location.reload()}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md"
                 >
-                  ಮರುಪ್ರಯತ್ನಿಸಿ (Reload)
+                Reload
                 </button>
               </div>
             ) : null}

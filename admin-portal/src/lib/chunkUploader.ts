@@ -1,7 +1,8 @@
 /**
- * Cloudflare R2 Resumable Chunk Uploader for Nyaayagharjane E-Newspaper
+ * Cloudflare R2 Uploader for Nyaayagharjane E-Newspaper
  * Supports:
- * - Chunked / Multipart Upload (5MB chunks)
+ * - Direct single upload for files <= 15 MB (fast, no chunks)
+ * - Resumable Chunked / Multipart Upload (5MB chunks) for files > 15 MB
  * - Auto-resume where left off if network fails
  * - Exponential backoff retry per chunk
  * - Cancellation via AbortSignal
@@ -11,7 +12,8 @@
 
 import { R2NewspaperItem } from "@/types/r2";
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB standard S3/R2 part size
+const DIRECT_UPLOAD_THRESHOLD = 15 * 1024 * 1024; // 15 MB
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB chunks for large files
 const MAX_PART_RETRIES = 3;
 
 export type UploadStage =
@@ -56,7 +58,6 @@ export function getSavedUploadSession(file: File, key: string): StoredUploadSess
     const raw = localStorage.getItem(getSessionStorageKey(file, key));
     if (!raw) return null;
     const session: StoredUploadSession = JSON.parse(raw);
-    // Ignore sessions older than 24 hours
     if (Date.now() - session.timestamp > 24 * 60 * 60 * 1000) {
       localStorage.removeItem(getSessionStorageKey(file, key));
       return null;
@@ -77,7 +78,7 @@ export function clearUploadSession(file: File, key: string): void {
 }
 
 /**
- * Upload a newspaper PDF using chunked multipart upload, with auto-resume, cancellation, and catalogue update.
+ * Upload a newspaper PDF directly (<= 15MB) or with chunks (> 15MB).
  */
 export async function uploadNewspaperWithChunks(params: {
   file: File;
@@ -99,18 +100,131 @@ export async function uploadNewspaperWithChunks(params: {
       success: false,
       pdfUrl: itemRecord.pdfUrl,
       catalogueUpdated: false,
-      message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+      message: "Upload cancelled.",
     };
   }
 
   const totalBytes = file.size;
-  const totalParts = Math.max(1, Math.ceil(totalBytes / CHUNK_SIZE));
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // STRATEGY A: Direct Single-File Upload for Files <= 15 MB
+  // ───────────────────────────────────────────────────────────────────────────
+  if (totalBytes <= DIRECT_UPLOAD_THRESHOLD) {
+    onProgress({
+      stage: "uploading_pdf",
+      percent: 5,
+      currentPart: 1,
+      totalParts: 1,
+      uploadedBytes: 0,
+      totalBytes,
+      statusMessage: "Uploading PDF directly to R2...",
+      error: null,
+    });
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("key", targetKey);
+    formData.append("contentType", "application/pdf");
+
+    // Upload with real-time XHR progress tracking
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/r2/upload/direct", true);
+
+      if (signal) {
+        signal.addEventListener("abort", () => {
+          xhr.abort();
+          reject(new Error("Upload cancelled."));
+        });
+      }
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && e.total > 0) {
+          const pct = Math.min(90, Math.round((e.loaded / e.total) * 90));
+          onProgress({
+            stage: "uploading_pdf",
+            percent: pct,
+            currentPart: 1,
+            totalParts: 1,
+            uploadedBytes: e.loaded,
+            totalBytes,
+            statusMessage: `Uploading PDF... (${Math.round((e.loaded / (1024 * 1024)) * 10) / 10} MB / ${Math.round((totalBytes / (1024 * 1024)) * 10) / 10} MB)`,
+            error: null,
+          });
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (data.success) {
+              resolve();
+            } else {
+              reject(new Error(data.message || "Direct upload rejected by server."));
+            }
+          } catch {
+            reject(new Error("Invalid response from direct upload endpoint."));
+          }
+        } else {
+          reject(new Error(`Direct upload failed with HTTP status ${xhr.status}.`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error("Network connection error during direct upload."));
+      xhr.ontimeout = () => reject(new Error("Upload request timed out."));
+
+      xhr.send(formData);
+    });
+
+    // Update catalogue in R2
+    onProgress({
+      stage: "updating_catalogue",
+      percent: 94,
+      currentPart: 1,
+      totalParts: 1,
+      uploadedBytes: totalBytes,
+      totalBytes,
+      statusMessage: "Updating catalogue in R2...",
+      error: null,
+    });
+
+    const catalogueRes = await fetch("/api/r2/catalogue/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newItem: itemRecord }),
+      signal,
+    });
+
+    const catalogueData = await catalogueRes.json().catch(() => ({}));
+
+    onProgress({
+      stage: "completed",
+      percent: 100,
+      currentPart: 1,
+      totalParts: 1,
+      uploadedBytes: totalBytes,
+      totalBytes,
+      statusMessage: "Upload completed successfully! Published to catalogue.",
+      error: null,
+    });
+
+    return {
+      success: true,
+      pdfUrl: itemRecord.pdfUrl,
+      catalogueUpdated: !!catalogueData.success,
+      message: catalogueData.message || "Successfully published!",
+    };
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // STRATEGY B: Chunked Multipart Upload for Large Files (> 15 MB)
+  // ───────────────────────────────────────────────────────────────────────────
+  const totalParts = Math.max(1, Math.ceil(totalBytes / CHUNK_SIZE));
   let uploadId = "";
   let key = targetKey;
   let completedParts: Array<{ PartNumber: number; ETag: string }> = [];
 
-  // Check for saved resume session
   onProgress({
     stage: "checking_resume",
     percent: 0,
@@ -118,7 +232,7 @@ export async function uploadNewspaperWithChunks(params: {
     totalParts,
     uploadedBytes: 0,
     totalBytes,
-    statusMessage: "ಹಿಂದಿನ ಅಪ್‌ಲೋಡ್ ಸೆಶನ್ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...",
+    statusMessage: "Checking previous upload session...",
     error: null,
   });
 
@@ -138,11 +252,10 @@ export async function uploadNewspaperWithChunks(params: {
       totalParts,
       uploadedBytes,
       totalBytes,
-      statusMessage: `ಹಿಂದಿನ ಸೆಶನ್ ಪತ್ತೆಯಾಗಿದೆ: ಭಾಗ ${completedParts.length}/${totalParts} ಈಗಾಗಲೇ ಅಪ್‌ಲೋಡ್ ಆಗಿದೆ. ಅಲ್ಲಿಂದಲೇ ಮುಂದುವರಿಯುತ್ತಿದೆ...`,
+      statusMessage: `Resuming upload: part ${completedParts.length}/${totalParts} already uploaded. Continuing...`,
       error: null,
     });
   } else {
-    // Initialize fresh multipart upload
     onProgress({
       stage: "initializing",
       percent: 2,
@@ -150,7 +263,7 @@ export async function uploadNewspaperWithChunks(params: {
       totalParts,
       uploadedBytes: 0,
       totalBytes,
-      statusMessage: "R2 ಮಲ್ಟಿಪಾರ್ಟ್ ಸೆಶನ್ ಆರಂಭಿಸಲಾಗುತ್ತಿದೆ...",
+      statusMessage: "Initializing multipart upload session...",
       error: null,
     });
 
@@ -167,9 +280,7 @@ export async function uploadNewspaperWithChunks(params: {
 
     const initData = await initRes.json();
     if (!initRes.ok || !initData.success) {
-      throw new Error(
-        initData.message || "R2 ಮಲ್ಟಿಪಾರ್ಟ್ ಅಪ್‌ಲೋಡ್ ಆರಂಭಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."
-      );
+      throw new Error(initData.message || "Failed to initialize multipart upload session.");
     }
 
     uploadId = initData.uploadId;
@@ -178,7 +289,6 @@ export async function uploadNewspaperWithChunks(params: {
 
   // Upload missing chunks
   for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
-    // Check if cancellation signal was triggered
     if (signal?.aborted) {
       onProgress({
         stage: "paused",
@@ -187,14 +297,14 @@ export async function uploadNewspaperWithChunks(params: {
         totalParts,
         uploadedBytes: completedParts.length * CHUNK_SIZE,
         totalBytes,
-        statusMessage: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ (Cancelled).",
+        statusMessage: "Upload cancelled.",
         error: null,
       });
       return {
         success: false,
         pdfUrl: itemRecord.pdfUrl,
         catalogueUpdated: false,
-        message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+        message: "Upload cancelled.",
       };
     }
 
@@ -206,18 +316,17 @@ export async function uploadNewspaperWithChunks(params: {
         totalParts,
         uploadedBytes: completedParts.length * CHUNK_SIZE,
         totalBytes,
-        statusMessage: "ಅಪ್‌ಲೋಡ್ ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ (Paused).",
+        statusMessage: "Upload paused.",
         error: null,
       });
       return {
         success: false,
         pdfUrl: itemRecord.pdfUrl,
         catalogueUpdated: false,
-        message: "ಅಪ್‌ಲೋಡ್ ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ.",
+        message: "Upload paused.",
       };
     }
 
-    // Skip already uploaded parts
     const existingPart = completedParts.find((p) => p.PartNumber === partNumber);
     if (existingPart) {
       continue;
@@ -230,14 +339,13 @@ export async function uploadNewspaperWithChunks(params: {
     let partSuccess = false;
     let lastPartError = "";
 
-    // Retry loop for the chunk
     for (let attempt = 1; attempt <= MAX_PART_RETRIES; attempt++) {
       if (signal?.aborted) {
         return {
           success: false,
           pdfUrl: itemRecord.pdfUrl,
           catalogueUpdated: false,
-          message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+          message: "Upload cancelled.",
         };
       }
 
@@ -256,8 +364,8 @@ export async function uploadNewspaperWithChunks(params: {
           totalBytes,
           statusMessage:
             attempt === 1
-              ? `PDF ಭಾಗ ${partNumber} / ${totalParts} ಅಪ್‌ಲೋಡ್ ಆಗುತ್ತಿದೆ...`
-              : `ಭಾಗ ${partNumber} ಮರುಪ್ರಯತ್ನಿಸಲಾಗುತ್ತಿದೆ (ಪ್ರಯತ್ನ ${attempt}/${MAX_PART_RETRIES})...`,
+              ? `Uploading part ${partNumber} / ${totalParts}...`
+              : `Retrying part ${partNumber} (attempt ${attempt}/${MAX_PART_RETRIES})...`,
           error: null,
         });
 
@@ -275,7 +383,7 @@ export async function uploadNewspaperWithChunks(params: {
 
         const partData = await partRes.json();
         if (!partRes.ok || !partData.success || !partData.etag) {
-          throw new Error(partData.message || `ಭಾಗ ${partNumber} ಅಪ್‌ಲೋಡ್ ದೋಷ.`);
+          throw new Error(partData.message || `Part ${partNumber} upload error.`);
         }
 
         completedParts.push({
@@ -283,7 +391,6 @@ export async function uploadNewspaperWithChunks(params: {
           ETag: partData.etag,
         });
 
-        // Save progress to localStorage for resumption
         const sessionState: StoredUploadSession = {
           uploadId,
           key,
@@ -294,28 +401,22 @@ export async function uploadNewspaperWithChunks(params: {
           timestamp: Date.now(),
         };
         try {
-          localStorage.setItem(
-            getSessionStorageKey(file, targetKey),
-            JSON.stringify(sessionState)
-          );
-        } catch {
-          // localStorage full or restricted
-        }
+          localStorage.setItem(getSessionStorageKey(file, targetKey), JSON.stringify(sessionState));
+        } catch {}
 
         partSuccess = true;
-        break; // Successfully uploaded part, break retry loop
+        break;
       } catch (err: unknown) {
         if (signal?.aborted || (err instanceof Error && err.name === "AbortError")) {
           return {
             success: false,
             pdfUrl: itemRecord.pdfUrl,
             catalogueUpdated: false,
-            message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+            message: "Upload cancelled.",
           };
         }
-        lastPartError = err instanceof Error ? err.message : "ಭಾಗ ಅಪ್‌ಲೋಡ್ ದೋಷ";
+        lastPartError = err instanceof Error ? err.message : "Chunk upload failed";
         if (attempt < MAX_PART_RETRIES) {
-          // Wait exponential delay before retry
           await new Promise((res) => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
         }
       }
@@ -327,12 +428,10 @@ export async function uploadNewspaperWithChunks(params: {
           success: false,
           pdfUrl: itemRecord.pdfUrl,
           catalogueUpdated: false,
-          message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+          message: "Upload cancelled.",
         };
       }
-      throw new Error(
-        `ಭಾಗ ${partNumber} ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ: ${lastPartError}. ನೆಟ್‌ವರ್ಕ್ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ' ಕ್ಲಿಕ್ ಮಾಡಿ (ನಿಂತಿದ್ದಲ್ಲಿಂದಲೇ ಮುಂದುವರಿಯುತ್ತದೆ).`
-      );
+      throw new Error(`Failed to upload part ${partNumber}: ${lastPartError}. Please try again.`);
     }
   }
 
@@ -342,7 +441,7 @@ export async function uploadNewspaperWithChunks(params: {
       success: false,
       pdfUrl: itemRecord.pdfUrl,
       catalogueUpdated: false,
-      message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+      message: "Upload cancelled.",
     };
   }
 
@@ -353,7 +452,7 @@ export async function uploadNewspaperWithChunks(params: {
     totalParts,
     uploadedBytes: totalBytes,
     totalBytes,
-    statusMessage: "PDF ತುಣುಕುಗಳನ್ನು R2 ನಲ್ಲಿ ಜೋಡಿಸಲಾಗುತ್ತಿದೆ...",
+    statusMessage: "Assembling parts in R2...",
     error: null,
   });
 
@@ -370,22 +469,12 @@ export async function uploadNewspaperWithChunks(params: {
 
   const completeData = await completeRes.json();
   if (!completeRes.ok || !completeData.success) {
-    throw new Error(completeData.message || "PDF ಮಲ್ಟಿಪಾರ್ಟ್ ಪೂರ್ಣಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.");
+    throw new Error(completeData.message || "Failed to finalize multipart upload.");
   }
 
-  // Clear completed session
   clearUploadSession(file, targetKey);
 
-  // Auto-upload newspapers.json catalogue to R2
-  if (signal?.aborted) {
-    return {
-      success: false,
-      pdfUrl: itemRecord.pdfUrl,
-      catalogueUpdated: false,
-      message: "ಅಪ್‌ಲೋಡ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
-    };
-  }
-
+  // Update catalogue in R2
   onProgress({
     stage: "updating_catalogue",
     percent: 94,
@@ -393,22 +482,19 @@ export async function uploadNewspaperWithChunks(params: {
     totalParts,
     uploadedBytes: totalBytes,
     totalBytes,
-    statusMessage: "newspapers.json ಕ್ಯಾಟಲಾಗ್ ಅನ್ನು R2 ಗೆ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಅಪ್‌ಡೇಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
+    statusMessage: "Updating catalogue in R2...",
     error: null,
   });
 
   const catalogueRes = await fetch("/api/r2/catalogue/update", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      newItem: itemRecord,
-    }),
+    body: JSON.stringify({ newItem: itemRecord }),
     signal,
   });
 
   const catalogueData = await catalogueRes.json();
 
-  // Completed!
   onProgress({
     stage: "completed",
     percent: 100,
@@ -416,7 +502,7 @@ export async function uploadNewspaperWithChunks(params: {
     totalParts,
     uploadedBytes: totalBytes,
     totalBytes,
-    statusMessage: "ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ! PDF ಮತ್ತು ಕ್ಯಾಟಲಾಗ್ ಪ್ರಕಟಿಸಲಾಗಿದೆ.",
+    statusMessage: "Upload completed successfully! Published to catalogue.",
     error: null,
   });
 
@@ -424,6 +510,6 @@ export async function uploadNewspaperWithChunks(params: {
     success: true,
     pdfUrl: itemRecord.pdfUrl,
     catalogueUpdated: !!catalogueData.success,
-    message: catalogueData.message || "ಯಶಸ್ವಿಯಾಗಿ ಪ್ರಕಟಿಸಲಾಗಿದೆ!",
+    message: catalogueData.message || "Successfully published!",
   };
 }

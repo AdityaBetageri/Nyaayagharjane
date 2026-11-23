@@ -23,7 +23,7 @@ import {
   deleteStoredEdition,
   togglePublishStoredEdition,
 } from "@/lib/editionsStore";
-import { fetchR2Catalogue, r2ItemToEdition } from "@/lib/r2Service";
+import { fetchR2Catalogue, r2ItemToEdition, getBrowserCachedCatalogue } from "@/lib/r2Service";
 import { ThinArcLoader } from "@/components/shared/ThinArcLoader";
 import { getAdminIdToken } from "@/lib/firebase";
 import { isWorkerConfigured, deleteNewspaperViaWorker } from "@/lib/workerClient";
@@ -43,9 +43,17 @@ export default function AdminPapersPage() {
   const loadData = async () => {
     setIsReloading(true);
     try {
-      setEditions(getStoredEditions());
+      // 1. Immediately read from browser cache memory for instant rendering
+      const cached = getBrowserCachedCatalogue();
+      if (cached && cached.newspapers.length > 0) {
+        setEditions(cached.newspapers.map(r2ItemToEdition));
+      } else {
+        setEditions(getStoredEditions());
+      }
+
+      // 2. Re-fetch from database to refresh cache and state
       const res = await fetchR2Catalogue({ bypassCache: true, publishedOnly: false });
-      if (res.success && res.data.length > 0) {
+      if (res.success) {
         setEditions(res.data.map(r2ItemToEdition));
       }
     } finally {
@@ -117,60 +125,52 @@ export default function AdminPapersPage() {
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
 
+    const target = deleteTarget;
     setIsDeleting(true);
     setDeleteNotice(null);
 
-    // If Worker gateway is configured, delete through the secure Worker API
-    if (isWorkerConfigured()) {
-      try {
-        const idToken = await getAdminIdToken();
-        if (idToken) {
-          const workerRes = await deleteNewspaperViaWorker(deleteTarget.id, idToken);
-          const updated = deleteStoredEdition(deleteTarget.id);
-          setEditions(updated);
-          setDeleteNotice(
-            workerRes.message || `"${deleteTarget.title}" ಪತ್ರಿಕೆಯನ್ನು ಕ್ಲೌಡ್ ಸಂಗ್ರಹಣೆಯಿಂದ ಅಳಿಸಲಾಗಿದೆ.`
-          );
-          setIsDeleting(false);
-          setDeleteTarget(null);
-          return;
-        }
-      } catch (err: unknown) {
-        console.warn("Worker deletion failed, falling back to local/S3 API:", err);
-      }
-    }
+    // 1. Immediately remove from local state for instant responsive UI
+    setEditions((prev) => prev.filter((e) => e.id !== target.id));
+    deleteStoredEdition(target.id);
+
+    try {
+      localStorage.removeItem("nyaayagharjane_catalogue_cache_v2");
+      localStorage.removeItem("nyaayagharjane_editions_v1");
+    } catch {}
 
     try {
       const res = await fetch("/api/r2/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: deleteTarget.id,
-          fileName: deleteTarget.fileName,
-          pdfUrl: deleteTarget.pdfUrl,
-          year: deleteTarget.editionYear,
-          month: deleteTarget.issueNumber,
+          id: target.id,
+          fileName: target.fileName,
+          pdfUrl: target.pdfUrl,
+          year: target.editionYear,
+          month: target.issueNumber,
           deleteFile: true,
         }),
       });
 
       const data = await res.json();
-      const updated = deleteStoredEdition(deleteTarget.id);
-      setEditions(updated);
+
+      // Re-fetch catalogue directly from R2 to guarantee sync
+      const refreshRes = await fetchR2Catalogue({ bypassCache: true, publishedOnly: false });
+      if (refreshRes.success) {
+        setEditions(refreshRes.data.map(r2ItemToEdition));
+      }
 
       if (data.success) {
         setDeleteNotice(
-          `"${deleteTarget.title}" ಪತ್ರಿಕೆ ಮತ್ತು ಸಂಬಂಧಿತ PDF ಫೈಲ್ ಅನ್ನು ಡೇಟಾಬೇಸ್‌ನಿಂದ ಯಶಸ್ವಿಯಾಗಿ ಅಳಿಸಲಾಗಿದೆ.`
+          `"${target.title}" and its PDF have been permanently removed from Cloudflare R2 and the catalogue.`
         );
       } else {
         setDeleteNotice(
-          `ಸ್ಥಳೀಯ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ. (${data.message || "ಡೇಟಾಬೇಸ್ ಸಿಂಕ್ ವಿಫಲ"})`
+          `Removed from catalogue. (${data.message || "Synced with R2"})`
         );
       }
     } catch {
-      const updated = deleteStoredEdition(deleteTarget.id);
-      setEditions(updated);
-      setDeleteNotice(`"${deleteTarget.title}" ಸ್ಥಳೀಯ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ.`);
+      setDeleteNotice(`"${target.title}" removed.`);
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -634,25 +634,25 @@ export default function AdminPapersPage() {
         isOpen={Boolean(deleteTarget)}
         onClose={() => !isDeleting && setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
-        title="ಪತ್ರಿಕೆ ಶಾಶ್ವತ ಅಳಿಸುವಿಕೆ (Confirm Delete)"
+        title="Delete Newspaper Edition"
         description={
           deleteTarget ? (
-            <div className="space-y-2">
-              <p>
-                <strong className="text-neutral-800">&ldquo;{deleteTarget.title}&rdquo;</strong> ಪತ್ರಿಕೆಯನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ?
+            <div className="space-y-3">
+              <p className="text-neutral-700">
+                Are you sure you want to permanently delete <strong className="text-neutral-900 font-bold">&ldquo;{deleteTarget.title}&rdquo;</strong>?
               </p>
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 space-y-1">
-                <p className="font-bold">⚠️ ಈ ಕ್ರಿಯೆಯನ್ನು ಹಿಂಪಡೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ:</p>
-                <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-red-700">
-                  <li>ಆನ್‌ಲೈನ್ ಡೇಟಾಬೇಸ್ ಮತ್ತು ಸಂಗ್ರಹಣೆಯಿಂದ PDF ಫೈಲ್ ಅಳಿಸಿಹೋಗುತ್ತದೆ.</li>
-                  <li>ಕ್ಯಾಟಲಾಗ್‌ನಿಂದ ಈ ಆವೃತ್ತಿಯ ವಿವರಗಳು ಸಂಪೂರ್ಣವಾಗಿ ರದ್ದಾಗುತ್ತವೆ.</li>
+              <div className="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-900 space-y-1.5">
+                <p className="font-semibold text-red-800">Permanent Action Notice</p>
+                <ul className="list-disc pl-4 space-y-1 text-red-700">
+                  <li>The PDF file will be permanently deleted from Cloudflare storage.</li>
+                  <li>All metadata and catalogue records for this edition will be removed.</li>
                 </ul>
               </div>
             </div>
           ) : ""
         }
-        confirmText={isDeleting ? "ಅಳಿಸಲಾಗುತ್ತಿದೆ..." : "ಹೌದು, ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಿ"}
-        cancelText="ರದ್ದುಗೊಳಿಸಿ"
+        confirmText={isDeleting ? "Deleting..." : "Delete Permanently"}
+        cancelText="Cancel"
         variant="danger"
         iconType="trash"
         isLoading={isDeleting}
